@@ -10,6 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -80,15 +82,26 @@
 
         @media print {
             body { background-color: white; }
-            .print-hide, nav, #left-panel, #toast-container, #custom-modal, #login-view { display: none !important; }
-            #right-panel { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; }
-            .table-container { overflow: visible !important; border: none !important; }
-            input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
-            main { padding: 0 !important; flex-direction: column; }
-            table th, table td { border: 1px solid #cbd5e1 !important; padding: 6px !important; font-size: 10px !important; color: black !important; }
-            table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            h2 { font-size: 16pt; color: black !important; margin-bottom: 15px !important; }
-            .print-show { display: block !important; }
+            .print-hide, nav, #left-panel, #toast-container, #custom-modal, #login-view, #image-lightbox { display: none !important; }
+            
+            body.printing-dukcapil * { visibility: hidden; }
+            body.printing-dukcapil #dukcapil-print-area, body.printing-dukcapil #dukcapil-print-area * { visibility: visible; }
+            body.printing-dukcapil #dukcapil-print-area { position: absolute; left: 0; top: 0; width: 100%; color: black; font-family: 'Arial', sans-serif; background: white; padding: 5mm; }
+            body.printing-dukcapil .dukcapil-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px; }
+            body.printing-dukcapil .dukcapil-table th, body.printing-dukcapil .dukcapil-table td { border: 1.5px solid black !important; padding: 4px; text-transform: uppercase; color: black; }
+            body.printing-dukcapil .dukcapil-table th { text-align: center; font-weight: bold; background-color: transparent !important; }
+            body.printing-dukcapil .dukcapil-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: black; }
+            body.printing-dukcapil .dukcapil-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; color: black; }
+            body.printing-dukcapil .dukcapil-title span { font-size: 16px; font-weight: normal; display: block; letter-spacing: 1px; margin-top: 5px; }
+
+            body:not(.printing-dukcapil) #right-panel { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; }
+            body:not(.printing-dukcapil) .table-container { overflow: visible !important; border: none !important; }
+            body:not(.printing-dukcapil) input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
+            body:not(.printing-dukcapil) main { padding: 0 !important; flex-direction: column; }
+            body:not(.printing-dukcapil) table th, body:not(.printing-dukcapil) table td { border: 1px solid #cbd5e1 !important; padding: 6px !important; font-size: 10px !important; color: black !important; }
+            body:not(.printing-dukcapil) table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body:not(.printing-dukcapil) h2 { font-size: 16pt; color: black !important; margin-bottom: 15px !important; }
+            body:not(.printing-dukcapil) .print-show { display: block !important; }
         }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -109,11 +122,27 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
+        .font-extrabold { font-weight: 700 !important; }
+        .font-black { font-weight: 700 !important; }
+        .font-bold { font-weight: 600 !important; }
+        label, th { font-weight: 500 !important; color: #475569; }
+        h1, h2, h3, h4 { letter-spacing: -0.02em; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
 
     <div id="toast-container"></div>
+    
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox" class="fixed inset-0 bg-slate-900/95 hidden items-center justify-center z-[200] backdrop-blur-md transition-opacity opacity-0 cursor-zoom-out" onclick="closeLightbox()">
+        <div class="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-rose-500 text-white rounded-full flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm z-[210]">
+            <i class="fas fa-times text-2xl"></i>
+        </div>
+        <img id="lightbox-img" src="" class="max-w-[95vw] max-h-[95vh] object-contain rounded-xl shadow-2xl transform scale-95 transition-transform duration-300">
+    </div>
+
+    <div id="dukcapil-print-area" class="hidden"></div>
 
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-3xl shadow-2xl p-8 w-11/12 max-w-md transform scale-95 transition-transform duration-300 border border-slate-100">
@@ -131,6 +160,7 @@
         </div>
     </div>
 
+    <!-- Halaman Login -->
     <div id="login-view" class="fixed inset-0 z-50 animated-bg flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -mr-10 -mt-10"></div>
@@ -138,35 +168,51 @@
             
             <div class="relative z-10">
                 <div class="text-center mb-10">
-                    <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30 transform -rotate-3">
+                    <div id="login-logo-preview" class="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30 transform -rotate-3 overflow-hidden">
                         <i class="fas fa-fingerprint text-4xl text-white"></i>
                     </div>
-                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Smart E-KK</h1>
-                    <p class="text-sm font-semibold text-brand-600 uppercase tracking-widest mt-1">Premium Edition</p>
+                    <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Smart E-KK</h1>
+                    <p class="text-sm font-medium text-brand-600 uppercase tracking-widest mt-1">Premium Edition</p>
                 </div>
 
+                <!-- Form Login -->
                 <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1 ml-1">Username</label>
+                        <label class="block text-sm font-medium text-slate-600 mb-1 ml-1">Username Akun</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i class="fas fa-user text-slate-400"></i>
                             </div>
-                            <input type="text" id="login-username" required class="w-full pl-11 pr-4 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-slate-700 font-semibold backdrop-blur-sm" placeholder="Masukkan username (admin)">
+                            <input type="password" id="login-username" required class="w-full pl-11 pr-12 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-slate-700 font-medium backdrop-blur-sm" placeholder="Ketik username Anda">
+                            <button type="button" onclick="togglePasswordVisibility('login-username', 'login-eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-brand-500 transition-colors">
+                                <i id="login-eye-icon" class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1 ml-1">Password</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-slate-400"></i>
-                            </div>
-                            <input type="password" id="login-password" required class="w-full pl-11 pr-4 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-slate-700 font-semibold backdrop-blur-sm" placeholder="•••••••• (admin)">
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-indigo-700 hover:from-brand-500 hover:to-indigo-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-brand-500/30 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
+                    <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-indigo-700 hover:from-brand-500 hover:to-indigo-600 text-white rounded-xl font-semibold text-lg shadow-lg shadow-brand-500/30 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
                         Masuk Sistem <i class="fas fa-arrow-right"></i>
                     </button>
+                    <p class="text-center text-sm text-slate-500 mt-4">Belum punya akun? <a href="#" onclick="toggleAuthMode('register')" class="text-brand-600 font-semibold hover:underline">Daftar Akun Baru</a></p>
+                </form>
+
+                <!-- Form Daftar -->
+                <form id="register-form" onsubmit="handleRegister(event)" class="space-y-5 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1 ml-1">Buat Username Baru</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-user-plus text-slate-400"></i>
+                            </div>
+                            <input type="password" id="register-username" required class="w-full pl-11 pr-12 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-slate-700 font-medium backdrop-blur-sm" placeholder="Ketik username baru">
+                            <button type="button" onclick="togglePasswordVisibility('register-username', 'register-eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-brand-500 transition-colors">
+                                <i id="register-eye-icon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl font-semibold text-lg shadow-lg shadow-emerald-500/30 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
+                        Daftar & Masuk <i class="fas fa-user-check"></i>
+                    </button>
+                    <p class="text-center text-sm text-slate-500 mt-4">Sudah punya akun? <a href="#" onclick="toggleAuthMode('login')" class="text-brand-600 font-semibold hover:underline">Masuk di sini</a></p>
                 </form>
             </div>
         </div>
@@ -176,12 +222,12 @@
         <nav class="glass-dark text-white shadow-xl print-hide sticky top-0 z-40">
             <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="p-2.5 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-xl shadow-lg shadow-brand-500/20">
+                    <div id="nav-logo-container" class="p-2.5 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-xl shadow-lg shadow-brand-500/20 overflow-hidden w-11 h-11 flex items-center justify-center">
                         <i class="fas fa-id-card-clip text-2xl"></i>
                     </div>
                     <div>
                         <h1 class="text-xl font-extrabold tracking-tight">Smart E-KK OCR</h1>
-                        <p class="text-[10px] text-indigo-300 font-bold tracking-widest uppercase">Premium Edition</p>
+                        <p class="text-[10px] text-indigo-300 font-bold tracking-widest uppercase">Premium Edition (Realtime)</p>
                     </div>
                 </div>
                 
@@ -191,6 +237,12 @@
                     </button>
                     <button onclick="switchView('dashboard-view')" id="tab-dashboard" class="px-5 py-2.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-transparent">
                         <i class="fas fa-chart-pie"></i> Dashboard
+                    </button>
+                    <button onclick="switchView('rekap-view')" id="tab-rekap" class="hidden px-5 py-2.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-transparent text-fuchsia-300 hover:text-fuchsia-200">
+                        <i class="fas fa-table-list"></i> Rekap Laporan
+                    </button>
+                    <button onclick="switchView('settings-view')" id="tab-settings" class="px-5 py-2.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-transparent text-sky-300 hover:text-sky-200">
+                        <i class="fas fa-gear"></i> Pengaturan
                     </button>
                     <button onclick="switchView('users-view')" id="tab-users" class="hidden px-5 py-2.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-transparent text-amber-300 hover:text-amber-200">
                         <i class="fas fa-users-gear"></i> Akun
@@ -203,7 +255,7 @@
                         <span class="font-medium text-slate-300">Halo, <span id="current-username-display" class="font-bold text-white capitalize">User</span></span>
                         <span id="role-badge" class="ml-2 text-[9px] uppercase font-bold bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded-md border border-brand-500/30">Role</span>
                     </div>
-                    <button onclick="handleLogout()" class="w-10 h-10 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-full flex items-center justify-center transition-all border border-rose-500/20" title="Keluar">
+                    <button onclick="handleLogout()" class="w-10 h-10 bg-rose-500/10 hover:bg-rose-50 text-rose-500 hover:text-white rounded-full flex items-center justify-center transition-all border border-rose-500/20" title="Keluar">
                         <i class="fas fa-power-off"></i>
                     </button>
                 </div>
@@ -212,8 +264,8 @@
 
         <main class="flex-grow pb-12 w-full max-w-[1920px] mx-auto">
             
+            <!-- View OCR -->
             <div id="ocr-view" class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8 fade-in">
-                <!-- Left Panel -->
                 <div id="left-panel" class="lg:w-1/3 xl:w-1/4 flex flex-col gap-5">
                     <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6">
                         <h2 class="text-lg font-extrabold text-slate-800 mb-5 flex items-center gap-3">
@@ -232,7 +284,7 @@
                             </div>
 
                             <video id="camera-preview" class="absolute inset-0 w-full h-full object-cover hidden rounded-2xl shadow-inner" autoplay playsinline></video>
-                            <img id="image-preview" class="absolute inset-0 w-full h-full object-contain hidden bg-slate-900 rounded-2xl shadow-inner" src="" alt="Preview">
+                            <img id="image-preview" class="absolute inset-0 w-full h-full object-contain hidden bg-slate-900 rounded-2xl shadow-inner cursor-zoom-in hover:opacity-90 transition-opacity" src="" alt="Preview" onclick="openLightbox()" title="Klik untuk perbesar gambar">
                         </div>
 
                         <div class="flex flex-col gap-3">
@@ -241,11 +293,15 @@
                             </button>
                             
                             <div class="relative">
-                                <input type="file" id="file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Unggah File">
+                                <input type="file" id="file-input" accept="image/*, application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Unggah File">
                                 <button class="w-full py-3.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-all flex justify-center items-center gap-2 shadow-sm">
-                                    <i class="fas fa-image text-slate-400"></i> Pilih File Gambar
+                                    <i class="fas fa-file-arrow-up text-slate-400"></i> Pilih File (Img/PDF)
                                 </button>
                             </div>
+
+                            <button onclick="enableManualInput()" class="w-full py-3.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl font-bold hover:bg-indigo-100 transition-all flex justify-center items-center gap-2 shadow-sm">
+                                <i class="fas fa-keyboard"></i> Input Manual / Ketik Data
+                            </button>
 
                             <button id="btn-capture" onclick="extractData()" class="w-full py-4 bg-gradient-to-r from-brand-600 to-indigo-600 text-white rounded-xl font-extrabold shadow-lg shadow-brand-500/30 hover:shadow-xl hover:from-brand-500 hover:to-indigo-500 transition-all flex justify-center items-center gap-2 hidden transform active:scale-95 text-lg">
                                 <i class="fas fa-wand-magic-sparkles"></i> Ekstrak Data AI
@@ -262,8 +318,8 @@
                             </button>
                             
                             <div class="grid grid-cols-2 gap-3">
-                                <button id="btn-print" onclick="window.print()" class="w-full py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 shadow-md transition-all font-bold hidden flex justify-center items-center gap-2 text-sm">
-                                    <i class="fas fa-print"></i> Print
+                                <button id="btn-print" onclick="printDukcapilFormat()" class="w-full py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 shadow-md transition-all font-bold hidden flex justify-center items-center gap-2 text-sm">
+                                    <i class="fas fa-print"></i> Print (Capil)
                                 </button>
                                 <button id="btn-pdf" onclick="generatePDF()" class="w-full py-3 bg-rose-600 text-white rounded-xl hover:bg-rose-700 shadow-md shadow-rose-500/30 transition-all font-bold hidden flex justify-center items-center gap-2 text-sm">
                                     <i class="fas fa-file-pdf"></i> PDF
@@ -271,7 +327,7 @@
                             </div>
                             
                             <button id="btn-save" onclick="saveToGoogleSheets()" class="w-full py-4 mt-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all font-extrabold hidden flex justify-center items-center gap-2 transform active:scale-95 text-lg">
-                                <i class="fas fa-cloud-arrow-up"></i> Simpan (Cloud)
+                                <i class="fas fa-cloud-arrow-up"></i> Simpan (Lokal/Cloud)
                             </button>
                             
                             <button id="btn-clear" onclick="confirmClearForm()" class="w-full py-3 mt-2 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors font-bold hidden text-sm">
@@ -392,6 +448,7 @@
                 </div>
             </div>
             
+            <!-- View Dashboard -->
             <div id="dashboard-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in">
                 <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
                     <div class="flex items-center gap-4">
@@ -400,10 +457,13 @@
                         </div>
                         <div>
                             <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Dashboard Kependudukan</h2>
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Analisis Data Lokal</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Analisis Data Lokal <span class="text-brand-500 font-bold ml-1">(Sinkronisasi Realtime)</span></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="exportDashboardExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-100 transition-colors text-sm font-bold shadow-sm border border-sky-100 flex items-center gap-2">
+                            <i class="fas fa-file-excel"></i> Export Filter
+                        </button>
                         <button onclick="syncFromCloud()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-sm font-bold shadow-sm border border-emerald-100 flex items-center gap-2">
                             <i class="fas fa-cloud-arrow-down"></i> Sync Cloud
                         </button>
@@ -414,28 +474,28 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div onclick="setDashFilter(null)" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow cursor-pointer hover:border-brand-300" title="Klik untuk menampilkan semua data">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-brand-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-110"></div>
                         <p class="text-slate-500 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Kartu Keluarga</p>
                         <h3 class="text-4xl font-black text-slate-800 relative z-10" id="dash-total-kk">0</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div onclick="setDashFilter(null)" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow cursor-pointer hover:border-indigo-300" title="Klik untuk menampilkan semua data">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-110"></div>
-                        <p class="text-slate-500 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Penduduk</p>
+                        <p class="text-slate-500 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Penduduk Aktif</p>
                         <h3 class="text-4xl font-black text-slate-800 relative z-10" id="dash-total-penduduk">0</h3>
                     </div>
-                    <div class="bg-gradient-to-br from-indigo-600 to-brand-600 p-6 rounded-3xl shadow-lg shadow-brand-500/20 relative overflow-hidden group transform hover:-translate-y-1 transition-all">
+                    <div onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn)')" class="bg-gradient-to-br from-indigo-600 to-brand-600 p-6 rounded-3xl shadow-lg shadow-brand-500/20 relative overflow-hidden group transform hover:-translate-y-1 transition-all cursor-pointer" title="Klik untuk filter khusus Mata Pilih">
                         <div class="absolute right-[-10px] top-[-10px] opacity-10 text-white text-7xl transform rotate-12 transition-transform group-hover:rotate-0"><i class="fas fa-check-to-slot"></i></div>
                         <p class="text-indigo-100 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Mata Pilih</p>
                         <h3 class="text-4xl font-black text-white relative z-10 drop-shadow-md" id="dash-total-pemilih">0</h3>
                         <p class="text-[10px] font-bold text-indigo-200 mt-2 relative z-10 bg-black/10 inline-block px-2 py-1 rounded-md">Wajib Usia &ge; 17 Thn</p>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow cursor-pointer hover:border-sky-300" title="Klik untuk filter khusus Laki-Laki">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-sky-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-110"></div>
                         <p class="text-slate-500 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Laki-Laki</p>
                         <h3 class="text-4xl font-black text-slate-800 relative z-10" id="dash-total-l">0</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow cursor-pointer hover:border-pink-300" title="Klik untuk filter khusus Perempuan">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-pink-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-110"></div>
                         <p class="text-slate-500 text-[10px] font-extrabold uppercase tracking-widest mb-2 relative z-10">Total Perempuan</p>
                         <h3 class="text-4xl font-black text-slate-800 relative z-10" id="dash-total-p">0</h3>
@@ -444,31 +504,52 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                        <h4 class="font-extrabold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
-                            <div class="w-2 h-2 bg-brand-500 rounded-full"></div> Komposisi Kelompok Umur
-                        </h4>
-                        <div class="relative h-64 w-full">
-                            <canvas id="chart-umur"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                        <h4 class="font-extrabold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
+                        <h4 class="font-bold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
                             <div class="w-2 h-2 bg-indigo-500 rounded-full"></div> Demografi Pendidikan
                         </h4>
                         <div class="relative h-64 w-full flex justify-center">
                             <canvas id="chart-pendidikan"></canvas>
                         </div>
                     </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div> Distribusi Agama
+                        </h4>
+                        <div class="relative h-64 w-full flex justify-center">
+                            <canvas id="chart-agama"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-2 h-2 bg-amber-500 rounded-full"></div> Top 10 Pekerjaan
+                        </h4>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chart-pekerjaan"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-6 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-2 h-2 bg-rose-500 rounded-full"></div> Demografi Umur
+                        </h4>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chart-umur"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden flex flex-col relative">
+                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden flex flex-col relative mt-6">
                     <div class="absolute top-0 left-0 w-full h-1 bg-slate-200"></div>
-                    <div class="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                    <div class="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
                         <h3 class="font-extrabold text-slate-800 flex items-center gap-3">
                             <div class="p-2 bg-white rounded-lg shadow-sm text-slate-600 border border-slate-100"><i class="fas fa-database"></i></div>
                             Master Data Penduduk
                         </h3>
-                        <span class="text-[9px] uppercase font-bold tracking-widest bg-slate-200 text-slate-600 px-3 py-1.5 rounded-full">Data Tersimpan Lokal</span>
+                        <div class="flex items-center gap-2">
+                            <span id="dash-filter-indicator" class="hidden text-[9px] uppercase font-bold tracking-widest bg-brand-100 text-brand-700 px-3 py-1.5 rounded-full border border-brand-200 flex items-center gap-2">
+                                Filter
+                            </span>
+                            <span class="text-[9px] uppercase font-bold tracking-widest bg-slate-200 text-slate-600 px-3 py-1.5 rounded-full">Data Tersimpan Lokal</span>
+                        </div>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar p-0">
                         <table class="w-full text-left border-collapse min-w-max text-sm font-medium">
@@ -482,6 +563,7 @@
                                     <th class="px-5 py-4 font-bold">J. Kelamin</th>
                                     <th class="px-5 py-4 font-bold">Tempat Lahir</th>
                                     <th class="px-5 py-4 font-bold">Tgl Lahir</th>
+                                    <th class="px-5 py-4 font-bold text-center text-brand-600">Umur</th>
                                     <th class="px-5 py-4 font-bold">Agama</th>
                                     <th class="px-5 py-4 font-bold">Pendidikan</th>
                                     <th class="px-5 py-4 font-bold">Pekerjaan</th>
@@ -494,13 +576,114 @@
                                 </tr>
                             </thead>
                             <tbody id="dash-table-body" class="divide-y divide-slate-50 text-slate-600">
-                                <!-- Data Dashboard -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <!-- View Rekapitulasi & Export (Admin Only) -->
+            <div id="rekap-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-fuchsia-50 text-fuchsia-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-fuchsia-100">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Rekapitulasi & Manajemen Data</h2>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Export / Import Excel Terintegrasi</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="importExcel(event)">
+                        <button onclick="triggerImportExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-100 transition-colors text-sm font-bold shadow-sm border border-sky-100 flex items-center gap-2">
+                            <i class="fas fa-file-import"></i> Import Excel
+                        </button>
+                        <button onclick="exportExcel()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-sm font-bold shadow-sm border border-emerald-100 flex items-center gap-2">
+                            <i class="fas fa-file-export"></i> Export Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden flex flex-col relative mt-2">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-fuchsia-400 to-purple-500"></div>
+                    <div class="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-extrabold text-slate-800 flex items-center gap-3">
+                            <div class="p-2 bg-white rounded-lg shadow-sm text-slate-600 border border-slate-100"><i class="fas fa-table-list"></i></div>
+                            Jumlah Rekapitulasi Penduduk Akhir
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar p-0">
+                        <table class="w-full text-center border-collapse min-w-max text-sm font-medium border border-slate-200">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 text-[10px] uppercase tracking-widest">
+                                    <th rowspan="2" class="px-5 py-4 border border-slate-200 font-bold sticky left-0 bg-slate-100 z-10">No</th>
+                                    <th rowspan="2" class="px-5 py-4 border border-slate-200 font-bold">Wilayah (RK / RT)</th>
+                                    <th rowspan="2" class="px-5 py-4 border border-slate-200 font-bold bg-amber-50">Jml KK</th>
+                                    <th colspan="3" class="px-5 py-2 border border-slate-200 font-bold text-sky-600">Mutasi Data</th>
+                                    <th colspan="2" class="px-5 py-2 border border-slate-200 font-bold text-indigo-600">WNI (Aktif)</th>
+                                    <th colspan="2" class="px-5 py-2 border border-slate-200 font-bold text-rose-600">WNA (Aktif)</th>
+                                    <th rowspan="2" class="px-5 py-4 border border-slate-200 font-bold bg-emerald-50">Total Jiwa Akhir</th>
+                                </tr>
+                                <tr class="bg-white text-slate-500 text-[10px] uppercase tracking-widest">
+                                    <th class="px-3 py-2 border border-slate-200 text-emerald-600 bg-emerald-50/30">+ Lahir</th>
+                                    <th class="px-3 py-2 border border-slate-200 text-rose-600 bg-rose-50/30">- Wafat</th>
+                                    <th class="px-3 py-2 border border-slate-200 text-blue-600 bg-blue-50/30">- Pindah</th>
+                                    <th class="px-4 py-2 border border-slate-200">Laki-Laki</th>
+                                    <th class="px-4 py-2 border border-slate-200">Perempuan</th>
+                                    <th class="px-4 py-2 border border-slate-200">Laki-Laki</th>
+                                    <th class="px-4 py-2 border border-slate-200">Perempuan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-table-body" class="divide-y divide-slate-100 text-slate-600 bg-white">
+                                <!-- Data diinjeksi via JS -->
+                            </tbody>
+                            <tfoot id="rekap-table-foot" class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-200">
+                                <!-- Total diinjeksi via JS -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Pengaturan (Logo Instansi) -->
+            <div id="settings-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in max-w-3xl">
+                <div class="flex items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="w-12 h-12 bg-sky-50 text-sky-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-sky-100">
+                        <i class="fas fa-gear"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Pengaturan Instansi</h2>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Kustomisasi Logo & Identitas Laporan</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col items-center">
+                    <div class="w-32 h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden mb-6 relative group">
+                        <img id="settings-logo-preview" class="w-full h-full object-contain hidden" alt="Logo">
+                        <div id="settings-logo-placeholder" class="text-center p-2 text-slate-400">
+                            <i class="fas fa-image text-3xl mb-1"></i>
+                            <p class="text-[10px] font-bold">Belum Ada Logo</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3 w-full max-w-md">
+                        <div class="relative">
+                            <input type="file" id="logo-file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <button class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 text-sm">
+                                <i class="fas fa-upload"></i> Pilih File Logo Baru
+                            </button>
+                        </div>
+                        <button onclick="saveLogo()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 text-sm">
+                            <i class="fas fa-cloud-arrow-up mr-1"></i> Simpan Logo Instansi
+                        </button>
+                        <button onclick="removeLogo()" class="w-full py-2.5 text-rose-500 hover:bg-rose-50 rounded-xl font-bold transition-all text-sm">
+                            Hapus Logo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Manajemen Akun -->
             <div id="users-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in max-w-5xl">
                 <div class="flex items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                     <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100">
@@ -518,17 +701,18 @@
                         <form id="add-user-form" onsubmit="handleAddUser(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 mb-1">Username</label>
-                                <input type="text" id="new-username" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-700">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Password</label>
-                                <input type="password" id="new-password" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-700">
+                                <div class="relative">
+                                    <input type="password" id="new-username" required class="w-full px-4 py-3 pr-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-700">
+                                    <button type="button" onclick="togglePasswordVisibility('new-username', 'new-eye-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-500 transition-colors">
+                                        <i id="new-eye-icon" class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 mb-1">Role / Peran</label>
                                 <select id="new-role" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-700">
+                                    <option value="admin">Administrator (Premium)</option>
                                     <option value="user">Pengguna Biasa (User)</option>
-                                    <option value="admin">Administrator (Admin)</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
@@ -578,10 +762,9 @@
 
     <script>
         // --- Configuration & Constants ---
-        // PENTING: Hanya ada SATU deklarasi konstanta di file ini untuk mencegah duplikasi (SyntaxError)
-        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzmqgWB5RvcFD28jLXxgVFZW1ncTVRB1yh4tJ1ww5nR4TenZNvdwDCWzkb9FKb5qu3ydQ/exec';
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzzGhRNpt9c1ghIT7Nz-vns0IJCcqLFIi_c7qjM3k6itXyDJf3MfPbVNO1rild_Q0EPKQ/exec';
         const MODEL_NAME = "gemini-3-flash-preview"; 
-        const apiKey = "AQ.Ab8RN6K_oMwrWnBwQF7nfu7_Hg6KCfe9U3nsADZ7ToitQljeDA"; // Opsional. Canvas bisa menginjeksikan key otomatis
+        const apiKey = "AQ.Ab8RN6I42U3cUME4Rhk6CFn2aK-i5Vxgxrbjm7E9sSNuFQ6cVw";
 
         // --- Global State ---
         let stream = null;
@@ -589,23 +772,43 @@
         let isEditMode = false;
         let chartUmurInstance = null;
         let chartPendidikanInstance = null;
+        let chartAgamaInstance = null;
+        let chartPekerjaanInstance = null;
         let currentUser = null;
+        let currentDashFilter = null;
+        let uploadedFileType = ''; // Untuk mendeteksi PDF / Gambar
+        let uploadedBase64 = ''; // Menyimpan string base64 file yang diunggah
 
         // --- DOM Elements ---
         const loginView = document.getElementById('login-view');
         const appWrapper = document.getElementById('app-wrapper');
         const ocrView = document.getElementById('ocr-view');
         const dashView = document.getElementById('dashboard-view');
+        const settingsView = document.getElementById('settings-view');
         const usersView = document.getElementById('users-view');
         const modal = document.getElementById('custom-modal');
 
         // --- 1. AUTHENTICATION & USER MANAGEMENT ---
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         function initAuth() {
             let usersDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if (usersDb.length === 0) {
                 usersDb = [
-                    { username: 'admin', password: 'admin', role: 'admin', rk: 'all', rt: 'all' },
-                    { username: 'user1', password: '123', role: 'user', rk: 'all', rt: 'all' }
+                    { username: 'admin', role: 'admin', rk: 'all', rt: 'all' },
+                    { username: 'user1', role: 'user', rk: 'all', rt: 'all' }
                 ];
                 localStorage.setItem('app_users_db', JSON.stringify(usersDb));
             }
@@ -620,23 +823,58 @@
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
-            const p = document.getElementById('login-password').value;
             
-            const usersDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            const user = usersDb.find(x => x.username === u && x.password === p);
+            let usersDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let user = usersDb.find(x => x.username === u);
             
-            if (user) {
-                currentUser = { username: user.username, role: user.role, rk: user.rk || 'all', rt: user.rt || 'all' };
-                sessionStorage.setItem('app_session', JSON.stringify(currentUser));
-                showToast(`Selamat datang, ${user.username}!`, 'success');
-                
-                loginView.style.opacity = '0';
-                loginView.style.transform = 'scale(1.05)';
-                loginView.style.transition = 'all 0.5s ease';
-                setTimeout(() => { showApp(); }, 500);
-            } else {
-                showToast('Username atau password salah!', 'error');
+            if (!user) {
+                return showToast("Akun tidak ditemukan. Silakan Daftar Akun terlebih dahulu.", "error");
             }
+            
+            currentUser = { username: user.username, role: user.role, rk: user.rk || 'all', rt: user.rt || 'all' };
+            sessionStorage.setItem('app_session', JSON.stringify(currentUser));
+            showToast(`Selamat datang, ${user.username}!`, 'success');
+            
+            loginView.style.opacity = '0';
+            loginView.style.transform = 'scale(1.05)';
+            loginView.style.transition = 'all 0.5s ease';
+            setTimeout(() => { showApp(); }, 500);
+        }
+
+        function toggleAuthMode(mode) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            if (mode === 'register') {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+            } else {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const u = document.getElementById('register-username').value.trim();
+            
+            let usersDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            
+            if (usersDb.find(x => x.username === u)) {
+                return showToast("Username sudah digunakan. Pilih yang lain.", "warning");
+            }
+            
+            const newUser = { username: u, role: 'user', rk: 'all', rt: 'all' };
+            usersDb.push(newUser);
+            localStorage.setItem('app_users_db', JSON.stringify(usersDb));
+            
+            currentUser = { username: newUser.username, role: newUser.role, rk: newUser.rk, rt: newUser.rt };
+            sessionStorage.setItem('app_session', JSON.stringify(currentUser));
+            showToast(`Akun berhasil dibuat! Selamat datang, ${u}.`, 'success');
+            
+            loginView.style.opacity = '0';
+            loginView.style.transform = 'scale(1.05)';
+            loginView.style.transition = 'all 0.5s ease';
+            setTimeout(() => { showApp(); }, 500);
         }
 
         function handleLogout() {
@@ -665,14 +903,18 @@
             document.getElementById('role-badge').innerText = currentUser.role;
             
             const tabUsers = document.getElementById('tab-users');
+            const tabRekap = document.getElementById('tab-rekap');
+            
             if (currentUser.role === 'admin') {
                 tabUsers.classList.remove('hidden');
+                tabRekap.classList.remove('hidden');
                 document.getElementById('role-badge').classList.replace('text-brand-300', 'text-rose-300');
                 document.getElementById('role-badge').classList.replace('bg-brand-500/20', 'bg-rose-500/20');
                 document.getElementById('role-badge').classList.replace('border-brand-500/30', 'border-rose-500/30');
-                document.getElementById('role-badge').innerText = 'ADMIN';
+                document.getElementById('role-badge').innerText = 'ADMIN PREMIUM';
             } else {
                 tabUsers.classList.add('hidden');
+                tabRekap.classList.add('hidden');
                 document.getElementById('role-badge').classList.replace('text-rose-300', 'text-brand-300');
                 document.getElementById('role-badge').classList.replace('bg-rose-500/20', 'bg-brand-500/20');
                 document.getElementById('role-badge').classList.replace('border-rose-500/30', 'border-brand-500/30');
@@ -689,17 +931,16 @@
             if(currentUser.role !== 'admin') return showToast("Akses ditolak", "error");
             
             const u = document.getElementById('new-username').value.trim();
-            const p = document.getElementById('new-password').value;
             const r = document.getElementById('new-role').value;
             const rk = document.getElementById('new-rk').value;
             const rt = document.getElementById('new-rt').value;
             
-            if(!u || !p) return showToast("Form tidak lengkap", "warning");
+            if(!u) return showToast("Username wajib diisi", "warning");
             
             let usersDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(usersDb.find(x => x.username === u)) return showToast("Username sudah digunakan", "error");
             
-            usersDb.push({ username: u, password: p, role: r, rk: rk, rt: rt });
+            usersDb.push({ username: u, role: r, rk: rk, rt: rt });
             localStorage.setItem('app_users_db', JSON.stringify(usersDb));
             
             showToast("Pengguna baru berhasil ditambahkan", "success");
@@ -748,17 +989,48 @@
             });
         }
 
-        // --- 2. VIEW CONTROLLER & UI HELPERS ---
-        function switchView(viewId) {
-            [ocrView, dashView, usersView].forEach(v => {
-                v.classList.add('hidden'); v.classList.remove('flex');
+        // --- 2. VIEW CONTROLLER, UI HELPERS & LIGHTBOX ---
+        function openLightbox() {
+            const img = document.getElementById('image-preview');
+            if (!img || img.classList.contains('hidden') || !img.src) return;
+            
+            const lightbox = document.getElementById('image-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightboxImg.src = img.src;
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                lightbox.classList.remove('opacity-0');
+                lightboxImg.classList.replace('scale-95', 'scale-100');
             });
-            const tabs = { 'ocr-view': 'tab-ocr', 'dashboard-view': 'tab-dashboard', 'users-view': 'tab-users' };
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('image-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightbox.classList.add('opacity-0');
+            lightboxImg.classList.replace('scale-100', 'scale-95');
+            
+            setTimeout(() => {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                lightboxImg.src = '';
+            }, 300);
+        }
+
+        function switchView(viewId) {
+            [ocrView, dashView, settingsView, usersView, document.getElementById('rekap-view')].forEach(v => {
+                if(v) { v.classList.add('hidden'); v.classList.remove('flex'); }
+            });
+            const tabs = { 'ocr-view': 'tab-ocr', 'dashboard-view': 'tab-dashboard', 'settings-view': 'tab-settings', 'users-view': 'tab-users', 'rekap-view': 'tab-rekap' };
             
             Object.values(tabs).forEach(tId => {
                 const el = document.getElementById(tId);
                 if(el) {
-                    if (tId !== 'tab-users') {
+                    if (tId !== 'tab-users' && tId !== 'tab-settings' && tId !== 'tab-rekap') {
                         el.classList.add('bg-transparent', 'border-transparent');
                         el.classList.remove('bg-white/10', 'border-white/10', 'shadow-inner');
                     }
@@ -771,15 +1043,16 @@
             activeView.classList.remove('hidden');
             activeView.classList.add('flex');
             
-            if (viewId !== 'users-view') {
+            if (viewId !== 'users-view' && viewId !== 'settings-view' && viewId !== 'rekap-view') {
                 activeTab.classList.remove('bg-transparent', 'border-transparent');
                 activeTab.classList.add('bg-white/10', 'border-white/10', 'shadow-inner');
             }
 
             if (viewId === 'dashboard-view') loadDashboardData();
             if (viewId === 'users-view') renderUsersTable();
+            if (viewId === 'settings-view') loadSettingsUI();
+            if (viewId === 'rekap-view') renderRekapTable();
 
-            // Auto-start kamera saat tab OCR dibuka jika belum aktif
             if (viewId === 'ocr-view') {
                 setTimeout(() => {
                     const safeVidPreview = document.getElementById('camera-preview');
@@ -838,7 +1111,85 @@
             newConfirm.addEventListener('click', () => { closeModal(); if(onConfirm) onConfirm(); });
         }
 
-        // --- 3. MEDIA HANDLING (KAMERA & UPLOAD) ---
+        // --- 3. SETTINGS & LOGO INSTANSI ---
+        const logoFileInput = document.getElementById('logo-file-input');
+        if (logoFileInput) {
+            logoFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Logo = event.target.result;
+                        localStorage.setItem('instansi_logo', base64Logo);
+                        loadSettingsUI();
+                        applyLogoToNav();
+                        showToast("Logo berhasil dimuat!", "success");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function saveLogo() {
+            const logo = localStorage.getItem('instansi_logo');
+            if(!logo) return showToast("Pilih file logo terlebih dahulu", "warning");
+            
+            showToast("Logo instansi berhasil disimpan!", "success");
+            
+            if (!GOOGLE_SHEETS_API_URL.includes('XXXXXXXXXXXX')) {
+                fetch(GOOGLE_SHEETS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'save_setting', key: 'instansi_logo', value: logo })
+                }).catch(e => {});
+            }
+        }
+
+        function removeLogo() {
+            localStorage.removeItem('instansi_logo');
+            loadSettingsUI();
+            applyLogoToNav();
+            showToast("Logo berhasil dihapus", "info");
+        }
+
+        function loadSettingsUI() {
+            const logo = localStorage.getItem('instansi_logo');
+            const prev = document.getElementById('settings-logo-preview');
+            const ph = document.getElementById('settings-logo-placeholder');
+            if (logo) {
+                prev.src = logo; prev.classList.remove('hidden'); ph.classList.add('hidden');
+            } else {
+                prev.src = ''; prev.classList.add('hidden'); ph.classList.remove('hidden');
+            }
+        }
+
+        function applyLogoToNav() {
+            const logo = localStorage.getItem('instansi_logo');
+            const navContainer = document.getElementById('nav-logo-container');
+            const loginPreview = document.getElementById('login-logo-preview');
+            
+            if (logo) {
+                if (navContainer) {
+                    navContainer.innerHTML = `<img src="${logo}" class="w-full h-full object-cover rounded-xl">`;
+                }
+                if (loginPreview) {
+                    loginPreview.innerHTML = `<img src="${logo}" class="w-full h-full object-cover rounded-2xl">`;
+                }
+            } else {
+                if (navContainer) {
+                    navContainer.innerHTML = `<i class="fas fa-id-card-clip text-2xl text-white"></i>`;
+                }
+                if (loginPreview) {
+                    loginPreview.innerHTML = `<i class="fas fa-fingerprint text-4xl text-white"></i>`;
+                }
+            }
+        }
+
+        function applyLogoFromStorage() {
+            applyLogoToNav();
+        }
+
+        // --- 4. MEDIA HANDLING (KAMERA & UPLOAD) ---
         const safeFileInput = document.getElementById('file-input');
         const safeImgPreview = document.getElementById('image-preview');
         const safeVidPreview = document.getElementById('camera-preview');
@@ -853,17 +1204,40 @@
             safeFileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    if (!file.type.startsWith('image/')) return showToast("Harap unggah gambar (JPG/PNG).", "warning");
+                    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+                        return showToast("Harap unggah gambar (JPG/PNG) atau PDF.", "warning");
+                    }
+                    uploadedFileType = file.type;
                     
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        if (safeImgPreview) { safeImgPreview.src = event.target.result; safeImgPreview.classList.remove('hidden'); }
+                        uploadedBase64 = event.target.result.split(',')[1];
+                        
+                        if (file.type.startsWith('image/')) {
+                            if (safeImgPreview) { safeImgPreview.src = event.target.result; safeImgPreview.classList.remove('hidden'); }
+                            safeCamPlaceholder?.classList.add('hidden');
+                            const pdfPlaceholder = document.getElementById('pdf-preview-placeholder');
+                            if(pdfPlaceholder) pdfPlaceholder.classList.add('hidden');
+                        } else if (file.type === 'application/pdf') {
+                            if (safeImgPreview) safeImgPreview.classList.add('hidden');
+                            safeCamPlaceholder?.classList.add('hidden');
+                            
+                            let pdfPlaceholder = document.getElementById('pdf-preview-placeholder');
+                            if (!pdfPlaceholder) {
+                                pdfPlaceholder = document.createElement('div');
+                                pdfPlaceholder.id = 'pdf-preview-placeholder';
+                                pdfPlaceholder.className = "absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-slate-100 rounded-2xl z-20 shadow-inner";
+                                mediaContainer.appendChild(pdfPlaceholder);
+                            }
+                            pdfPlaceholder.innerHTML = `<i class="fas fa-file-pdf text-6xl text-rose-500 mb-3 drop-shadow-md"></i><p class="font-bold text-slate-600 text-lg">Dokumen PDF Terpilih</p><p class="text-xs text-slate-400 mt-1 max-w-[80%] truncate">${file.name}</p>`;
+                            pdfPlaceholder.classList.remove('hidden');
+                        }
+                        
                         safeVidPreview?.classList.add('hidden');
-                        safeCamPlaceholder?.classList.add('hidden');
                         btnCapture?.classList.remove('hidden'); btnReUpload?.classList.remove('hidden'); btnStartCam?.classList.add('hidden');
                         
                         isUsingCamera = false; stopCamera();
-                        showToast("Gambar dimuat. Siap dianalisis.", "success");
+                        showToast(file.type === 'application/pdf' ? "PDF dimuat. Siap diekstrak!" : "Gambar dimuat. Klik gambar untuk Zoom.", "success");
                     };
                     reader.readAsDataURL(file);
                 }
@@ -894,15 +1268,20 @@
             safeImgPreview?.classList.add('hidden'); safeVidPreview?.classList.add('hidden'); safeCamPlaceholder?.classList.remove('hidden');
             btnCapture?.classList.add('hidden'); btnReUpload?.classList.add('hidden'); btnStartCam?.classList.remove('hidden');
             
+            const pdfPlaceholder = document.getElementById('pdf-preview-placeholder');
+            if(pdfPlaceholder) pdfPlaceholder.classList.add('hidden');
+            
             if (safeFileInput) safeFileInput.value = '';
             if (safeImgPreview) safeImgPreview.src = '';
             isUsingCamera = false;
+            uploadedFileType = '';
+            uploadedBase64 = '';
         }
 
-        // --- 4. GEMINI AI EXTRACTION PROCESS ---
+        // --- 5. GEMINI AI EXTRACTION PROCESS ---
         async function extractData() {
-            if (!isUsingCamera && (!safeImgPreview || !safeImgPreview.src || safeImgPreview.src === window.location.href)) {
-                return showToast("Masukkan gambar dokumen terlebih dahulu.", "warning");
+            if (!isUsingCamera && !uploadedBase64 && (!safeImgPreview || !safeImgPreview.src || safeImgPreview.src === window.location.href)) {
+                return showToast("Masukkan file dokumen terlebih dahulu.", "warning");
             }
 
             const btnO = btnCapture.innerHTML;
@@ -914,6 +1293,8 @@
             sb.className = "px-4 py-2 bg-brand-50 text-brand-700 rounded-full text-xs font-bold border border-brand-200 flex items-center shadow-inner";
 
             let base64Data = "";
+            let mimeType = "image/jpeg";
+            
             try {
                 if (isUsingCamera && safeVidPreview) {
                     const canvas = document.createElement('canvas');
@@ -923,16 +1304,19 @@
                     base64Data = dataUrl.split(',')[1];
                     if(safeImgPreview) { safeImgPreview.src = dataUrl; safeImgPreview.classList.remove('hidden'); }
                     safeVidPreview.classList.add('hidden');
+                } else if (uploadedBase64) {
+                    base64Data = uploadedBase64;
+                    mimeType = uploadedFileType || "image/jpeg";
                 } else if (safeImgPreview) {
                     base64Data = safeImgPreview.src.split(',')[1];
                 }
 
-                if(!base64Data) throw new Error("Gagal konversi gambar");
+                if(!base64Data) throw new Error("Gagal konversi file");
 
-                const promptText = "Ekstrak semua informasi Kartu Keluarga dari gambar ini. Format wajib JSON mengikuti schema tanpa terkecuali. Jika data/teks blur atau kosong, isilah nilai dengan string '-'.";
+                const promptText = "Ekstrak semua informasi Kartu Keluarga dari file ini. Format wajib JSON mengikuti schema tanpa terkecuali. Jika data/teks blur atau kosong, isilah nilai dengan string '-'.";
                 
                 const requestBody = {
-                    contents: [{ parts: [{ text: promptText }, { inlineData: { mimeType: "image/jpeg", data: base64Data } }] }],
+                    contents: [{ parts: [{ text: promptText }, { inlineData: { mimeType: mimeType, data: base64Data } }] }],
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: {
@@ -1004,7 +1388,29 @@
             }
         }
 
-        // --- 5. DATA RENDERING & FORM CONTROL ---
+        // --- MANUAL INPUT HELPER ---
+        function enableManualInput() {
+            const emptyData = {
+                header: {
+                    no_kk: "", nama_kepala_keluarga: "", alamat: "", rt_rw: "", kode_pos: "", desa_kelurahan: "", kecamatan: "", kabupaten_kota: "", provinsi: ""
+                },
+                anggota_keluarga: [
+                    {
+                        nama_lengkap: "", nik: "", jenis_kelamin: "LAKI-LAKI", tempat_lahir: "", tanggal_lahir: "", agama: "", pendidikan: "", jenis_pekerjaan: "", golongan_darah: "-", status_perkawinan: "BELUM KAWIN", tanggal_perkawinan: "-", status_hubungan_keluarga: "KEPALA KELUARGA", kewarganegaraan: "WNI", no_paspor: "-", no_kitap: "-", nama_ayah: "", nama_ibu: ""
+                    }
+                ]
+            };
+            renderDataToUI(emptyData);
+            document.getElementById('btn-save')?.classList.remove('hidden');
+            document.getElementById('btn-clear')?.classList.remove('hidden');
+            document.getElementById('btn-edit')?.classList.remove('hidden');
+            document.getElementById('btn-print')?.classList.remove('hidden');
+            document.getElementById('btn-pdf')?.classList.remove('hidden');
+            toggleEdit(true);
+            showToast("Mode input manual diaktifkan. Silakan isi form di sebelah kanan.", "success");
+        }
+
+        // --- 6. DATA RENDERING & FORM CONTROL ---
         function renderDataToUI(data) {
             const hMap = { 'hk_nokk': 'no_kk', 'hk_kepala': 'nama_kepala_keluarga', 'hk_alamat': 'alamat', 'hk_rtrw': 'rt_rw', 'hk_kodepos': 'kode_pos', 'hk_desa': 'desa_kelurahan', 'hk_kecamatan': 'kecamatan', 'hk_kabupaten': 'kabupaten_kota', 'hk_provinsi': 'provinsi' };
             for (const [id, key] of Object.entries(hMap)) { const el = document.getElementById(id); if(el) el.value = data.header[key] || '-'; }
@@ -1088,7 +1494,6 @@
             el.querySelectorAll('.print-hide').forEach(e => e.remove());
             el.querySelector('h2.print-show')?.classList.remove('hidden');
             
-            // Atur ukuran agar tabel memanjang penuh sehingga muat diekspor
             el.classList.remove('lg:w-2/3', 'xl:w-3/4'); el.style.width = '100%';
             const tc = el.querySelector('.table-container');
             if(tc) {
@@ -1102,7 +1507,6 @@
                 i.parentNode.replaceChild(s, i);
             });
 
-            // Resolusi lebar window tinggi agar text tidak terpotong ke bawah
             html2pdf().set({
                 margin: [10, 5, 10, 5], filename: `KK_${document.getElementById('hk_nokk').value||'Data'}.pdf`,
                 image: { type: 'jpeg', quality: 1 }, 
@@ -1111,7 +1515,128 @@
             }).from(el).save().then(() => showToast("PDF berhasil diunduh secara penuh!", "success"));
         }
 
-        // --- 6. CORE LOGIC (SAVE, DASHBOARD) ---
+        function printDukcapilFormat() {
+            const data = collectFormData();
+            const pArea = document.getElementById('dukcapil-print-area');
+            const logo = localStorage.getItem('instansi_logo');
+            
+            const today = new Date();
+            const tgl = today.getDate().toString().padStart(2, '0') + '-' + (today.getMonth()+1).toString().padStart(2, '0') + '-' + today.getFullYear();
+
+            let html = `
+                <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom:10px;">
+                    ${logo ? `<img src="${logo}" style="width:50px; height:50px; object-fit:contain;">` : ''}
+                    <div class="dukcapil-title" style="margin-bottom:0;">
+                        KARTU KELUARGA
+                        <span>No. ${data.header.no_kk || '-'}</span>
+                    </div>
+                </div>
+                <div class="dukcapil-header">
+                    <table style="width: 48%; border:none; text-align:left; background:transparent;">
+                        <tr><td style="width:35%; font-weight:bold;">Nama Kepala Keluarga</td><td style="width:5%;">:</td><td>${data.header.nama_kepala_keluarga || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Alamat</td><td>:</td><td>${data.header.alamat || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">RT/RW</td><td>:</td><td>${data.header.rt_rw || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Desa/Kelurahan</td><td>:</td><td>${data.header.desa_kelurahan || '-'}</td></tr>
+                    </table>
+                    <table style="width: 48%; border:none; text-align:left; background:transparent;">
+                        <tr><td style="width:35%; font-weight:bold;">Kecamatan</td><td style="width:5%;">:</td><td>${data.header.kecamatan || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Kabupaten/Kota</td><td>:</td><td>${data.header.kabupaten_kota || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Kode Pos</td><td>:</td><td>${data.header.kode_pos || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Provinsi</td><td>:</td><td>${data.header.provinsi || '-'}</td></tr>
+                    </table>
+                </div>
+                
+                <table class="dukcapil-table">
+                    <thead>
+                        <tr>
+                            <th>No</th><th>Nama Lengkap</th><th>NIK</th><th>Jenis Kelamin</th>
+                            <th>Tempat Lahir</th><th>Tanggal Lahir</th><th>Agama</th>
+                            <th>Pendidikan</th><th>Jenis Pekerjaan</th><th>Golongan Darah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (!data.anggota_keluarga || data.anggota_keluarga.length === 0) {
+                html += `<tr><td colspan="10" style="text-align:center;">Tidak ada data anggota keluarga</td></tr>`;
+            } else {
+                data.anggota_keluarga.forEach((ak, i) => {
+                    html += `<tr>
+                        <td style="text-align:center;">${i+1}</td>
+                        <td>${ak.nama_lengkap || '-'}</td>
+                        <td>${ak.nik || '-'}</td>
+                        <td>${ak.jenis_kelamin || '-'}</td>
+                        <td>${ak.tempat_lahir || '-'}</td>
+                        <td>${ak.tanggal_lahir || '-'}</td>
+                        <td>${ak.agama || '-'}</td>
+                        <td>${ak.pendidikan || '-'}</td>
+                        <td>${ak.jenis_pekerjaan || '-'}</td>
+                        <td style="text-align:center;">${ak.golongan_darah || '-'}</td>
+                    </tr>`;
+                });
+            }
+            
+            html += `</tbody></table>
+                <table class="dukcapil-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">No</th><th rowspan="2">Status Perkawinan</th><th rowspan="2">Tanggal Perkawinan</th>
+                            <th rowspan="2">Status Hubungan Dalam Keluarga</th><th rowspan="2">Kewarganegaraan</th>
+                            <th colspan="2">Dokumen Imigrasi</th><th colspan="2">Nama Orang Tua</th>
+                        </tr>
+                        <tr>
+                            <th>No. Paspor</th><th>No. KITAP</th><th>Ayah</th><th>Ibu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (!data.anggota_keluarga || data.anggota_keluarga.length === 0) {
+                html += `<tr><td colspan="9" style="text-align:center;">Tidak ada data anggota keluarga</td></tr>`;
+            } else {
+                data.anggota_keluarga.forEach((ak, i) => {
+                    html += `<tr>
+                        <td style="text-align:center;">${i+1}</td>
+                        <td>${ak.status_perkawinan || '-'}</td>
+                        <td>${ak.tanggal_perkawinan || '-'}</td>
+                        <td>${ak.status_hubungan_keluarga || '-'}</td>
+                        <td>${ak.kewarganegaraan || '-'}</td>
+                        <td>${ak.no_paspor || '-'}</td>
+                        <td>${ak.no_kitap || '-'}</td>
+                        <td>${ak.nama_ayah || '-'}</td>
+                        <td>${ak.nama_ibu || '-'}</td>
+                    </tr>`;
+                });
+            }
+            
+            html += `</tbody></table>
+                <div style="display:flex; justify-content: space-between; margin-top: 30px; font-size:11px; font-weight:bold; text-align:center; color:black;">
+                    <div style="width:35%;">
+                        <br>KEPALA KELUARGA
+                        <br><br><br><br><br>
+                        <u>${data.header.nama_kepala_keluarga || '......................................'}</u><br>
+                        Tanda Tangan/Cap Jempol
+                    </div>
+                    <div style="width:40%;">
+                        Dikeluarkan Tanggal: ${tgl}<br>
+                        KEPALA DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL
+                        <br><br><br><br><br>
+                        <u>..................................................</u><br>
+                        NIP. ........................................
+                    </div>
+                </div>
+            `;
+            
+            pArea.innerHTML = html;
+            pArea.classList.remove('hidden');
+            
+            document.body.classList.add('printing-dukcapil');
+            window.print();
+            document.body.classList.remove('printing-dukcapil');
+            pArea.classList.add('hidden');
+        }
+
+        // --- 7. CORE LOGIC (SAVE, DASHBOARD) ---
         function collectFormData() {
             const h = {
                 no_kk: document.getElementById('hk_nokk')?.value || '', nama_kepala_keluarga: document.getElementById('hk_kepala')?.value || '',
@@ -1144,19 +1669,39 @@
 
             let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
             const eI = sD.findIndex(item => item.header.no_kk === fd.header.no_kk);
-            if(eI > -1) sD[eI] = fd; else sD.push(fd);
+            if(eI > -1) {
+                // Pertahankan status penduduk lama saat menimpa data anggota keluarga
+                if (sD[eI].anggota_keluarga && fd.anggota_keluarga) {
+                    fd.anggota_keluarga.forEach((ak, idx) => {
+                        if (sD[eI].anggota_keluarga[idx] && sD[eI].anggota_keluarga[idx].status_penduduk) {
+                            ak.status_penduduk = sD[eI].anggota_keluarga[idx].status_penduduk;
+                        }
+                    });
+                }
+                sD[eI] = fd; 
+            } else {
+                sD.push(fd);
+            }
             localStorage.setItem('kk_data', JSON.stringify(sD));
             
             showToast("Berhasil disimpan ke Dasbor Lokal", "success");
 
             if(!GOOGLE_SHEETS_API_URL.includes('XXXXXXXXXXXX')) {
                 try {
-                    await fetch(GOOGLE_SHEETS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fd) });
+                    await fetch(GOOGLE_SHEETS_API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                        body: JSON.stringify(fd) 
+                    });
                     showToast("Sinkronisasi Cloud Selesai!", "success");
                 } catch (err) { showToast("Gagal sync ke Cloud, tersimpan di lokal.", "warning"); }
             }
 
             btnS.innerHTML = oT; btnS.disabled = false; btnS.classList.remove('opacity-80', 'cursor-not-allowed');
+            
+            // Selalu update dasbor dan rekap di background terlepas dari view yang sedang aktif
+            loadDashboardData();
+            renderRekapTable();
         }
 
         function calculateAge(dStr) {
@@ -1179,10 +1724,59 @@
             return 0;
         }
 
+        function setDashFilter(type, value, label) {
+            const ind = document.getElementById('dash-filter-indicator');
+            if (!type) {
+                currentDashFilter = null;
+                if(ind) ind.classList.add('hidden');
+            } else {
+                currentDashFilter = { type, value, label };
+                if(ind) {
+                    ind.innerHTML = `Filter: ${label} <button onclick="event.stopPropagation(); setDashFilter(null)" class="ml-2 text-brand-700 hover:text-rose-500 font-black"><i class="fas fa-times"></i></button>`;
+                    ind.classList.remove('hidden');
+                }
+            }
+            loadDashboardData();
+        }
+
+        function updatePendudukStatus(noKk, pIndex, status) {
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            const kkIndex = sD.findIndex(k => k.header.no_kk === noKk);
+            if (kkIndex > -1 && sD[kkIndex].anggota_keluarga[pIndex]) {
+                let p = sD[kkIndex].anggota_keluarga[pIndex];
+                p.status_penduduk = status;
+
+                // OTOMATISASI: Jika Kepala Keluarga Meninggal atau Pindah, alihkan peran
+                if ((status === 'MENINGGAL' || status === 'PINDAH') && (p.status_hubungan_keluarga || '').toUpperCase() === 'KEPALA KELUARGA') {
+                    // Cari Istri yang masih aktif
+                    let istriIndex = sD[kkIndex].anggota_keluarga.findIndex(a => (a.status_hubungan_keluarga || '').toUpperCase() === 'ISTRI' && (!a.status_penduduk || ['AKTIF', 'MERANTAU', 'LAHIR'].includes(a.status_penduduk)));
+                    
+                    if (istriIndex > -1) {
+                        sD[kkIndex].anggota_keluarga[istriIndex].status_hubungan_keluarga = 'KEPALA KELUARGA';
+                        sD[kkIndex].anggota_keluarga[istriIndex].status_perkawinan = status === 'MENINGGAL' ? 'CERAI MATI' : 'CERAI HIDUP';
+                    } else {
+                        // Jika Istri tidak ditemukan, jadikan Anak tertua yang masih aktif sebagai pengganti
+                        let anakIndex = sD[kkIndex].anggota_keluarga.findIndex(a => (a.status_hubungan_keluarga || '').toUpperCase() === 'ANAK' && (!a.status_penduduk || ['AKTIF', 'MERANTAU', 'LAHIR'].includes(a.status_penduduk)));
+                        if (anakIndex > -1) {
+                            sD[kkIndex].anggota_keluarga[anakIndex].status_hubungan_keluarga = 'KEPALA KELUARGA';
+                        }
+                    }
+                }
+
+                localStorage.setItem('kk_data', JSON.stringify(sD));
+                loadDashboardData();
+                if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
+                
+                if (status === 'INVALID') showToast(`Data ditandai Tidak Berguna dan dihilangkan dari Rekap.`, 'warning');
+                else if (status === 'MENINGGAL' || status === 'PINDAH') showToast(`Status diperbarui. Total laporan jiwa berkurang (Minus).`, 'info');
+                else if (status === 'LAHIR') showToast(`Status baru (Lahir) berhasil dicatat ke Rekap.`, 'success');
+                else showToast(`Status penduduk diperbarui menjadi ${status}`, 'success');
+            }
+        }
+
         function loadDashboardData() {
             let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
             
-            // Filter berdasarkan RK/RT untuk user biasa
             if (currentUser && currentUser.role !== 'admin' && (currentUser.rk !== 'all' || currentUser.rt !== 'all')) {
                 sD = sD.filter(kk => {
                     const rt_rw = (kk.header.rt_rw || '').toLowerCase();
@@ -1201,57 +1795,124 @@
                 });
             }
 
-            let tKK = sD.length, tPend = 0, tPem = 0, tL = 0, tP = 0;
-            let uT = { 'Anak (< 17)': 0, 'Pemuda (17-30)': 0, 'Dewasa (31-50)': 0, 'Lansia (> 50)': 0 };
+            let tKK = 0, tPend = 0, tPem = 0, tL = 0, tP = 0;
             let pT = {};
+            let agT = {};
+            let pkT = {};
+            // Mendeklarasikan umT untuk mencegah crash saat render
+            let umT = { "0-4": 0, "5-14": 0, "15-24": 0, "25-54": 0, "55+": 0 };
             
             const tbody = document.getElementById('dash-table-body');
             tbody.innerHTML = '';
             let no = 1;
 
             sD.forEach(kk => {
+                // PENGECEKAN KK AKTIF: KK dianggap tidak aktif jika SEMUA Kepala Keluarga-nya sudah Pindah atau Tidak Berguna
+                let isKkAktif = true;
+                if (kk.anggota_keluarga) {
+                    const kepalas = kk.anggota_keluarga.filter(p => (p.status_hubungan_keluarga || '').toUpperCase() === 'KEPALA KELUARGA');
+                    if (kepalas.length > 0) {
+                        const hasActiveKepala = kepalas.some(k => !['INVALID', 'PINDAH'].includes((k.status_penduduk || 'AKTIF').toUpperCase()));
+                        if (!hasActiveKepala) isKkAktif = false;
+                    }
+                }
+                if (isKkAktif) tKK++;
+
                 const noKk = kk.header.no_kk || '-';
                 if(kk.anggota_keluarga) {
-                    kk.anggota_keluarga.forEach(p => {
-                        tPend++;
-                        
-                        const jk = (p.jenis_kelamin || '').toUpperCase();
-                        if(jk.includes('LAKI')) tL++; else if(jk.includes('PEREMPUAN') || jk.includes('WANITA')) tP++;
-                        
+                    kk.anggota_keluarga.forEach((p, pIndex) => {
+                        const currentStatus = p.status_penduduk || 'AKTIF';
                         const age = calculateAge(p.tanggal_lahir);
                         const isPemilih = age >= 17; 
                         
-                        if(isPemilih) tPem++;
-                        if(age < 17) uT['Anak (< 17)']++; else if(age <= 30) uT['Pemuda (17-30)']++; else if(age <= 50) uT['Dewasa (31-50)']++; else uT['Lansia (> 50)']++;
+                        // Hitung total dan statistik hanya jika penduduk AKTIF, LAHIR, atau MERANTAU (tidak mengurangi total)
+                        const isActive = ['AKTIF', 'LAHIR', 'MERANTAU'].includes(currentStatus);
+
+                        if (isActive) {
+                            tPend++;
+                            
+                            const jk = (p.jenis_kelamin || '').toUpperCase();
+                            if(jk.includes('LAKI')) tL++; else if(jk.includes('PEREMPUAN') || jk.includes('WANITA')) tP++;
+                            
+                            if(isPemilih) tPem++;
+                            
+                            const pend = (p.pendidikan || '-').toUpperCase().trim();
+                            if (pend !== '-' && pend !== '') pT[pend] = (pT[pend] || 0) + 1;
+                            
+                            const agama = (p.agama || '-').toUpperCase().trim();
+                            if (agama !== '-' && agama !== '') agT[agama] = (agT[agama] || 0) + 1;
+
+                            const pekerjaan = (p.jenis_pekerjaan || '-').toUpperCase().trim();
+                            if (pekerjaan !== '-' && pekerjaan !== '') pkT[pekerjaan] = (pkT[pekerjaan] || 0) + 1;
+
+                            if (age <= 4) umT["0-4"]++;
+                            else if (age <= 14) umT["5-14"]++;
+                            else if (age <= 24) umT["15-24"]++;
+                            else if (age <= 54) umT["25-54"]++;
+                            else umT["55+"]++;
+                        }
                         
-                        const pend = (p.pendidikan || '-').toUpperCase().trim();
-                        if (pend !== '-' && pend !== '') pT[pend] = (pT[pend] || 0) + 1;
-                        
+                        // Menjalankan logika filter Dashboard sebelum me-render baris (Tabel)
+                        if (currentDashFilter) {
+                            let match = false;
+                            if (currentDashFilter.type === 'pemilih' && isPemilih) match = true;
+                            if (currentDashFilter.type === 'gender' && (p.jenis_kelamin || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'pendidikan' && (p.pendidikan || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'agama' && (p.agama || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'pekerjaan' && (p.jenis_pekerjaan || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'umur') {
+                                if (currentDashFilter.value === "0-4" && age <= 4) match = true;
+                                else if (currentDashFilter.value === "5-14" && age > 4 && age <= 14) match = true;
+                                else if (currentDashFilter.value === "15-24" && age > 14 && age <= 24) match = true;
+                                else if (currentDashFilter.value === "25-54" && age > 24 && age <= 54) match = true;
+                                else if (currentDashFilter.value === "55+" && age >= 55) match = true;
+                            }
+                            if (!match) return; // Lewati baris ini jika tidak cocok dengan filter
+                        }
+
                         const badgePemilih = isPemilih 
-                            ? '<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-[10px] font-extrabold shadow-sm">YA</span>' 
-                            : '<span class="px-3 py-1 bg-rose-100 text-rose-600 rounded-md text-[10px] font-extrabold border border-rose-200 shadow-sm">TIDAK</span>';
+                            ? '<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-[10px] font-bold shadow-sm">YA</span>' 
+                            : '<span class="px-3 py-1 bg-rose-100 text-rose-600 rounded-md text-[10px] font-bold border border-rose-200 shadow-sm">TIDAK</span>';
 
                         const actionBtns = `
-                            <div class="flex gap-1.5 justify-center">
-                                <button onclick="editDataKK('${noKk}')" class="p-2 bg-amber-50 text-amber-500 hover:bg-amber-100 hover:text-amber-600 rounded-lg transition-colors font-medium border border-amber-100" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteDataKK('${noKk}')" class="p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 rounded-lg transition-colors font-medium border border-rose-100" title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="flex flex-col gap-2 justify-center relative z-20">
+                                <div class="flex gap-1.5 justify-center">
+                                    <button onclick="event.stopPropagation(); editDataKK('${noKk}')" class="p-2 bg-amber-50 text-amber-500 hover:bg-amber-100 hover:text-amber-600 rounded-lg transition-colors font-medium border border-amber-100" title="Edit Data">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); printDataKKDirect('${noKk}')" class="p-2 bg-slate-800 text-white hover:bg-slate-900 rounded-lg transition-colors font-medium shadow-sm border border-slate-700" title="Print Data KK">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); deleteDataKK('${noKk}')" class="p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 rounded-lg transition-colors font-medium border border-rose-100" title="Hapus Data">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap gap-1 justify-center mt-1 border-t border-slate-200 pt-1">
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'AKTIF')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='AKTIF'?'bg-emerald-500 text-white':'bg-slate-100 text-slate-500 hover:bg-emerald-100'}">AKTIF</button>
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'LAHIR')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='LAHIR'?'bg-sky-500 text-white':'bg-slate-100 text-slate-500 hover:bg-sky-100'}">LAHIR</button>
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'PINDAH')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='PINDAH'?'bg-blue-500 text-white':'bg-slate-100 text-slate-500 hover:bg-blue-100'}">PINDAH</button>
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'MENINGGAL')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='MENINGGAL'?'bg-slate-700 text-white':'bg-slate-100 text-slate-500 hover:bg-slate-200'}">WAFAT</button>
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'MERANTAU')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='MERANTAU'?'bg-purple-500 text-white':'bg-slate-100 text-slate-500 hover:bg-purple-100'}">RANTAU</button>
+                                    <button onclick="event.stopPropagation(); updatePendudukStatus('${noKk}', ${pIndex}, 'INVALID')" class="px-2 py-1 text-[9px] font-bold rounded ${currentStatus==='INVALID'?'bg-rose-600 text-white':'bg-slate-100 text-slate-500 hover:bg-rose-100'}" title="Data Tidak Berguna/Hilang dari Rekap">TDK BERGUNA</button>
+                                </div>
                             </div>
                         `;
 
+                        const rowBg = !isActive ? 'bg-slate-50/80 opacity-80' : '';
+                        const stickyBg = !isActive ? 'bg-slate-50' : 'bg-white';
+                        const nonAktifBadge = currentStatus !== 'AKTIF' ? `<br><span class="inline-block mt-1 text-[9px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded uppercase tracking-widest">${currentStatus}</span>` : '';
+
                         tbody.innerHTML += `
-                            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
-                                <td class="px-5 py-3 text-center text-slate-500 font-extrabold sticky left-0 bg-white shadow-[1px_0_0_#f1f5f9]">${no++}</td>
+                            <tr class="group hover:bg-slate-100 transition-colors border-b border-slate-50 cursor-pointer ${rowBg}" onclick="if(!event.target.closest('button')) editDataKK('${noKk}')" title="Klik baris ini untuk melihat Detail">
+                                <td class="px-5 py-3 text-center text-slate-500 font-extrabold sticky left-0 ${stickyBg} group-hover:bg-slate-100 transition-colors shadow-[1px_0_0_#f1f5f9]">${no++}</td>
                                 <td class="px-5 py-3 font-bold text-brand-600">${noKk}</td>
                                 <td class="px-5 py-3 text-center">${badgePemilih}</td>
-                                <td class="px-5 py-3 font-bold text-slate-700">${p.nama_lengkap || '-'}</td>
+                                <td class="px-5 py-3 font-bold text-slate-700">${p.nama_lengkap || '-'}${nonAktifBadge}</td>
                                 <td class="px-5 py-3">${p.nik || '-'}</td>
                                 <td class="px-5 py-3">${p.jenis_kelamin || '-'}</td>
                                 <td class="px-5 py-3">${p.tempat_lahir || '-'}</td>
                                 <td class="px-5 py-3">${p.tanggal_lahir || '-'}</td>
+                                <td class="px-5 py-3 text-center font-black text-brand-600">${age}</td>
                                 <td class="px-5 py-3">${p.agama || '-'}</td>
                                 <td class="px-5 py-3">${p.pendidikan || '-'}</td>
                                 <td class="px-5 py-3 truncate max-w-[120px]" title="${p.jenis_pekerjaan}">${p.jenis_pekerjaan || '-'}</td>
@@ -1260,14 +1921,14 @@
                                 <td class="px-5 py-3">${p.tanggal_perkawinan || '-'}</td>
                                 <td class="px-5 py-3">${p.status_hubungan_keluarga || '-'}</td>
                                 <td class="px-5 py-3 text-center">${p.kewarganegaraan || '-'}</td>
-                                <td class="px-5 py-3 sticky right-0 bg-white shadow-[-1px_0_0_#f1f5f9]">${actionBtns}</td>
+                                <td class="px-5 py-3 sticky right-0 ${stickyBg} group-hover:bg-slate-100 transition-colors shadow-[-1px_0_0_#f1f5f9]">${actionBtns}</td>
                             </tr>
                         `;
                     });
                 }
             });
             
-            if(tPend === 0) tbody.innerHTML = `<tr><td colspan="17" class="text-center py-12 text-slate-400 bg-slate-50 font-bold">Data KK kosong.</td></tr>`;
+            if(tPend === 0 && tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="18" class="text-center py-12 text-slate-400 bg-slate-50 font-bold">Data KK kosong.</td></tr>`;
             
             document.getElementById('dash-total-kk').innerText = tKK;
             document.getElementById('dash-total-penduduk').innerText = tPend;
@@ -1275,7 +1936,130 @@
             document.getElementById('dash-total-l').innerText = tL;
             document.getElementById('dash-total-p').innerText = tP;
             
-            updateCharts(uT, pT);
+            updateCharts(pT, agT, pkT, umT);
+        }
+
+        function printDataKKDirect(noKk) {
+            const data = JSON.parse(localStorage.getItem('kk_data') || '[]').find(i => i.header.no_kk === noKk);
+            if(!data) return showToast("Data KK tidak ditemukan.", "error");
+
+            const pArea = document.getElementById('dukcapil-print-area');
+            const logo = localStorage.getItem('instansi_logo');
+            
+            const today = new Date();
+            const tgl = today.getDate().toString().padStart(2, '0') + '-' + (today.getMonth()+1).toString().padStart(2, '0') + '-' + today.getFullYear();
+
+            let html = `
+                <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom:10px;">
+                    ${logo ? `<img src="${logo}" style="width:50px; height:50px; object-fit:contain;">` : ''}
+                    <div class="dukcapil-title" style="margin-bottom:0;">
+                        KARTU KELUARGA
+                        <span>No. ${data.header.no_kk || '-'}</span>
+                    </div>
+                </div>
+                <div class="dukcapil-header">
+                    <table style="width: 48%; border:none; text-align:left; background:transparent;">
+                        <tr><td style="width:35%; font-weight:bold;">Nama Kepala Keluarga</td><td style="width:5%;">:</td><td>${data.header.nama_kepala_keluarga || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Alamat</td><td>:</td><td>${data.header.alamat || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">RT/RW</td><td>:</td><td>${data.header.rt_rw || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Desa/Kelurahan</td><td>:</td><td>${data.header.desa_kelurahan || '-'}</td></tr>
+                    </table>
+                    <table style="width: 48%; border:none; text-align:left; background:transparent;">
+                        <tr><td style="width:35%; font-weight:bold;">Kecamatan</td><td style="width:5%;">:</td><td>${data.header.kecamatan || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Kabupaten/Kota</td><td>:</td><td>${data.header.kabupaten_kota || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Kode Pos</td><td>:</td><td>${data.header.kode_pos || '-'}</td></tr>
+                        <tr><td style="font-weight:bold;">Provinsi</td><td>:</td><td>${data.header.provinsi || '-'}</td></tr>
+                    </table>
+                </div>
+                
+                <table class="dukcapil-table">
+                    <thead>
+                        <tr>
+                            <th>No</th><th>Nama Lengkap</th><th>NIK</th><th>Jenis Kelamin</th>
+                            <th>Tempat Lahir</th><th>Tanggal Lahir</th><th>Agama</th>
+                            <th>Pendidikan</th><th>Jenis Pekerjaan</th><th>Golongan Darah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (!data.anggota_keluarga || data.anggota_keluarga.length === 0) {
+                html += `<tr><td colspan="10" style="text-align:center;">Tidak ada data anggota keluarga</td></tr>`;
+            } else {
+                data.anggota_keluarga.forEach((ak, i) => {
+                    html += `<tr>
+                        <td style="text-align:center;">${i+1}</td>
+                        <td>${ak.nama_lengkap || '-'}</td>
+                        <td>${ak.nik || '-'}</td>
+                        <td>${ak.jenis_kelamin || '-'}</td>
+                        <td>${ak.tempat_lahir || '-'}</td>
+                        <td>${ak.tanggal_lahir || '-'}</td>
+                        <td>${ak.agama || '-'}</td>
+                        <td>${ak.pendidikan || '-'}</td>
+                        <td>${ak.jenis_pekerjaan || '-'}</td>
+                        <td style="text-align:center;">${ak.golongan_darah || '-'}</td>
+                    </tr>`;
+                });
+            }
+            
+            html += `</tbody></table>
+                <table class="dukcapil-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">No</th><th rowspan="2">Status Perkawinan</th><th rowspan="2">Tanggal Perkawinan</th>
+                            <th rowspan="2">Status Hubungan Dalam Keluarga</th><th rowspan="2">Kewarganegaraan</th>
+                            <th colspan="2">Dokumen Imigrasi</th><th colspan="2">Nama Orang Tua</th>
+                        </tr>
+                        <tr>
+                            <th>No. Paspor</th><th>No. KITAP</th><th>Ayah</th><th>Ibu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (!data.anggota_keluarga || data.anggota_keluarga.length === 0) {
+                html += `<tr><td colspan="9" style="text-align:center;">Tidak ada data anggota keluarga</td></tr>`;
+            } else {
+                data.anggota_keluarga.forEach((ak, i) => {
+                    html += `<tr>
+                        <td style="text-align:center;">${i+1}</td>
+                        <td>${ak.status_perkawinan || '-'}</td>
+                        <td>${ak.tanggal_perkawinan || '-'}</td>
+                        <td>${ak.status_hubungan_keluarga || '-'}</td>
+                        <td>${ak.kewarganegaraan || '-'}</td>
+                        <td>${ak.no_paspor || '-'}</td>
+                        <td>${ak.no_kitap || '-'}</td>
+                        <td>${ak.nama_ayah || '-'}</td>
+                        <td>${ak.nama_ibu || '-'}</td>
+                    </tr>`;
+                });
+            }
+            
+            html += `</tbody></table>
+                <div style="display:flex; justify-content: space-between; margin-top: 30px; font-size:11px; font-weight:bold; text-align:center; color:black;">
+                    <div style="width:35%;">
+                        <br>KEPALA KELUARGA
+                        <br><br><br><br><br>
+                        <u>${data.header.nama_kepala_keluarga || '......................................'}</u><br>
+                        Tanda Tangan/Cap Jempol
+                    </div>
+                    <div style="width:40%;">
+                        Dikeluarkan Tanggal: ${tgl}<br>
+                        KEPALA DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL
+                        <br><br><br><br><br>
+                        <u>..................................................</u><br>
+                        NIP. ........................................
+                    </div>
+                </div>
+            `;
+            
+            pArea.innerHTML = html;
+            pArea.classList.remove('hidden');
+            
+            document.body.classList.add('printing-dukcapil');
+            window.print();
+            document.body.classList.remove('printing-dukcapil');
+            pArea.classList.add('hidden');
         }
 
         function editDataKK(noKk) {
@@ -1299,18 +2083,25 @@
                 d = d.filter(i => i.header.no_kk !== noKk);
                 localStorage.setItem('kk_data', JSON.stringify(d));
                 loadDashboardData();
+                renderRekapTable();
                 showToast("Dihapus dari Dasbor Lokal", "info");
                 
                 if(!GOOGLE_SHEETS_API_URL.includes('XXXXXXXXXXXX')) {
-                    try { await fetch(GOOGLE_SHEETS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "delete", no_kk: noKk }) }); }
-                    catch(e) {}
+                    try { 
+                        await fetch(GOOGLE_SHEETS_API_URL, { 
+                            method: 'POST', 
+                            mode: 'no-cors', 
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                            body: JSON.stringify({ action: "delete", no_kk: noKk }) 
+                        }); 
+                    } catch(e) {}
                 }
             });
         }
 
         function clearDashboardData() {
             showConfirmModal("Reset Total Dasbor", "Menghapus SELURUH data lokal di Dasbor. Lanjut?", () => {
-                localStorage.removeItem('kk_data'); loadDashboardData(); showToast("Dasbor dibersihkan", "success");
+                localStorage.removeItem('kk_data'); loadDashboardData(); renderRekapTable(); showToast("Dasbor dibersihkan", "success");
             });
         }
 
@@ -1341,6 +2132,7 @@
                     });
                     localStorage.setItem('kk_data', JSON.stringify(sD));
                     loadDashboardData();
+                    if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
                     showToast(`Sinkronisasi selesai! ${updatedCount} KK diperbarui.`, "success");
                 } else {
                     showToast("Tidak ada data ditemukan di Cloud.", "info");
@@ -1351,15 +2143,85 @@
             }
         }
 
-        function updateCharts(uT, pT) {
-            const ctxUmur = document.getElementById('chart-umur');
-            if(chartUmurInstance) chartUmurInstance.destroy();
-            chartUmurInstance = new Chart(ctxUmur, {
-                type: 'bar',
-                data: { labels: Object.keys(uT), datasets: [{ label: 'Penduduk', data: Object.values(uT), backgroundColor: '#6366f1', borderRadius: 8 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } }
-            });
+        function exportDashboardExcel() {
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
             
+            // Batasi akses data berdasarkan Role & Wilayah
+            if (currentUser && currentUser.role !== 'admin' && (currentUser.rk !== 'all' || currentUser.rt !== 'all')) {
+                sD = sD.filter(kk => {
+                    const rt_rw = (kk.header.rt_rw || '').toLowerCase();
+                    let parts = rt_rw.split(/[\/\-\\]+/);
+                    let rt_val = parts[0] ? parts[0].trim() : '';
+                    let rk_val = parts[1] ? parts[1].trim() : '';
+                    if(!rk_val && rt_rw.length >= 3) { rt_val = rt_rw; rk_val = rt_rw; }
+                    let match = true;
+                    if (currentUser.rt !== 'all' && !rt_val.includes(currentUser.rt)) match = false;
+                    if (currentUser.rk !== 'all' && !rk_val.includes(currentUser.rk)) match = false;
+                    return match;
+                });
+            }
+
+            let flatData = [];
+            let exportCount = 0;
+
+            sD.forEach(kk => {
+                let h = kk.header;
+                if (kk.anggota_keluarga && kk.anggota_keluarga.length > 0) {
+                    kk.anggota_keluarga.forEach(p => {
+                        const currentStatus = p.status_penduduk || 'AKTIF';
+                        const age = calculateAge(p.tanggal_lahir);
+                        const isPemilih = age >= 17;
+
+                        // Logika filter sesuai apa yang tampil di layar Dasbor
+                        if (currentDashFilter) {
+                            let match = false;
+                            if (currentDashFilter.type === 'pemilih' && isPemilih) match = true;
+                            if (currentDashFilter.type === 'gender' && (p.jenis_kelamin || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'pendidikan' && (p.pendidikan || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'agama' && (p.agama || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'pekerjaan' && (p.jenis_pekerjaan || '').toUpperCase() === currentDashFilter.value.toUpperCase()) match = true;
+                            if (currentDashFilter.type === 'umur') {
+                                if (currentDashFilter.value === "0-4" && age <= 4) match = true;
+                                else if (currentDashFilter.value === "5-14" && age > 4 && age <= 14) match = true;
+                                else if (currentDashFilter.value === "15-24" && age > 14 && age <= 24) match = true;
+                                else if (currentDashFilter.value === "25-54" && age > 24 && age <= 54) match = true;
+                                else if (currentDashFilter.value === "55+" && age >= 55) match = true;
+                            }
+                            if (!match) return; // Lewati jika tidak lolos filter
+                        }
+
+                        exportCount++;
+                        flatData.push({
+                            "No. KK": h.no_kk, "Nama Kepala Keluarga": h.nama_kepala_keluarga, "Alamat": h.alamat,
+                            "RT/RW": h.rt_rw, "Desa/Kelurahan": h.desa_kelurahan, "Kecamatan": h.kecamatan,
+                            "Kabupaten/Kota": h.kabupaten_kota, "Provinsi": h.provinsi, "Nama Lengkap": p.nama_lengkap,
+                            "NIK": p.nik, "Jenis Kelamin": p.jenis_kelamin, "Tempat Lahir": p.tempat_lahir,
+                            "Tanggal Lahir": p.tanggal_lahir, "Umur": age, "Agama": p.agama, "Pendidikan": p.pendidikan,
+                            "Pekerjaan": p.jenis_pekerjaan, "Golongan Darah": p.golongan_darah, "Status Perkawinan": p.status_perkawinan,
+                            "Tanggal Perkawinan": p.tanggal_perkawinan, "Hubungan Keluarga": p.status_hubungan_keluarga,
+                            "Kewarganegaraan": p.kewarganegaraan, "No Paspor": p.no_paspor, "No KITAP": p.no_kitap,
+                            "Nama Ayah": p.nama_ayah, "Nama Ibu": p.nama_ibu, "Status Penduduk": currentStatus
+                        });
+                    });
+                }
+            });
+
+            if (exportCount === 0) return showToast("Tidak ada data yang sesuai filter untuk diekspor", "warning");
+
+            showToast("Menyiapkan file Excel (Tabel Dasbor)...", "info");
+            const worksheet = XLSX.utils.json_to_sheet(flatData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Terfilter");
+            
+            // Atur lebar kolom agar lebih rapi
+            const colWidths = [{wch: 20}, {wch: 25}, {wch: 30}, {wch: 10}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 25}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 10}];
+            worksheet['!cols'] = colWidths;
+
+            XLSX.writeFile(workbook, `Data_Dasbor_Filter_${new Date().getTime()}.xlsx`);
+            showToast(`Berhasil export ${exportCount} data ke Excel!`, "success");
+        }
+
+        function updateCharts(pT, agT, pkT, umT) {
             const ctxPend = document.getElementById('chart-pendidikan');
             if(chartPendidikanInstance) chartPendidikanInstance.destroy();
             let sortedPend = Object.entries(pT).sort((a,b) => b[1] - a[1]);
@@ -1369,13 +2231,310 @@
                     labels: sortedPend.length ? sortedPend.map(i=>i[0]) : ['Kosong'],
                     datasets: [{ data: sortedPend.length ? sortedPend.map(i=>i[1]) : [1], backgroundColor: sortedPend.length ? ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#f1f5f9'] : ['#f1f5f9'], borderWidth: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { family: "'Plus Jakarta Sans'", size: 10, weight: 'bold' } } } }, cutout: '70%' }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { family: "'Plus Jakarta Sans'", size: 10, weight: '500' } } } }, 
+                    cutout: '70%',
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const label = chartPendidikanInstance.data.labels[elements[0].index];
+                            if(label !== 'Kosong') setDashFilter('pendidikan', label, `Pend: ${label}`);
+                        }
+                    }
+                }
+            });
+            
+            const ctxAgama = document.getElementById('chart-agama');
+            if(chartAgamaInstance) chartAgamaInstance.destroy();
+            let sortedAgama = Object.entries(agT).sort((a,b) => b[1] - a[1]);
+            chartAgamaInstance = new Chart(ctxAgama, {
+                type: 'pie',
+                data: {
+                    labels: sortedAgama.length ? sortedAgama.map(i=>i[0]) : ['Kosong'],
+                    datasets: [{ data: sortedAgama.length ? sortedAgama.map(i=>i[1]) : [1], backgroundColor: sortedAgama.length ? ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'] : ['#f1f5f9'], borderWidth: 0 }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { family: "'Plus Jakarta Sans'", size: 10, weight: '500' } } } },
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const label = chartAgamaInstance.data.labels[elements[0].index];
+                            if(label !== 'Kosong') setDashFilter('agama', label, `Agama: ${label}`);
+                        }
+                    }
+                }
+            });
+
+            const ctxPekerjaan = document.getElementById('chart-pekerjaan');
+            if(chartPekerjaanInstance) chartPekerjaanInstance.destroy();
+            let sortedPekerjaan = Object.entries(pkT).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            chartPekerjaanInstance = new Chart(ctxPekerjaan, {
+                type: 'bar',
+                data: {
+                    labels: sortedPekerjaan.length ? sortedPekerjaan.map(i=>i[0]) : ['Kosong'],
+                    datasets: [{ label: 'Jumlah', data: sortedPekerjaan.length ? sortedPekerjaan.map(i=>i[1]) : [0], backgroundColor: '#f59e0b', borderRadius: 6 }]
+                },
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 } } } }, 
+                    plugins: { legend: { display: false } },
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const label = chartPekerjaanInstance.data.labels[elements[0].index];
+                            if(label !== 'Kosong') setDashFilter('pekerjaan', label, `Pekerjaan: ${label}`);
+                        }
+                    }
+                }
+            });
+
+            const ctxUmur = document.getElementById('chart-umur');
+            if(chartUmurInstance) chartUmurInstance.destroy();
+            chartUmurInstance = new Chart(ctxUmur, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(umT),
+                    datasets: [{ label: 'Jumlah Penduduk', data: Object.values(umT), backgroundColor: ['#34d399', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'], borderRadius: 6 }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { font: { size: 10 } } } }, 
+                    plugins: { legend: { display: false } },
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const label = chartUmurInstance.data.labels[elements[0].index];
+                            setDashFilter('umur', label, label);
+                        }
+                    } 
+                }
             });
         }
+        
+        // --- 8. REKAPITULASI & EXCEL (ADMIN) ---
+        function generateRekapData() {
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            let rekap = {};
+            
+            sD.forEach(kk => {
+                let wilayah = `RK / RT : ${kk.header.rt_rw || '-'}`.toUpperCase();
+                
+                if (!rekap[wilayah]) {
+                    rekap[wilayah] = { jml_kk: 0, wni_l: 0, wni_p: 0, wna_l: 0, wna_p: 0, total_jiwa: 0, jml_lahir: 0, jml_wafat: 0, jml_pindah: 0 };
+                }
+                
+                // PENGECEKAN KK AKTIF (UNTUK REKAP):
+                let isKkAktif = true;
+                if (kk.anggota_keluarga) {
+                    const kepalas = kk.anggota_keluarga.filter(p => (p.status_hubungan_keluarga || '').toUpperCase() === 'KEPALA KELUARGA');
+                    if (kepalas.length > 0) {
+                        const hasActiveKepala = kepalas.some(k => !['INVALID', 'PINDAH'].includes((k.status_penduduk || 'AKTIF').toUpperCase()));
+                        if (!hasActiveKepala) isKkAktif = false;
+                    }
+                }
+                if (isKkAktif) {
+                    rekap[wilayah].jml_kk++;
+                }
+                
+                if (kk.anggota_keluarga) {
+                    kk.anggota_keluarga.forEach(p => {
+                        let jk = (p.jenis_kelamin || '').toUpperCase();
+                        let wn = (p.kewarganegaraan || '').toUpperCase();
+                        let status = (p.status_penduduk || 'AKTIF').toUpperCase();
+                        
+                        // Abaikan sama sekali dari total rekap jika Invalid/Tidak Berguna
+                        if (status === 'INVALID') return;
 
-        // Initialize Application
+                        if (status === 'LAHIR') rekap[wilayah].jml_lahir++;
+                        if (status === 'MENINGGAL') rekap[wilayah].jml_wafat++;
+                        if (status === 'PINDAH') rekap[wilayah].jml_pindah++;
+
+                        // Hanya hitung Jiwa Aktif untuk Rekap Total Demografi
+                        if (status === 'AKTIF' || status === 'LAHIR' || status === 'MERANTAU') {
+                            rekap[wilayah].total_jiwa++;
+                            
+                            if (wn.includes('WNA')) {
+                                if (jk.includes('LAKI')) rekap[wilayah].wna_l++;
+                                else if (jk.includes('PEREMPUAN') || jk.includes('WANITA')) rekap[wilayah].wna_p++;
+                            } else {
+                                // Default ke WNI jika kosong atau 'WNI'
+                                if (jk.includes('LAKI')) rekap[wilayah].wni_l++;
+                                else if (jk.includes('PEREMPUAN') || jk.includes('WANITA')) rekap[wilayah].wni_p++;
+                            }
+                        }
+                    });
+                }
+            });
+            return rekap;
+        }
+
+        function renderRekapTable() {
+            let rekap = generateRekapData();
+            const tbody = document.getElementById('rekap-table-body');
+            const tfoot = document.getElementById('rekap-table-foot');
+            if(!tbody) return;
+            
+            tbody.innerHTML = ''; tfoot.innerHTML = '';
+            let no = 1, tKk = 0, tLahir = 0, tWafat = 0, tPindah = 0, tWniL = 0, tWniP = 0, tWnaL = 0, tWnaP = 0, tJiwa = 0;
+
+            for (const [wilayah, d] of Object.entries(rekap)) {
+                tKk += d.jml_kk;
+                tLahir += d.jml_lahir; tWafat += d.jml_wafat; tPindah += d.jml_pindah;
+                tWniL += d.wni_l; tWniP += d.wni_p; tWnaL += d.wna_l; tWnaP += d.wna_p; 
+                tJiwa += d.total_jiwa;
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-5 py-3 border border-slate-200 sticky left-0 bg-white z-10">${no++}</td>
+                        <td class="px-5 py-3 border border-slate-200 font-bold text-left">${wilayah}</td>
+                        <td class="px-5 py-3 border border-slate-200 font-bold text-amber-600 bg-amber-50/30">${d.jml_kk}</td>
+                        <td class="px-5 py-3 border border-slate-200 text-sky-600 font-bold">${d.jml_lahir}</td>
+                        <td class="px-5 py-3 border border-slate-200 text-rose-600 font-bold">${d.jml_wafat}</td>
+                        <td class="px-5 py-3 border border-slate-200 text-blue-600 font-bold">${d.jml_pindah}</td>
+                        <td class="px-5 py-3 border border-slate-200">${d.wni_l}</td>
+                        <td class="px-5 py-3 border border-slate-200">${d.wni_p}</td>
+                        <td class="px-5 py-3 border border-slate-200">${d.wna_l}</td>
+                        <td class="px-5 py-3 border border-slate-200">${d.wna_p}</td>
+                        <td class="px-5 py-3 border border-slate-200 font-extrabold text-emerald-600 bg-emerald-50/30">${d.total_jiwa}</td>
+                    </tr>
+                `;
+            }
+
+            if (no === 1) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400 font-bold">Belum ada data penduduk</td></tr>`;
+            } else {
+                tfoot.innerHTML = `
+                    <tr>
+                        <td colspan="2" class="px-5 py-4 border border-slate-200 text-right uppercase tracking-widest text-xs text-slate-500">Total Keseluruhan</td>
+                        <td class="px-5 py-4 border border-slate-200 text-amber-600 bg-amber-100/50 text-lg">${tKk}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-sky-600 text-lg">${tLahir}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-rose-600 text-lg">${tWafat}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-blue-600 text-lg">${tPindah}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-indigo-600">${tWniL}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-indigo-600">${tWniP}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-rose-600">${tWnaL}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-rose-600">${tWnaP}</td>
+                        <td class="px-5 py-4 border border-slate-200 text-emerald-600 bg-emerald-100/50 text-xl font-black">${tJiwa}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function exportExcel() {
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            if (sD.length === 0) return showToast("Tidak ada data untuk diekspor", "warning");
+
+            showToast("Menyiapkan file Excel...", "info");
+            let flatData = [];
+            sD.forEach(kk => {
+                let h = kk.header;
+                if (kk.anggota_keluarga && kk.anggota_keluarga.length > 0) {
+                    kk.anggota_keluarga.forEach(p => {
+                        flatData.push({
+                            "No. KK": h.no_kk, "Nama Kepala Keluarga": h.nama_kepala_keluarga, "Alamat": h.alamat,
+                            "RT/RW": h.rt_rw, "Desa/Kelurahan": h.desa_kelurahan, "Kecamatan": h.kecamatan,
+                            "Kabupaten/Kota": h.kabupaten_kota, "Provinsi": h.provinsi, "Nama Lengkap": p.nama_lengkap,
+                            "NIK": p.nik, "Jenis Kelamin": p.jenis_kelamin, "Tempat Lahir": p.tempat_lahir,
+                            "Tanggal Lahir": p.tanggal_lahir, "Agama": p.agama, "Pendidikan": p.pendidikan,
+                            "Pekerjaan": p.jenis_pekerjaan, "Golongan Darah": p.golongan_darah, "Status Perkawinan": p.status_perkawinan,
+                            "Tanggal Perkawinan": p.tanggal_perkawinan, "Hubungan Keluarga": p.status_hubungan_keluarga,
+                            "Kewarganegaraan": p.kewarganegaraan, "No Paspor": p.no_paspor, "No KITAP": p.no_kitap,
+                            "Nama Ayah": p.nama_ayah, "Nama Ibu": p.nama_ibu
+                        });
+                    });
+                }
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(flatData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Database Penduduk");
+            
+            // Atur lebar kolom
+            const colWidths = [{wch: 20}, {wch: 25}, {wch: 30}, {wch: 10}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 25}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}];
+            worksheet['!cols'] = colWidths;
+
+            XLSX.writeFile(workbook, `Data_Penduduk_E-KK_${new Date().getTime()}.xlsx`);
+            showToast("Berhasil export data ke Excel!", "success");
+        }
+
+        function triggerImportExcel() { document.getElementById('excel-file-input').click(); }
+
+        function importExcel(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            showToast("Membaca file Excel...", "info");
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = evt.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName]);
+
+                    if(jsonData.length === 0) return showToast("File Excel kosong atau format salah", "warning");
+
+                    let groupedData = {};
+                    jsonData.forEach(row => {
+                        let noKk = row["No. KK"];
+                        if(!noKk) return;
+
+                        if (!groupedData[noKk]) {
+                            groupedData[noKk] = {
+                                header: {
+                                    no_kk: noKk, nama_kepala_keluarga: row["Nama Kepala Keluarga"] || "", alamat: row["Alamat"] || "",
+                                    rt_rw: row["RT/RW"] || "", kode_pos: row["Kode Pos"] || "", desa_kelurahan: row["Desa/Kelurahan"] || "",
+                                    kecamatan: row["Kecamatan"] || "", kabupaten_kota: row["Kabupaten/Kota"] || "", provinsi: row["Provinsi"] || ""
+                                }, anggota_keluarga: []
+                            };
+                        }
+
+                        groupedData[noKk].anggota_keluarga.push({
+                            nama_lengkap: row["Nama Lengkap"] || "", nik: row["NIK"] || "", jenis_kelamin: row["Jenis Kelamin"] || "",
+                            tempat_lahir: row["Tempat Lahir"] || "", tanggal_lahir: row["Tanggal Lahir"] || "", agama: row["Agama"] || "",
+                            pendidikan: row["Pendidikan"] || "", jenis_pekerjaan: row["Pekerjaan"] || "", golongan_darah: row["Golongan Darah"] || "-",
+                            status_perkawinan: row["Status Perkawinan"] || "", tanggal_perkawinan: row["Tanggal Perkawinan"] || "-",
+                            status_hubungan_keluarga: row["Hubungan Keluarga"] || "", kewarganegaraan: row["Kewarganegaraan"] || "WNI",
+                            no_paspor: row["No Paspor"] || "-", no_kitap: row["No KITAP"] || "-", nama_ayah: row["Nama Ayah"] || "", nama_ibu: row["Nama Ibu"] || ""
+                        });
+                    });
+
+                    let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+                    let updated = 0, added = 0;
+                    
+                    Object.values(groupedData).forEach(nk => {
+                        const idx = sD.findIndex(ex => ex.header.no_kk === nk.header.no_kk);
+                        if (idx > -1) { sD[idx] = nk; updated++; } else { sD.push(nk); added++; }
+                    });
+
+                    localStorage.setItem('kk_data', JSON.stringify(sD));
+                    loadDashboardData();
+                    if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
+                    
+                    showToast(`Import sukses! ${added} KK baru, ${updated} KK diperbarui.`, "success");
+                } catch (error) {
+                    console.error(error);
+                    showToast("Gagal baca Excel. Pastikan format kolom sama dengan hasil Export.", "error");
+                } finally {
+                    document.getElementById('excel-file-input').value = ''; 
+                }
+            };
+            reader.readAsBinaryString(file);
+        }
+
         window.addEventListener('load', () => {
             initAuth();
+            applyLogoFromStorage();
+            
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'kk_data' && !document.getElementById('dashboard-view').classList.contains('hidden')) {
+                    loadDashboardData();
+                }
+                if (e.key === 'app_users_db' && !document.getElementById('users-view').classList.contains('hidden')) {
+                    renderUsersTable();
+                }
+            });
             
             const rkSelect = document.getElementById('new-rk');
             const rtSelect = document.getElementById('new-rt');
