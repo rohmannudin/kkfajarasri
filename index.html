@@ -953,9 +953,13 @@
 
             <!-- VIEW: MANAJEMEN AKUN -->
             <div id="users-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in max-w-5xl">
-                <div class="flex items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                    <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100"><i class="fas fa-users-gear"></i></div>
-                    <div><h2 class="text-2xl font-bold text-slate-800">Manajemen Akun</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Khusus Administrator</p></div>
+                <!-- HEADER MANAJEMEN AKUN (Dengan Tombol Sync Baru) -->
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100"><i class="fas fa-users-gear"></i></div>
+                        <div><h2 class="text-2xl font-bold text-slate-800">Manajemen Akun</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Khusus Administrator</p></div>
+                    </div>
+                    <button onclick="syncUsersFromCloud()" id="btn-sync-users" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data akun terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1003,12 +1007,12 @@
     <!-- MAIN JAVASCRIPT -->
     <script>
         // =====================================================================
-        // KONFIGURASI SISTEM
+        // KONFIGURASI SISTEM (SIAP UPLOAD KE GITHUB PAGES)
         // =====================================================================
         
         // 1. URL GOOGLE SHEETS APPS SCRIPT (100% HARDCODED)
-        // SILAKAN GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA
-        const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz_bHJ-s22NMHzpQRGgDjW83Sc1_M2wIz_-qI5F5QeDIxF56Db6ejCHXmkcFjHUXiQ4/exec"; 
+        // SILAKAN GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA SEBELUM DI-UPLOAD KE GITHUB
+        const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbwUQ3KuWPDoOs7f34gCHOTfGEaQg3lLo8COX93vMxq2h1EMwePdP9iwBL4hq9w1jjqC/exec"; 
 
         // 2. GEMINI API KEY (Tetap Dinamis dan bisa diatur dari aplikasi)
         const MODEL_NAME = "gemini-3-flash-preview"; 
@@ -1029,7 +1033,6 @@
                 if (k.header && k.header.rt_rw) {
                     let rtrwStr = String(k.header.rt_rw);
                     if (rtrwStr.includes('GMT') || rtrwStr.includes('Time)') || rtrwStr.includes('1970') || rtrwStr.includes('202')) {
-                        // Bersihkan string dan ekstrak tanggal serta bulan sebagai RT/RW yang benar
                         let cleanDateStr = rtrwStr.replace(/RT/gi, '').replace(/RK/gi, '').split('/')[0].trim();
                         let d = new Date(cleanDateStr);
                         if (!isNaN(d.getTime())) {
@@ -1037,7 +1040,6 @@
                             let rkClean = (d.getMonth() + 1).toString().padStart(3, '0');
                             k.header.rt_rw = `${rtClean}/${rkClean}`;
                         } else {
-                            // Fallback jika bukan valid date, ambil angkanya saja
                             let matches = rtrwStr.match(/\d+/g);
                             if(matches && matches.length >= 2) {
                                 k.header.rt_rw = `${matches[0].padStart(3,'0')}/${matches[1].padStart(3,'0')}`;
@@ -1110,7 +1112,6 @@
             let user = uDb.find(x => x.username === u);
             if(!user || user.password !== p) return showToast("Username atau sandi salah", "error");
             
-            // Validasi Persetujuan Akun
             let status = user.approval_status || 'approved'; 
             if(status === 'pending') return showToast("Akun Anda sedang menunggu persetujuan Admin.", "warning");
             if(status === 'rejected') return showToast("Pendaftaran akun Anda ditolak oleh Admin.", "error");
@@ -1127,15 +1128,12 @@
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(uDb.find(x => x.username === u)) return showToast("Username sudah dipakai", "warning");
             
-            // Set status langsung menjadi approved agar bisa digunakan siapa saja langsung
             let n = {username:u, password:p, role:'user', rk:'all', rt:'all', approval_status: 'approved'}; 
             uDb.push(n); localStorage.setItem('app_users_db', JSON.stringify(uDb));
             
             showToast(`Pendaftaran berhasil! Silakan masuk.`, 'success');
-            // Sync user baru ke cloud
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
             
-            // Kembalikan ke form login
             document.getElementById('register-form').reset();
             toggleAuthMode('login');
         }
@@ -1172,7 +1170,6 @@
             switchView('ocr-view'); loadDashboardData();
             startRealtimeSync();
             
-            // Penyesuaian Nama Aplikasi Khusus User Non-Superadmin saat Log In
             if (currentUser.role !== 'superadmin' && currentUser.rk !== 'all') {
                 let customName = `RT ${currentUser.rt} / RK ${currentUser.rk}`;
                 document.getElementById('app-title-nav').innerText = customName;
@@ -1183,7 +1180,7 @@
         // --- SISTEM REALTIME BACKGROUND SYNC ---
         function startRealtimeSync() {
             if(syncInterval) clearInterval(syncInterval);
-            // Polling data cloud setiap 10 detik agar terasa realtime
+            // Polling interval setiap 10 detik agar tetap 100% realtime statis
             syncInterval = setInterval(() => {
                 syncFromCloudBackground();
             }, 10000); 
@@ -1201,9 +1198,7 @@
                         let currentVal = localStorage.getItem(s.key) || '';
                         let newVal = s.value || '';
                         if (currentVal !== newVal) {
-                            
-                            // Abaikan field url ini jika datang dari cloud, kita pakai sistem hardcoded
-                            if (s.key === 'google_sheets_url') return;
+                            if (s.key === 'google_sheets_url') return; // Abaikan URL karena sudah hardcoded
                             
                             if (s.value === '') { localStorage.removeItem(s.key); } 
                             else { localStorage.setItem(s.key, s.value); }
@@ -1225,7 +1220,7 @@
                 }
                 
                 if (isUpdated) {
-                    // Hanya memuat ulang view jika data berubah untuk menghemat memori dan tidak mengganggu input
+                    // Update tampilan yang aktif secara langsung
                     if (document.getElementById('dashboard-view') && !document.getElementById('dashboard-view').classList.contains('hidden')) {
                         loadDashboardData();
                     }
@@ -1249,10 +1244,23 @@
         }
 
         async function syncFromCloud() {
-            showToast("Sinkronisasi manual...", "info");
+            showToast("Sinkronisasi data master...", "info");
             document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-circle-notch fa-spin text-emerald-500"></i> Menghubungkan...';
             await syncFromCloudBackground();
             showToast("Sinkronisasi Selesai!", "success");
+        }
+
+        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi tombol di Manajemen Akun
+        async function syncUsersFromCloud() {
+            let btn = document.getElementById('btn-sync-users');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
+            showToast("Menarik data akun terbaru...", "info");
+            
+            // Panggil API background sync yang otomatis memproses settings & user db
+            await syncFromCloudBackground();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data'; }
+            showToast("Sinkronisasi Akun Selesai!", "success");
         }
 
         function switchView(viewId) {
@@ -1431,7 +1439,6 @@
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 let p = dateStr.split('-'); return `${p[2]}-${p[1]}-${p[0]}`;
             }
-            // Coba parse jika berupa format Date String utuh seperti "Sat Mar 06 2021..."
             let d = new Date(dateStr);
             if (!isNaN(d.getTime())) {
                 let day = ("0" + d.getDate()).slice(-2);
@@ -1439,7 +1446,6 @@
                 let year = d.getFullYear();
                 return `${day}-${month}-${year}`;
             }
-            // Fallback (potong string berdasarkan T jika format ISO)
             return dateStr.split('T')[0];
         }
 
@@ -2148,7 +2154,6 @@
                     });
                     localStorage.setItem('kk_data', JSON.stringify(Object.values(g))); loadDashboardData(); renderRekapTable(); showToast(`Import ${Object.values(g).length} KK berhasil`, "success");
                     
-                    // Note: Import Excel dalam skala besar belum disync otomatis ke cloud demi performa (harus klik save satu per satu atau tombol sync global jika tersedia kedepannya)
                 } catch(e) { showToast("Gagal baca Excel", "error"); }
             }; r.readAsBinaryString(f); e.target.value='';
         }
@@ -2163,10 +2168,10 @@
             initAuth(); 
             loadSettingsUI(); 
             
-            // Mengaktifkan looping interval setiap 10 detik
+            // Mengaktifkan looping interval realtime
             startRealtimeSync(); 
             
-            // Mengeksekusi tarikan data pertama tanpa menahan (blocking) proses load UI
+            // Eksekusi sync pertama
             (async () => {
                 if (GOOGLE_SHEETS_API_URL && GOOGLE_SHEETS_API_URL !== "MASUKKAN_URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI") {
                     await syncFromCloudBackground();
