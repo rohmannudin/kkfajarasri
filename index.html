@@ -910,11 +910,14 @@
 
                 <div class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-link text-brand-500"></i> Integrasi Sistem (Backend & AI)</h3>
+                    
+                    <!-- INPUT URL DIKUNCI KARENA SUDAH HARDCODED -->
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-slate-500 mb-1">URL Google Apps Script (Web App)</label>
-                        <input type="text" id="set-sheets-url" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://script.google.com/macros/s/.../exec">
-                        <p class="text-[10px] text-slate-400 mt-2">Tempelkan URL Web App dari deployment Google Apps Script Anda di sini untuk menghubungkan database.</p>
+                        <input type="text" id="set-sheets-url" readonly disabled class="w-full px-4 py-2 bg-slate-200 border rounded-xl font-semibold outline-none cursor-not-allowed text-slate-500">
+                        <p class="text-[10px] text-rose-500 font-bold mt-2"><i class="fas fa-lock"></i> URL telah dikunci permanen di dalam source code aplikasi (Hardcoded).</p>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1">API Key Gemini AI (Untuk Kamera OCR)</label>
                         <input type="text" id="set-api-key" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="AIzaSy...">
@@ -1000,22 +1003,16 @@
     <!-- MAIN JAVASCRIPT -->
     <script>
         // =====================================================================
-        // KONFIGURASI ENVIRONMENT (.env alternative untuk Static HTML GitHub)
-        // PENTING UNTUK DEPLOYMENT GITHUB:
-        // 1. Jika repository GitHub Anda PUBLIC, JANGAN isi API_KEY di bawah ini.
-        //    Biarkan kosong, dan masukkan API Key via menu "Pengaturan" di UI aplikasi.
-        // 2. Jika repository PRIVATE, Anda aman mengisi string di bawah ini.
-        // 3. Jika menggunakan GitHub Actions, Anda bisa me-replace string ini saat build.
+        // KONFIGURASI SISTEM
         // =====================================================================
-        const ENV = {
-            GOOGLE_SHEETS_URL: "", // Contoh: "https://script.google.com/macros/s/AKfycbw.../exec"
-            GEMINI_API_KEY: ""     // Contoh: "AIzaSy..."
-        };
+        
+        // 1. URL GOOGLE SHEETS APPS SCRIPT (100% HARDCODED)
+        // SILAKAN GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA
+        const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz_bHJ-s22NMHzpQRGgDjW83Sc1_M2wIz_-qI5F5QeDIxF56Db6ejCHXmkcFjHUXiQ4/exec"; 
 
-        // PASTIKAN URL INI BENAR MENGARAH KE DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        let GOOGLE_SHEETS_API_URL = localStorage.getItem('google_sheets_url') || ENV.GOOGLE_SHEETS_URL;
+        // 2. GEMINI API KEY (Tetap Dinamis dan bisa diatur dari aplikasi)
         const MODEL_NAME = "gemini-3-flash-preview"; 
-        let apiKey = localStorage.getItem('gemini_api_key') || ENV.GEMINI_API_KEY;
+        let apiKey = localStorage.getItem('gemini_api_key') || "";
 
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
@@ -1198,21 +1195,20 @@
                 let json = await res.json();
                 
                 let isUpdated = false;
-                let urlChangedFromCloud = false;
                 
                 if(json.settings) {
                     json.settings.forEach(s => {
                         let currentVal = localStorage.getItem(s.key) || '';
                         let newVal = s.value || '';
                         if (currentVal !== newVal) {
+                            
+                            // Abaikan field url ini jika datang dari cloud, kita pakai sistem hardcoded
+                            if (s.key === 'google_sheets_url') return;
+                            
                             if (s.value === '') { localStorage.removeItem(s.key); } 
                             else { localStorage.setItem(s.key, s.value); }
                             
                             if (s.key === 'gemini_api_key') apiKey = s.value;
-                            if (s.key === 'google_sheets_url') {
-                                GOOGLE_SHEETS_API_URL = s.value;
-                                urlChangedFromCloud = true;
-                            }
                             
                             isUpdated = true;
                         }
@@ -1246,10 +1242,6 @@
                 let indicator = document.getElementById('sync-status-indicator');
                 if(indicator) indicator.innerHTML = '<i class="fas fa-satellite-dish text-emerald-500 animate-pulse"></i> Realtime Aktif';
 
-                // Jika URL berubah dari cloud (Admin lain menggantinya), langsung sync ulang pakai URL baru
-                if (urlChangedFromCloud) {
-                    setTimeout(syncFromCloudBackground, 1000);
-                }
             } catch(e) { 
                 let indicator = document.getElementById('sync-status-indicator');
                 if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
@@ -1907,8 +1899,11 @@
             let l = localStorage.getItem('instansi_logo'); if(l){ document.getElementById('settings-logo-preview').src=l; document.getElementById('settings-logo-preview').classList.remove('hidden'); document.getElementById('settings-logo-placeholder').classList.add('hidden'); }
             let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"app_title":"Smart E-KK", "app_subtitle":"Realtime Edition", "desa":"FAJAR ASRI","kec":"PANCA JAYA","kab":"MESUJI","kasi":"SUPRIYANTO","sekdes":"ROHMAN NUDIN","tgl":"31","bln":"Agustus","thn":"2026"}');
             ['app_title','app_subtitle','desa','kec','kab','kasi','sekdes','tgl','bln','thn'].forEach(k => { if(document.getElementById(`set-${k}`)) document.getElementById(`set-${k}`).value = s[k]||''; });
+            
+            // Tampilkan field hardcoded jika ada
             if(document.getElementById('set-sheets-url')) document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
             if(document.getElementById('set-api-key')) document.getElementById('set-api-key').value = apiKey;
+            
             applyTextSettings(); applyPrintSettings(); applyLogoToNav();
         }
 
@@ -1952,12 +1947,8 @@
         }
 
         function saveIntegrationSettings() {
-            let url = document.getElementById('set-sheets-url').value.trim();
             let key = document.getElementById('set-api-key').value.trim();
-            
-            let oldUrl = GOOGLE_SHEETS_API_URL;
             let updated = false;
-            let urlChanged = false;
 
             if(key && key !== apiKey) {
                 localStorage.setItem('gemini_api_key', key);
@@ -1967,27 +1958,10 @@
                 fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'gemini_api_key',value:key})}).catch(e=>{});
             }
             
-            if(url && url !== GOOGLE_SHEETS_API_URL) {
-                // Broadcast URL baru ke URL lama agar perangkat/akun lain tau ada perubahan dan bisa berpindah
-                fetch(oldUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'google_sheets_url',value:url})}).catch(e=>{});
-
-                localStorage.setItem('google_sheets_url', url);
-                GOOGLE_SHEETS_API_URL = url;
-                updated = true;
-                urlChanged = true;
-
-                // Simpan juga URL tersebut ke Database URL baru yang dituju
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'google_sheets_url',value:url})}).catch(e=>{});
-            }
-            
             if(updated) {
                 showToast("Pengaturan Integrasi disimpan!", "success");
-                if(urlChanged) {
-                    showToast("Sinkronisasi dengan URL baru...", "info");
-                    setTimeout(syncFromCloud, 500); // Tarik data dari DB baru seketika
-                }
             } else {
-                showToast("Tidak ada yang disimpan", "warning");
+                showToast("Tidak ada perubahan yang disimpan", "warning");
             }
         }
 
@@ -2184,49 +2158,20 @@
             let ws = XLSX.utils.json_to_sheet(f), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Database"); XLSX.writeFile(wb, `Data_Penduduk_${new Date().getTime()}.xlsx`); showToast("Export Selesai", "success");
         }
 
-        window.onload = async () => { 
+        window.onload = () => { 
             applyThemeAndBg(); 
             initAuth(); 
             loadSettingsUI(); 
             
-            startRealtimeSync(); // Mulai sinkronisasi realtime di latar belakang (termasuk untuk sinkronisasi halaman login)
+            // Mengaktifkan looping interval setiap 10 detik
+            startRealtimeSync(); 
             
-            // --- AUTO SYNC CLOUD ON LOAD ---
-            try {
-                let res = await fetch(GOOGLE_SHEETS_API_URL + "?action=get"); 
-                let json = await res.json();
-                
-                if(json.settings) {
-                    json.settings.forEach(s => {
-                        if (s.value === '') { localStorage.removeItem(s.key); } else { 
-                            localStorage.setItem(s.key, s.value); 
-                            if (s.key === 'gemini_api_key') apiKey = s.value;
-                            if (s.key === 'google_sheets_url') GOOGLE_SHEETS_API_URL = s.value;
-                        }
-                    });
+            // Mengeksekusi tarikan data pertama tanpa menahan (blocking) proses load UI
+            (async () => {
+                if (GOOGLE_SHEETS_API_URL && GOOGLE_SHEETS_API_URL !== "MASUKKAN_URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI") {
+                    await syncFromCloudBackground();
                 }
-                if(json.data) localStorage.setItem('kk_data', JSON.stringify(json.data));
-                
-                applyThemeAndBg(); 
-                loadSettingsUI();
-                
-                if (currentUser) {
-                    if (document.getElementById('app-wrapper') && !document.getElementById('app-wrapper').classList.contains('hidden')) {
-                        loadDashboardData();
-                        let indicator = document.getElementById('sync-status-indicator');
-                        if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
-                    }
-                    if (document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
-                        renderUsersTable();
-                    }
-                }
-            } catch(e) {
-                console.warn("Gagal auto-sync cloud, menggunakan memori lokal browser ini.");
-                let indicator = document.getElementById('sync-status-indicator');
-                if (indicator) {
-                    indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
-                }
-            }
+            })();
         };
     </script>
 </body>
