@@ -923,7 +923,10 @@
                         <input type="text" id="set-api-key" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="AIzaSy...">
                         <p class="text-[10px] text-slate-400 mt-2">Dapatkan API Key dari Google AI Studio untuk menggunakan fitur Ekstrak AI secara otomatis.</p>
                     </div>
-                    <button onclick="saveIntegrationSettings()" class="w-full mt-5 py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Integrasi</button>
+                    <div class="flex flex-col md:flex-row gap-4 mt-5">
+                        <button onclick="saveIntegrationSettings()" class="w-full md:w-1/2 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm transition-colors"><i class="fas fa-save"></i> Simpan Pengaturan Integrasi</button>
+                        <button onclick="syncSystemIntegration()" id="btn-sync-integrasi" class="w-full md:w-1/2 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"><i class="fas fa-rotate"></i> Sinkronisasi Data Manual</button>
+                    </div>
                 </div>
 
                 <div id="superadmin-theme-card" class="bg-white p-8 rounded-3xl shadow-sm border flex-col w-full mt-6 hidden">
@@ -1250,7 +1253,7 @@
             showToast("Sinkronisasi Selesai!", "success");
         }
 
-        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi tombol di Manajemen Akun
+        // Fungsi Khusus untuk sinkronisasi tombol di Manajemen Akun
         async function syncUsersFromCloud() {
             let btn = document.getElementById('btn-sync-users');
             if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
@@ -1261,6 +1264,18 @@
             
             if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data'; }
             showToast("Sinkronisasi Akun Selesai!", "success");
+        }
+
+        // Fungsi Khusus untuk sinkronisasi di Pengaturan Integrasi
+        async function syncSystemIntegration() {
+            let btn = document.getElementById('btn-sync-integrasi');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyinkronkan...'; }
+            showToast("Menarik pengaturan & data dari server...", "info");
+            
+            await syncFromCloudBackground();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rotate"></i> Sinkronisasi Data Manual'; }
+            showToast("Sinkronisasi Sistem Selesai!", "success");
         }
 
         function switchView(viewId) {
