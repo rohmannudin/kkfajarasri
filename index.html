@@ -920,11 +920,6 @@
                         <input type="text" id="set-api-key" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="AIzaSy...">
                         <p class="text-[10px] text-slate-400 mt-2">Dapatkan API Key dari Google AI Studio untuk menggunakan fitur Ekstrak AI secara otomatis.</p>
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Daftar Email (Whitelist) yang Diizinkan Masuk</label>
-                        <textarea id="set-allowed-emails" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 h-24" placeholder="email1@gmail.com, email2@yahoo.com..."></textarea>
-                        <p class="text-[10px] text-slate-400 mt-1">Tempel (paste) daftar email yang diizinkan menggunakan aplikasi. Pisahkan dengan koma. Kosongkan jika aplikasi bersifat publik.</p>
-                    </div>
                     <button onclick="saveIntegrationSettings()" class="w-full mt-5 py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Integrasi</button>
                 </div>
 
@@ -1004,11 +999,23 @@
 
     <!-- MAIN JAVASCRIPT -->
     <script>
+        // =====================================================================
+        // KONFIGURASI ENVIRONMENT (.env alternative untuk Static HTML GitHub)
+        // PENTING UNTUK DEPLOYMENT GITHUB:
+        // 1. Jika repository GitHub Anda PUBLIC, JANGAN isi API_KEY di bawah ini.
+        //    Biarkan kosong, dan masukkan API Key via menu "Pengaturan" di UI aplikasi.
+        // 2. Jika repository PRIVATE, Anda aman mengisi string di bawah ini.
+        // 3. Jika menggunakan GitHub Actions, Anda bisa me-replace string ini saat build.
+        // =====================================================================
+        const ENV = {
+            GOOGLE_SHEETS_URL: "", // Contoh: "https://script.google.com/macros/s/AKfycbw.../exec"
+            GEMINI_API_KEY: ""     // Contoh: "AIzaSy..."
+        };
+
         // PASTIKAN URL INI BENAR MENGARAH KE DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        let GOOGLE_SHEETS_API_URL = localStorage.getItem('google_sheets_url') || 'https://script.google.com/macros/s/AKfycbwwnCzKy6nlY3Ks5ESE4X4_QVWiw83xVnAPbaYX0lntZ41HD4DD_IEFvzaxeMOGId_cgA/exec';
+        let GOOGLE_SHEETS_API_URL = localStorage.getItem('google_sheets_url') || ENV.GOOGLE_SHEETS_URL;
         const MODEL_NAME = "gemini-3-flash-preview"; 
-        let apiKey = localStorage.getItem('gemini_api_key') || "AQ.Ab8RN6L0XOQv6yFyz5Es-GkAwPVKGiPCTo7i5hPQqD-vfOzj7g";
-        let allowedEmails = localStorage.getItem('allowed_emails') || "";
+        let apiKey = localStorage.getItem('gemini_api_key') || ENV.GEMINI_API_KEY;
 
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
@@ -1019,6 +1026,32 @@
 
         function getFilteredKKData() {
             let sD = JSON.parse(localStorage.getItem('kk_data')||'[]');
+            
+            // Perbaikan bug format tanggal Excel yang masuk sebagai teks panjang ke kolom RT/RW
+            sD.forEach(k => {
+                if (k.header && k.header.rt_rw) {
+                    let rtrwStr = String(k.header.rt_rw);
+                    if (rtrwStr.includes('GMT') || rtrwStr.includes('Time)') || rtrwStr.includes('1970') || rtrwStr.includes('202')) {
+                        // Bersihkan string dan ekstrak tanggal serta bulan sebagai RT/RW yang benar
+                        let cleanDateStr = rtrwStr.replace(/RT/gi, '').replace(/RK/gi, '').split('/')[0].trim();
+                        let d = new Date(cleanDateStr);
+                        if (!isNaN(d.getTime())) {
+                            let rtClean = d.getDate().toString().padStart(3, '0');
+                            let rkClean = (d.getMonth() + 1).toString().padStart(3, '0');
+                            k.header.rt_rw = `${rtClean}/${rkClean}`;
+                        } else {
+                            // Fallback jika bukan valid date, ambil angkanya saja
+                            let matches = rtrwStr.match(/\d+/g);
+                            if(matches && matches.length >= 2) {
+                                k.header.rt_rw = `${matches[0].padStart(3,'0')}/${matches[1].padStart(3,'0')}`;
+                            } else {
+                                k.header.rt_rw = "000/000";
+                            }
+                        }
+                    }
+                }
+            });
+
             if(currentUser && currentUser.role==='user' && (currentUser.rk!=='all'||currentUser.rt!=='all')) {
                 sD = sD.filter(k => { 
                     let rtrw = (k.header.rt_rw||'').split(/[\/\-]/), rt = (rtrw[0]||'').trim(), rk = (rtrw[1]||'').trim(); 
@@ -1076,13 +1109,6 @@
             e.preventDefault();
             let u = document.getElementById('login-username').value, p = document.getElementById('login-password').value;
             
-            if(allowedEmails.trim() !== '') {
-                let allowedList = allowedEmails.split(',').map(x=>x.trim().toLowerCase());
-                if(!allowedList.includes(u.toLowerCase()) && u !== 'superadmin1') {
-                    return showToast("Akses ditolak! Email tidak terdaftar di pengaturan.", "error");
-                }
-            }
-
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             let user = uDb.find(x => x.username === u);
             if(!user || user.password !== p) return showToast("Username atau sandi salah", "error");
@@ -1100,13 +1126,6 @@
         function handleRegister(e) {
             e.preventDefault();
             let u = document.getElementById('register-username').value, p = document.getElementById('register-password').value;
-            
-            if(allowedEmails.trim() !== '') {
-                let allowedList = allowedEmails.split(',').map(x=>x.trim().toLowerCase());
-                if(!allowedList.includes(u.toLowerCase())) {
-                    return showToast("Pendaftaran ditolak! Email Anda tidak diizinkan masuk aplikasi.", "error");
-                }
-            }
 
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(uDb.find(x => x.username === u)) return showToast("Username sudah dipakai", "warning");
@@ -1169,9 +1188,7 @@
             if(syncInterval) clearInterval(syncInterval);
             // Polling data cloud setiap 10 detik agar terasa realtime
             syncInterval = setInterval(() => {
-                if(currentUser) {
-                    syncFromCloudBackground();
-                }
+                syncFromCloudBackground();
             }, 10000); 
         }
 
@@ -1181,6 +1198,7 @@
                 let json = await res.json();
                 
                 let isUpdated = false;
+                let urlChangedFromCloud = false;
                 
                 if(json.settings) {
                     json.settings.forEach(s => {
@@ -1191,8 +1209,10 @@
                             else { localStorage.setItem(s.key, s.value); }
                             
                             if (s.key === 'gemini_api_key') apiKey = s.value;
-                            if (s.key === 'google_sheets_url') GOOGLE_SHEETS_API_URL = s.value;
-                            if (s.key === 'allowed_emails') allowedEmails = s.value;
+                            if (s.key === 'google_sheets_url') {
+                                GOOGLE_SHEETS_API_URL = s.value;
+                                urlChangedFromCloud = true;
+                            }
                             
                             isUpdated = true;
                         }
@@ -1225,6 +1245,11 @@
                 
                 let indicator = document.getElementById('sync-status-indicator');
                 if(indicator) indicator.innerHTML = '<i class="fas fa-satellite-dish text-emerald-500 animate-pulse"></i> Realtime Aktif';
+
+                // Jika URL berubah dari cloud (Admin lain menggantinya), langsung sync ulang pakai URL baru
+                if (urlChangedFromCloud) {
+                    setTimeout(syncFromCloudBackground, 1000);
+                }
             } catch(e) { 
                 let indicator = document.getElementById('sync-status-indicator');
                 if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
@@ -1884,7 +1909,6 @@
             ['app_title','app_subtitle','desa','kec','kab','kasi','sekdes','tgl','bln','thn'].forEach(k => { if(document.getElementById(`set-${k}`)) document.getElementById(`set-${k}`).value = s[k]||''; });
             if(document.getElementById('set-sheets-url')) document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
             if(document.getElementById('set-api-key')) document.getElementById('set-api-key').value = apiKey;
-            if(document.getElementById('set-allowed-emails')) document.getElementById('set-allowed-emails').value = allowedEmails;
             applyTextSettings(); applyPrintSettings(); applyLogoToNav();
         }
 
@@ -1930,14 +1954,11 @@
         function saveIntegrationSettings() {
             let url = document.getElementById('set-sheets-url').value.trim();
             let key = document.getElementById('set-api-key').value.trim();
-            let emails = document.getElementById('set-allowed-emails').value.trim();
             
+            let oldUrl = GOOGLE_SHEETS_API_URL;
             let updated = false;
-            if(url && url !== GOOGLE_SHEETS_API_URL) {
-                localStorage.setItem('google_sheets_url', url);
-                GOOGLE_SHEETS_API_URL = url;
-                updated = true;
-            }
+            let urlChanged = false;
+
             if(key && key !== apiKey) {
                 localStorage.setItem('gemini_api_key', key);
                 apiKey = key;
@@ -1945,17 +1966,26 @@
                 // Sync API key ke cloud
                 fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'gemini_api_key',value:key})}).catch(e=>{});
             }
-            if(emails !== allowedEmails) {
-                localStorage.setItem('allowed_emails', emails);
-                allowedEmails = emails;
+            
+            if(url && url !== GOOGLE_SHEETS_API_URL) {
+                // Broadcast URL baru ke URL lama agar perangkat/akun lain tau ada perubahan dan bisa berpindah
+                fetch(oldUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'google_sheets_url',value:url})}).catch(e=>{});
+
+                localStorage.setItem('google_sheets_url', url);
+                GOOGLE_SHEETS_API_URL = url;
                 updated = true;
-                // Sync allowed emails ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'allowed_emails',value:emails})}).catch(e=>{});
+                urlChanged = true;
+
+                // Simpan juga URL tersebut ke Database URL baru yang dituju
+                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'google_sheets_url',value:url})}).catch(e=>{});
             }
             
             if(updated) {
                 showToast("Pengaturan Integrasi disimpan!", "success");
-                if(url) syncFromCloud();
+                if(urlChanged) {
+                    showToast("Sinkronisasi dengan URL baru...", "info");
+                    setTimeout(syncFromCloud, 500); // Tarik data dari DB baru seketika
+                }
             } else {
                 showToast("Tidak ada yang disimpan", "warning");
             }
@@ -2127,7 +2157,19 @@
                     let wb = XLSX.read(ev.target.result, {type:'binary'}), jd = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                     let g={}; jd.forEach(row => {
                         let nk = row["No. KK"]||row["No KK"]; if(!nk) return;
-                        if(!g[nk]) g[nk]={header:{no_kk:nk,nama_kepala_keluarga:row["Nama Kepala Keluarga"]||row["Nama KK"]||"",alamat:row["Alamat"]||"",rt_rw:row["RT/RW"]||"",kode_pos:row["Kode Pos"]||"",desa_kelurahan:row["Desa/Kelurahan"]||"",kecamatan:row["Kecamatan"]||"",kabupaten_kota:row["Kabupaten/Kota"]||"",provinsi:row["Provinsi"]||""},anggota_keluarga:[]};
+                        
+                        // Fix untuk mencegah Excel mendeteksi 01/01 (RT/RW) sebagai Serial Number Date
+                        let rtrw_val = row["RT/RW"] || "";
+                        if (typeof rtrw_val === 'number' && rtrw_val > 1000) { 
+                            let d = new Date((rtrw_val - 25569) * 86400 * 1000);
+                            rtrw_val = `${d.getDate().toString().padStart(3,'0')}/${(d.getMonth()+1).toString().padStart(3,'0')}`;
+                        } else if (typeof rtrw_val === 'string' && (rtrw_val.includes('GMT') || rtrw_val.includes('Time)'))) {
+                            let cleanDateStr = rtrw_val.replace(/RT/gi, '').replace(/RK/gi, '').split('/')[0].trim();
+                            let d = new Date(cleanDateStr);
+                            if (!isNaN(d.getTime())) rtrw_val = `${d.getDate().toString().padStart(3,'0')}/${(d.getMonth()+1).toString().padStart(3,'0')}`;
+                        }
+
+                        if(!g[nk]) g[nk]={header:{no_kk:nk,nama_kepala_keluarga:row["Nama Kepala Keluarga"]||row["Nama KK"]||"",alamat:row["Alamat"]||"",rt_rw:String(rtrw_val),kode_pos:row["Kode Pos"]||"",desa_kelurahan:row["Desa/Kelurahan"]||"",kecamatan:row["Kecamatan"]||"",kabupaten_kota:row["Kabupaten/Kota"]||"",provinsi:row["Provinsi"]||""},anggota_keluarga:[]};
                         g[nk].anggota_keluarga.push({nama_lengkap:row["Nama Lengkap"]||row["Nama"]||"",nik:row["NIK"]||"",jenis_kelamin:row["Jenis Kelamin"]||row["J.Kelamin"]||"",tempat_lahir:row["Tempat Lahir"]||row["Tmp Lahir"]||"",tanggal_lahir:row["Tanggal Lahir"]||row["Tgl Lahir"]||"",agama:row["Agama"]||"",pendidikan:row["Pendidikan"]||"",jenis_pekerjaan:row["Pekerjaan"]||"",golongan_darah:row["Golongan Darah"]||"-",status_perkawinan:row["Status Perkawinan"]||row["Status Kawin"]||"",tanggal_perkawinan:row["Tanggal Perkawinan"]||"-",status_hubungan_keluarga:row["Hubungan Keluarga"]||row["Hubungan"]||"",kewarganegaraan:row["Kewarganegaraan"]||"WNI",no_paspor:row["No Paspor"]||"-",no_kitap:row["No KITAP"]||"-",nama_ayah:row["Nama Ayah"]||"-",nama_ibu:row["Nama Ibu"]||"-"});
                     });
                     localStorage.setItem('kk_data', JSON.stringify(Object.values(g))); loadDashboardData(); renderRekapTable(); showToast(`Import ${Object.values(g).length} KK berhasil`, "success");
@@ -2147,15 +2189,9 @@
             initAuth(); 
             loadSettingsUI(); 
             
+            startRealtimeSync(); // Mulai sinkronisasi realtime di latar belakang (termasuk untuk sinkronisasi halaman login)
+            
             // --- AUTO SYNC CLOUD ON LOAD ---
-            let loginBtn = document.querySelector('#login-form button[type="submit"]');
-            let origBtnText = loginBtn ? loginBtn.innerHTML : '';
-            
-            if (loginBtn && !currentUser) {
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat Data...';
-                loginBtn.disabled = true;
-            }
-            
             try {
                 let res = await fetch(GOOGLE_SHEETS_API_URL + "?action=get"); 
                 let json = await res.json();
@@ -2166,7 +2202,6 @@
                             localStorage.setItem(s.key, s.value); 
                             if (s.key === 'gemini_api_key') apiKey = s.value;
                             if (s.key === 'google_sheets_url') GOOGLE_SHEETS_API_URL = s.value;
-                            if (s.key === 'allowed_emails') allowedEmails = s.value;
                         }
                     });
                 }
@@ -2190,11 +2225,6 @@
                 let indicator = document.getElementById('sync-status-indicator');
                 if (indicator) {
                     indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
-                }
-            } finally {
-                if (loginBtn && !currentUser) {
-                    loginBtn.innerHTML = origBtnText;
-                    loginBtn.disabled = false;
                 }
             }
         };
