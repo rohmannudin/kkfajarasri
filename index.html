@@ -247,9 +247,12 @@
     <!-- Halaman Login -->
     <div id="login-view" class="fixed inset-0 z-50 animated-bg flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <button onclick="syncBeforeLogin()" id="btn-login-sync" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-white/50 hover:bg-white text-slate-500 hover:text-brand-600 rounded-full shadow-sm transition-all z-20" title="Sinkronisasi Pengaturan & Logo">
+                <i class="fas fa-sync-alt"></i>
+            </button>
             <div class="relative z-10">
                 <div class="text-center mb-10">
-                    <div id="login-logo-preview" class="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg transform -rotate-3 overflow-hidden relative">
+                    <div id="login-logo-container" class="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg transform -rotate-3 overflow-hidden relative">
                         <img id="login-logo-img" src="" class="absolute inset-0 w-full h-full object-contain bg-white hidden" alt="Logo Instansi">
                         <i id="login-logo-icon" class="fas fa-fingerprint text-4xl text-white"></i>
                     </div>
@@ -1155,6 +1158,7 @@
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
         let currentUser = null, currentDashFilter = null, uploadedFileType = '', uploadedBase64 = '';
+        let activeRkFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
         let syncInterval = null; // Menangani interval realtime sync
 
         const loginView = document.getElementById('login-view'), appWrapper = document.getElementById('app-wrapper'), modal = document.getElementById('custom-modal'), floatingScrollBtns = document.getElementById('floating-scroll-btns');
@@ -1385,6 +1389,21 @@
             document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-circle-notch fa-spin text-emerald-500"></i> Menghubungkan...';
             await syncFromCloudBackground();
             showToast("Sinkronisasi Selesai!", "success");
+        }
+
+        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di Halaman Login
+        async function syncBeforeLogin() {
+            let btnIcon = document.querySelector('#btn-login-sync i');
+            let btn = document.getElementById('btn-login-sync');
+            if(btnIcon) btnIcon.classList.add('fa-spin');
+            if(btn) btn.disabled = true;
+            showToast("Menarik pengaturan terbaru...", "info");
+            
+            await syncFromCloudBackground();
+            
+            if(btnIcon) btnIcon.classList.remove('fa-spin');
+            if(btn) btn.disabled = false;
+            showToast("Sinkronisasi Berhasil!", "success");
         }
 
         // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Identitas Laporan
@@ -1785,18 +1804,20 @@
                 
                 // Render tombol cepat per user di bar atas dashboard
                 if (quickContainer) {
-                    let qHtml = `<button onclick="setDashFilter(null)" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all shadow-sm">Semua User</button>`;
+                    let qHtml = `<button onclick="activeUserFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeUserFilter==='all'?'bg-indigo-600 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua User</button>`;
                     users.forEach(u => {
-                        qHtml += `<button onclick="setDashFilter('input_by', '${u}', 'Akun: ${u}')" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all uppercase shadow-sm"><i class="fas fa-user-circle mr-1"></i> ${u}</button>`;
+                        let isActive = activeUserFilter === u;
+                        qHtml += `<button onclick="activeUserFilter='${u}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-indigo-200 ${isActive?'bg-indigo-600 text-white':'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'} transition-all uppercase shadow-sm"><i class="fas fa-user-circle mr-1"></i> ${u}</button>`;
                     });
                     quickContainer.innerHTML = qHtml;
                 }
 
                 // Render tombol cepat per RK
                 if (quickRkContainer) {
-                    let rkHtml = `<button onclick="setDashFilter(null)" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all shadow-sm">Semua Wilayah</button>`;
+                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua Wilayah</button>`;
                     rks.forEach(rk => {
-                        rkHtml += `<button onclick="setDashFilter('rk', '${rk}', 'RK: ${rk}')" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> RK ${rk}</button>`;
+                        let isActive = activeRkFilter === rk;
+                        rkHtml += `<button onclick="activeRkFilter='${rk}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 ${isActive?'bg-amber-500 text-white':'bg-amber-50 text-amber-700 hover:bg-amber-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> ${rk}</button>`;
                     });
                     quickRkContainer.innerHTML = rkHtml;
                 }
@@ -1804,9 +1825,10 @@
                 // Render tombol kecil di atas tabel
                 if (container) {
                     let html = `<span class="text-[10px] font-bold text-slate-500 self-center mr-1">Filter Akun:</span>`;
-                    html += `<button onclick="setDashFilter(null)" class="px-2 py-1 text-[9px] font-bold rounded-md border border-slate-200 bg-white hover:bg-slate-50 transition-colors">Semua</button>`;
+                    html += `<button onclick="activeUserFilter='all'; loadDashboardData();" class="px-2 py-1 text-[9px] font-bold rounded-md border border-slate-200 ${activeUserFilter==='all'?'bg-brand-500 text-white':'bg-white hover:bg-slate-50'} transition-colors">Semua</button>`;
                     users.forEach(u => {
-                        html += `<button onclick="setDashFilter('input_by', '${u}', 'Akun: ${u}')" class="px-2 py-1 text-[9px] font-bold rounded-md border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 uppercase transition-colors">${u}</button>`;
+                        let isActive = activeUserFilter === u;
+                        html += `<button onclick="activeUserFilter='${u}'; loadDashboardData();" class="px-2 py-1 text-[9px] font-bold rounded-md border border-brand-200 ${isActive?'bg-brand-500 text-white':'bg-brand-50 text-brand-700 hover:bg-brand-100'} uppercase transition-colors">${u}</button>`;
                     });
                     container.innerHTML = html;
                 }
@@ -1825,11 +1847,22 @@
 
         function loadDashboardData() {
             let sD = getFilteredKKData();
-            loadUserFilters(sD);
+            
+            // PENTING: Filter data berdasarkan RK dan User yang sedang aktif sebelum menghitung Rekap Total
+            let filteredSD = sD.filter(kk => {
+                let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
+                let k_rk = (rtrw[1]||'').trim();
+                let matchRk = activeRkFilter === 'all' || k_rk === activeRkFilter;
+                let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
+                return matchRk && matchUser;
+            });
+
+            loadUserFilters(sD); // Load button filter berdasarkan data asli (agar daftarnya tetap lengkap)
+            
             let tb = document.getElementById('dash-table-body'); tb.innerHTML='';
             let tK=0, tKep=0, tP=0, tPem=0, tL=0, tPr=0, no=1, pT={}, agT={}, pkT={}, umT={"0-4":0,"5-14":0,"15-24":0,"25-54":0,"55+":0};
             
-            sD.forEach(kk => {
+            filteredSD.forEach(kk => {
                 let aktifKk = false; (kk.anggota_keluarga||[]).forEach(a=>{ if(!['INVALID','PINDAH','MENINGGAL'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aktifKk = true; }); if(aktifKk) tK++;
                 (kk.anggota_keluarga||[]).forEach((a, idx) => {
                     let st = a.status_penduduk||'AKTIF', um = calculateAge(a.tanggal_lahir), kw = (a.status_perkawinan||'').toUpperCase(), jk = (a.jenis_kelamin||'').toUpperCase();
@@ -1854,12 +1887,6 @@
                         if(currentDashFilter.type==='pekerjaan' && a.jenis_pekerjaan===currentDashFilter.val) ok=true;
                         if(currentDashFilter.type==='nama' && a.nama_lengkap.toUpperCase().includes(currentDashFilter.val.toUpperCase())) ok=true;
                         if(currentDashFilter.type==='umur') { if(currentDashFilter.val==="0-4"&&um<=4) ok=true; else if(currentDashFilter.val==="5-14"&&um>4&&um<=14) ok=true; else if(currentDashFilter.val==="15-24"&&um>14&&um<=24) ok=true; else if(currentDashFilter.val==="25-54"&&um>24&&um<=54) ok=true; else if(currentDashFilter.val==="55+"&&um>=55) ok=true; }
-                        if(currentDashFilter.type==='input_by' && (kk.input_by || 'Unknown') === currentDashFilter.val) ok=true;
-                        if(currentDashFilter.type==='rk') {
-                            let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
-                            let k_rk = (rtrw[1]||'').trim();
-                            if(k_rk === currentDashFilter.val) ok=true;
-                        }
                         if(!ok) return;
                     }
                     
@@ -2270,17 +2297,7 @@
             let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"app_title":"Smart E-KK", "app_subtitle":"Realtime Edition", "desa":"FAJAR ASRI","kec":"PANCA JAYA","kab":"MESUJI","kasi":"SUPRIYANTO","sekdes":"ROHMAN NUDIN","tgl":"31","bln":"Agustus","thn":"2026"}');
             ['app_title','app_subtitle','desa','kec','kab','kasi','sekdes','tgl','bln','thn','jabatan_kk','nama_kk','nip_kk'].forEach(k => { if(document.getElementById(`set-${k}`)) document.getElementById(`set-${k}`).value = s[k]||''; });
             
-            // Script untuk merubah Identitas Title Aplikasi secara dinamis di Navbar, Halaman Login, dan Title Document
-            let appTitle = s.app_title || 'Smart E-KK';
-            let appSubtitle = s.app_subtitle || 'Realtime Edition';
-            document.title = `${appTitle} - ${appSubtitle}`;
-            
-            // Tetapkan nama aplikasi permanen untuk semua role
-            if(document.getElementById('app-title-nav')) document.getElementById('app-title-nav').innerText = appTitle;
-            if(document.getElementById('app-subtitle-nav')) document.getElementById('app-subtitle-nav').innerText = appSubtitle;
-            
-            if(document.getElementById('app-title-login')) document.getElementById('app-title-login').innerText = appTitle;
-            if(document.getElementById('app-subtitle-login')) document.getElementById('app-subtitle-login').innerText = appSubtitle;
+            applyAppTitles();
 
             // Script tambahan untuk mengisi header judul laporan di semua menu view
             const prefixes = ['rekap', 'pend', 'rt', 'agama', 'pengangguran', 'matapilih'];
@@ -2349,6 +2366,19 @@
                     else { img.src = ''; img.classList.add('hidden'); icon.classList.remove('hidden'); cont.classList.remove('bg-white'); cont.classList.add('bg-gradient-to-br'); }
                 }
             });
+        }
+
+        function applyAppTitles() {
+            let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{}');
+            let appTitle = s.app_title || 'Smart E-KK';
+            let appSubtitle = s.app_subtitle || 'Realtime Edition';
+            document.title = `${appTitle} - ${appSubtitle}`;
+            
+            if(document.getElementById('app-title-nav')) document.getElementById('app-title-nav').innerText = appTitle;
+            if(document.getElementById('app-subtitle-nav')) document.getElementById('app-subtitle-nav').innerText = appSubtitle;
+            
+            if(document.getElementById('app-title-login')) document.getElementById('app-title-login').innerText = appTitle;
+            if(document.getElementById('app-subtitle-login')) document.getElementById('app-subtitle-login').innerText = appSubtitle;
         }
 
         function saveTextSettings() {
@@ -2735,6 +2765,7 @@
             initAuth(); 
             applyThemeAndBg(); 
             applyLogo(); 
+            applyAppTitles();
         };
     </script>
 </body>
