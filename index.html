@@ -464,9 +464,9 @@
                                     <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 </div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kode Pos</label><input type="text" id="hk_kodepos" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kecamatan</label><input type="text" id="hk_kecamatan" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kabupaten / Kota</label><input type="text" id="hk_kabupaten" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kecamatan</label><input type="text" id="hk_kecamatan" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kabupaten / Kota</label><input type="text" id="hk_kabupaten" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Provinsi</label><input type="text" id="hk_provinsi" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                             </div>
                         </div>
@@ -498,7 +498,7 @@
             </div>
             
             <!-- VIEW: DASHBOARD -->
-            <div id="dashboard-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in">
+            <div id="dashboard-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in uppercase">
                 <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-indigo-100"><i class="fas fa-chart-line"></i></div>
@@ -601,6 +601,7 @@
                                     <th colspan="2" class="p-1 border border-black">TKI / TKW</th>
                                 </tr>
                                 <tr class="border-b border-black">
+                                    <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th> <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th>
                                     <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th> <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th>
                                     <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th> <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th>
                                     <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th> <th class="p-1 border border-black">L</th><th class="p-1 border border-black">P</th>
@@ -919,9 +920,51 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">API Key Gemini AI (Untuk Kamera OCR)</label>
-                        <input type="text" id="set-api-key" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="AIzaSy...">
-                        <p class="text-[10px] text-slate-400 mt-2">Dapatkan API Key dari Google AI Studio untuk menggunakan fitur Ekstrak AI secara otomatis.</p>
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar API Key Gemini AI (Pilih yang Aktif)</label>
+                        <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                            <!-- Loop 1 to 10 -->
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-0" value="0" class="w-4 h-4 text-brand-600 focus:ring-brand-500" checked>
+                                <input type="text" id="set-api-key-0" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 1)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-1" value="1" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-1" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 2)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-2" value="2" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-2" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 3)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-3" value="3" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-3" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 4)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-4" value="4" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-4" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 5)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-5" value="5" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-5" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 6)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-6" value="6" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-6" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 7)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-7" value="7" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-7" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 8)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-8" value="8" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-8" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 9)">
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                                <input type="checkbox" name="active_api_key" id="active-key-9" value="9" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                                <input type="text" id="set-api-key-9" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 10)">
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Centang tombol disebelah kiri untuk langsung menggunakan API Key tersebut jika terjadi limit / error (Tanpa harus reload halaman).</p>
                     </div>
                     <button onclick="saveIntegrationSettings()" class="w-full mt-5 py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Integrasi</button>
                 </div>
@@ -992,7 +1035,7 @@
                         <div class="bg-slate-50/50 px-6 py-5 border-b border-slate-100"><h3 class="font-extrabold text-slate-700 text-sm uppercase tracking-widest">Daftar Akun Terdaftar</h3></div>
                         <div class="p-0 overflow-x-auto">
                             <table class="w-full text-left border-collapse">
-                                <thead><tr class="bg-white text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-100"><th class="px-6 py-4 font-bold">Username</th><th class="px-6 py-4 font-bold">Role</th><th class="px-6 py-4 font-bold">Wilayah (RK/RT)</th><th class="px-6 py-4 font-bold text-center">Aksi</th></tr></thead>
+                                <thead><tr class="bg-white text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-100"><th class="px-6 py-4 font-bold">Username</th><th class="px-6 py-4 font-bold">Kata Sandi</th><th class="px-6 py-4 font-bold">Role</th><th class="px-6 py-4 font-bold">Wilayah (RK/RT)</th><th class="px-6 py-4 font-bold text-center">Aksi</th></tr></thead>
                                 <tbody id="users-table-body" class="divide-y divide-slate-50 font-medium text-sm"></tbody>
                             </table>
                         </div>
@@ -1128,10 +1171,12 @@
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(uDb.find(x => x.username === u)) return showToast("Username sudah dipakai", "warning");
             
-            let n = {username:u, password:p, role:'user', rk:'all', rt:'all', approval_status: 'approved'}; 
+            // Ubah status default menjadi 'pending'
+            let n = {username:u, password:p, role:'user', rk:'all', rt:'all', approval_status: 'pending'}; 
             uDb.push(n); localStorage.setItem('app_users_db', JSON.stringify(uDb));
             
-            showToast(`Pendaftaran berhasil! Silakan masuk.`, 'success');
+            // Ubah pesan notifikasi
+            showToast(`Pendaftaran berhasil! Silakan tunggu persetujuan Admin.`, 'success');
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
             
             document.getElementById('register-form').reset();
@@ -1175,6 +1220,9 @@
                 document.getElementById('app-title-nav').innerText = customName;
                 document.getElementById('app-subtitle-nav').innerText = `PENGELOLA WILAYAH (${currentUser.username.toUpperCase()})`;
             }
+            
+            // Tambahkan baris ini untuk memuat judul laporan secara otomatis di awal
+            loadSettingsUI();
         }
 
         // --- SISTEM REALTIME BACKGROUND SYNC ---
@@ -1344,7 +1392,7 @@
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.jenis_pekerjaan||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.golongan_darah||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_perkawinan||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.tanggal_perkawinan||'-'}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_perkawinan)}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_hubungan_keluarga||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.kewarganegaraan||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_paspor||'-'}"></td>
@@ -1358,6 +1406,8 @@
                 if (el) el.classList.remove('hidden');
             });
             document.getElementById('status-badge').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Ekstraksi Sukses'; document.getElementById('status-badge').className = "px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200 shadow-sm flex items-center";
+            
+            autoDetectKodePos(); // Deteksi kodepos otomatis setelah render data AI
         }
 
         function addFamilyMemberRow() {
@@ -1400,6 +1450,37 @@
         }
 
         function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="18" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); }); }
+
+        function autoDetectKodePos() {
+            let desa = document.getElementById('hk_desa').value.toUpperCase().trim();
+            let kec = document.getElementById('hk_kecamatan').value.toUpperCase().trim();
+            let kp = document.getElementById('hk_kodepos');
+            
+            // Database Kode Pos Lokal (Bisa ditambahkan sesuai kebutuhan desa/kecamatan lain)
+            const dbKodePos = {
+                "FAJAR ASRI": "34699",
+                "FAJAR BARU": "34699",
+                "FAJAR INDAH": "34699",
+                "MUKTI KARYA": "34699",
+                "ADI KARYA MULYA": "34699",
+                "PANCA JAYA": "34699",
+                "SIMPANG PEMATANG": "34698",
+                "WAY SERDANG": "34695",
+                "MESUJI": "34697",
+                "MESUJI TIMUR": "34692",
+                "RAWA JITU UTARA": "34696",
+                "TANJUNG RAYA": "34698"
+            };
+            
+            // Jika kode pos belum terisi atau hanya "-", coba deteksi
+            if (!kp.value || kp.value === '-' || kp.value.trim() === '') {
+                if (dbKodePos[desa]) {
+                    kp.value = dbKodePos[desa];
+                } else if (dbKodePos[kec]) {
+                    kp.value = dbKodePos[kec];
+                }
+            }
+        }
 
         function collectFormData() {
             let rt = document.getElementById('hk_rt').value, rk = document.getElementById('hk_rk').value;
@@ -1539,7 +1620,7 @@
                         <td class="font-bold">${a.nama_lengkap} ${!isAktif?`<span class="ml-1 text-[8px] bg-rose-200 px-1 rounded">${st}</span>`:''}</td>
                         <td>${a.nik}</td><td>${jk}</td><td>${a.tempat_lahir}</td><td>${formatDateID(a.tanggal_lahir)}</td><td class="font-bold text-brand-600 text-center">${um}</td>
                         <td>${a.agama}</td><td>${a.pendidikan}</td><td class="truncate max-w-[120px]" title="${a.jenis_pekerjaan}">${a.jenis_pekerjaan}</td>
-                        <td>${a.golongan_darah}</td><td>${a.status_perkawinan}</td><td>${a.tanggal_perkawinan}</td><td>${a.status_hubungan_keluarga}</td><td>${a.kewarganegaraan}</td>
+                        <td>${a.golongan_darah}</td><td>${a.status_perkawinan}</td><td>${formatDateID(a.tanggal_perkawinan)}</td><td>${a.status_hubungan_keluarga}</td><td>${a.kewarganegaraan}</td>
                         <td class="${!isAktif?'bg-slate-50':'bg-white'} p-2">${actBtn}</td>
                     </tr>`;
                 });
@@ -1847,11 +1928,11 @@
                     </thead>
                     <tbody>
             `;
-            a.forEach((p, i) => {
+                a.forEach((p, i) => {
                 html += `<tr>
                     <td style="border: 1px solid black; padding: 4px;">${i+1}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.status_perkawinan || '-'}</td>
-                    <td style="border: 1px solid black; padding: 4px;">${p.tanggal_perkawinan || '-'}</td>
+                    <td style="border: 1px solid black; padding: 4px;">${formatDateID(p.tanggal_perkawinan)}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.status_hubungan_keluarga || '-'}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.kewarganegaraan || '-'}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.no_paspor || '-'}</td>
@@ -1906,277 +1987,255 @@
             let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"app_title":"Smart E-KK", "app_subtitle":"Realtime Edition", "desa":"FAJAR ASRI","kec":"PANCA JAYA","kab":"MESUJI","kasi":"SUPRIYANTO","sekdes":"ROHMAN NUDIN","tgl":"31","bln":"Agustus","thn":"2026"}');
             ['app_title','app_subtitle','desa','kec','kab','kasi','sekdes','tgl','bln','thn'].forEach(k => { if(document.getElementById(`set-${k}`)) document.getElementById(`set-${k}`).value = s[k]||''; });
             
+            // Script tambahan untuk mengisi header judul laporan di semua menu view
+            const prefixes = ['rekap', 'pend', 'rt', 'agama', 'pengangguran', 'matapilih'];
+            prefixes.forEach(prefix => {
+                if(document.getElementById(`${prefix}-title-kab`)) document.getElementById(`${prefix}-title-kab`).innerText = s.kab || '-';
+                if(document.getElementById(`${prefix}-title-kec`)) document.getElementById(`${prefix}-title-kec`).innerText = s.kec || '-';
+                if(document.getElementById(`${prefix}-title-desa`)) document.getElementById(`${prefix}-title-desa`).innerText = s.desa || '-';
+                if(document.getElementById(`${prefix}-bulan`)) document.getElementById(`${prefix}-bulan`).innerText = s.bln || '-';
+                if(document.getElementById(`${prefix}-tahun`)) document.getElementById(`${prefix}-tahun`).innerText = s.thn || '-';
+                
+                // Bagian Tanda Tangan
+                if(document.getElementById(`${prefix}-ttd-desa`)) document.getElementById(`${prefix}-ttd-desa`).innerText = s.desa || '-';
+                if(document.getElementById(`${prefix}-ttd-kasi`)) document.getElementById(`${prefix}-ttd-kasi`).innerText = s.kasi || '-';
+                if(document.getElementById(`${prefix}-ttd-sekdes`)) document.getElementById(`${prefix}-ttd-sekdes`).innerText = s.sekdes || '-';
+                
+                let tglTTD = `${s.tgl || '-'} ${s.bln || '-'} ${s.thn || '-'}`;
+                if(document.getElementById(`${prefix}-tanggal-ttd`)) document.getElementById(`${prefix}-tanggal-ttd`).innerText = tglTTD;
+                if(document.getElementById(`${prefix}-ttd-tgl`)) document.getElementById(`${prefix}-ttd-tgl`).innerText = tglTTD;
+            });
+            
             // Tampilkan field hardcoded jika ada
             if(document.getElementById('set-sheets-url')) document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
-            if(document.getElementById('set-api-key')) document.getElementById('set-api-key').value = apiKey;
             
-            applyTextSettings(); applyPrintSettings(); applyLogoToNav();
-        }
+            let keys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
+            let activeIdx = parseInt(localStorage.getItem('gemini_active_key_index') || '0', 10);
+            
+            if(apiKey && keys.length === 0) keys[0] = apiKey;
 
-        function applyTextSettings() {
-            let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"app_title":"Smart E-KK", "app_subtitle":"Realtime Edition", "desa":"FAJAR ASRI","kec":"PANCA JAYA","kab":"MESUJI","kasi":"SUPRIYANTO","sekdes":"ROHMAN NUDIN","tgl":"31","bln":"Agustus","thn":"2026"}');
-            const setVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
-            
-            // Update UI Aplikasi Utama (Diterapkan jika Superadmin atau belum login)
-            if (!currentUser || currentUser.role === 'superadmin') {
-                setVal('app-title-login', s.app_title || 'Smart E-KK');
-                setVal('app-subtitle-login', s.app_subtitle || 'Realtime Edition');
-                setVal('app-title-nav', (s.app_title || 'Smart E-KK') + ' OCR');
-                setVal('app-subtitle-nav', (s.app_subtitle || 'Realtime Edition'));
+            for(let i=0; i<10; i++) {
+                if(document.getElementById(`set-api-key-${i}`)) {
+                    document.getElementById(`set-api-key-${i}`).value = keys[i] || '';
+                }
+                if(document.getElementById(`active-key-${i}`)) {
+                    document.getElementById(`active-key-${i}`).checked = (i === activeIdx);
+                }
             }
-
-            setVal('rekap-title-desa', (s.desa || '').toUpperCase()); setVal('rekap-title-kec', (s.kec || '').toUpperCase()); setVal('rekap-title-kab', (s.kab || '').toUpperCase()); setVal('rekap-ttd-desa', s.desa); setVal('rekap-ttd-tgl', `${s.tgl} ${s.bln} ${s.thn}`); setVal('rekap-ttd-kasi', s.kasi); setVal('rekap-ttd-sekdes', s.sekdes); setVal('rekap-bulan', (s.bln || '').toUpperCase()); setVal('rekap-tahun', s.thn);
-            ['pend','rt','agama','pengangguran','matapilih'].forEach(p => { setVal(`${p}-title-desa`, (s.desa || '').toUpperCase()); setVal(`${p}-title-kec`, (s.kec || '').toUpperCase()); setVal(`${p}-title-kab`, (s.kab || '').toUpperCase()); setVal(`${p}-ttd-desa`, s.desa); setVal(`${p}-tanggal-ttd`, `${s.tgl} ${s.bln} ${s.thn}`); setVal(`${p}-bulan`, (s.bln || '').toUpperCase()); setVal(`${p}-tahun`, s.thn); setVal(`${p}-ttd-kasi`, s.kasi); setVal(`${p}-ttd-sekdes`, s.sekdes); });
-        }
-
-        function saveTextSettings() {
-            let s = { app_title:document.getElementById('set-app-title').value, app_subtitle:document.getElementById('set-app-subtitle').value, desa:document.getElementById('set-desa').value, kec:document.getElementById('set-kec').value, kab:document.getElementById('set-kab').value, kasi:document.getElementById('set-kasi').value, sekdes:document.getElementById('set-sekdes').value, tgl:document.getElementById('set-tgl').value, bln:document.getElementById('set-bln').value, thn:document.getElementById('set-thn').value };
-            localStorage.setItem('app_laporan_settings', JSON.stringify(s)); showToast("Data laporan disimpan", "success"); applyTextSettings();
             
-            // Sync setting text ke cloud
-            fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_laporan_settings',value:JSON.stringify(s)})}).catch(e=>{});
-        }
-
-        function applyPrintSettings() {
-            let s = JSON.parse(localStorage.getItem('app_print_settings')||'{"paper":"A4","margin":"5"}');
-            if(document.getElementById('set-paper')) document.getElementById('set-paper').value = s.paper; if(document.getElementById('set-margin')) document.getElementById('set-margin').value = s.margin;
-            let sty = document.getElementById('dyn-print-style'); if(!sty){ sty=document.createElement('style'); sty.id='dyn-print-style'; document.head.appendChild(sty); }
-            sty.innerHTML = `@media print { @page { size: ${s.paper} landscape !important; margin: ${s.margin}mm !important; } }`;
-        }
-
-        function savePrintSettings() {
-            let s = { paper:document.getElementById('set-paper').value, margin:document.getElementById('set-margin').value };
-            localStorage.setItem('app_print_settings', JSON.stringify(s)); showToast("Pengaturan cetak disimpan", "success"); applyPrintSettings();
-            
-            // Sync setting print ke cloud
-            fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_print_settings',value:JSON.stringify(s)})}).catch(e=>{});
+            // Set global api key variables
+            apiKey = keys[activeIdx] || '';
         }
 
         function saveIntegrationSettings() {
-            let key = document.getElementById('set-api-key').value.trim();
-            let updated = false;
-
-            if(key && key !== apiKey) {
-                localStorage.setItem('gemini_api_key', key);
-                apiKey = key;
-                updated = true;
-                // Sync API key ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'gemini_api_key',value:key})}).catch(e=>{});
+            let keys = [];
+            let activeIdx = 0;
+            for(let i=0; i<10; i++) {
+                let el = document.getElementById(`set-api-key-${i}`);
+                keys.push(el ? el.value.trim() : '');
+                let radio = document.getElementById(`active-key-${i}`);
+                if (radio && radio.checked) {
+                    activeIdx = i;
+                }
             }
             
-            if(updated) {
-                showToast("Pengaturan Integrasi disimpan!", "success");
-            } else {
-                showToast("Tidak ada perubahan yang disimpan", "warning");
-            }
-        }
-
-        document.getElementById('logo-file-input').addEventListener('change', e => {
-            let f = e.target.files[0]; if(!f) return; let r = new FileReader(); r.onload=ev=>{ 
-                localStorage.setItem('instansi_logo', ev.target.result); 
-                loadSettingsUI(); 
-                showToast("Logo dimuat", "success"); 
-                // Sync logo ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'instansi_logo',value:ev.target.result})}).catch(e=>{});
-            }; r.readAsDataURL(f);
-        });
-
-        document.getElementById('bg-file-input').addEventListener('change', e => {
-            let f = e.target.files[0]; if(!f) return; let r = new FileReader(); r.onload=ev=>{ 
-                localStorage.setItem('login_bg', ev.target.result); 
-                applyThemeAndBg(); 
-                showToast("Background Login dimuat", "success"); 
-                // Sync otomatis background ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'login_bg',value:ev.target.result})}).catch(e=>{});
-            }; r.readAsDataURL(f);
-        });
-
-        function removeLoginBg() { 
-            localStorage.removeItem('login_bg'); 
-            applyThemeAndBg(); 
-            showToast("Background dihapus", "info"); 
-            // Sync otomatis hapus background ke cloud
-            fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'login_bg',value:''})}).catch(e=>{});
-        }
-
-        function setAppTheme(themeName) {
-            localStorage.setItem('app_theme', themeName);
-            applyThemeAndBg();
-            showToast("Tema diubah", "success");
-            // Sync otomatis tema ke cloud
-            fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_theme',value:themeName})}).catch(e=>{});
-        }
-
-        function applyThemeAndBg() {
-            let bg = localStorage.getItem('login_bg');
-            if (bg) {
-                document.getElementById('login-view').style.backgroundImage = `url(${bg})`;
-                document.getElementById('login-view').style.backgroundSize = 'cover';
-                document.getElementById('login-view').style.backgroundPosition = 'center';
-                document.getElementById('login-view').classList.remove('animated-bg');
-            } else {
-                document.getElementById('login-view').style.backgroundImage = '';
-                document.getElementById('login-view').classList.add('animated-bg');
-            }
+            // Simpan array API dan mana yang aktif ke local storage
+            localStorage.setItem('gemini_api_keys', JSON.stringify(keys));
+            localStorage.setItem('gemini_active_key_index', activeIdx.toString());
             
-            let theme = localStorage.getItem('app_theme') || 'default';
-            document.body.classList.remove('theme-rose', 'theme-emerald', 'theme-amber');
-            if (theme !== 'default') document.body.classList.add(`theme-${theme}`);
+            // Perbarui global variable secara realtime
+            apiKey = keys[activeIdx] || '';
+            localStorage.setItem('gemini_api_key', apiKey); // backward compatibility
+            
+            // Background sync (Optional backup ke db)
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(keys)})}).catch(e=>{});
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_index', value:activeIdx.toString()})}).catch(e=>{});
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
+
+            showToast("Pengaturan Integrasi API Key tersimpan!", "success");
         }
-
-        function saveLogo() { if(localStorage.getItem('instansi_logo')) { showToast("Logo disimpan", "success"); fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'instansi_logo',value:localStorage.getItem('instansi_logo')})}).catch(e=>{}); } }
-        function removeLogo() { localStorage.removeItem('instansi_logo'); document.getElementById('settings-logo-preview').src=''; document.getElementById('settings-logo-preview').classList.add('hidden'); document.getElementById('settings-logo-placeholder').classList.remove('hidden'); applyLogoToNav(); showToast("Logo dihapus", "info"); fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'instansi_logo',value:''})}).catch(e=>{}); }
-        function applyLogoToNav() { let l = localStorage.getItem('instansi_logo'); if(l) { document.getElementById('nav-logo-container').innerHTML=`<img src="${l}" class="w-full h-full object-cover">`; if(document.getElementById('login-logo-preview')) document.getElementById('login-logo-preview').innerHTML=`<img src="${l}" class="w-full h-full object-cover">`; } }
-
+        
+        // Fungsi untuk menyimpan pengaturan Teks/Identitas Laporan
+        function saveTextSettings() {
+            let s = {
+                app_title: document.getElementById('set-app-title').value,
+                app_subtitle: document.getElementById('set-app-subtitle').value,
+                desa: document.getElementById('set-desa').value,
+                kec: document.getElementById('set-kec').value,
+                kab: document.getElementById('set-kab').value,
+                kasi: document.getElementById('set-kasi').value,
+                sekdes: document.getElementById('set-sekdes').value,
+                tgl: document.getElementById('set-tgl').value,
+                bln: document.getElementById('set-bln').value,
+                thn: document.getElementById('set-thn').value
+            };
+            localStorage.setItem('app_laporan_settings', JSON.stringify(s));
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_laporan_settings', value:JSON.stringify(s)})}).catch(e=>{});
+            loadSettingsUI();
+            showToast("Pengaturan Identitas Laporan tersimpan!", "success");
+        }
+        
+        // FUNGSI MANAJEMEN AKUN
         function renderUsersTable() {
-            let tb = document.getElementById('users-table-body'); tb.innerHTML='';
-            JSON.parse(localStorage.getItem('app_users_db')||'[]').forEach(u => {
-                let badge = u.role==='superadmin'?'<span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">SUPERADMIN</span>':u.role==='admin'?'<span class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-xs font-bold">ADMIN</span>':'<span class="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">USER</span>';
-                let wil = `<span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold">RK: ${u.rk||'ALL'} | RT: ${u.rt||'ALL'}</span>`;
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let tb = document.getElementById('users-table-body');
+            if(!tb) return;
+            tb.innerHTML = '';
+            uDb.forEach(u => {
+                let isSuper = u.username === 'superadmin1';
                 
-                let status = u.approval_status || 'approved';
-                let statusBadge = status === 'approved' ? '<span class="text-emerald-500 font-bold text-[10px] uppercase block mt-1"><i class="fas fa-check-circle"></i> Disetujui</span>' : status === 'pending' ? '<span class="text-amber-500 font-bold text-[10px] uppercase block mt-1"><i class="fas fa-clock"></i> Menunggu</span>' : '<span class="text-rose-500 font-bold text-[10px] uppercase block mt-1"><i class="fas fa-times-circle"></i> Ditolak</span>';
+                // Tambahan UI untuk Status Persetujuan
+                let statusBadge = '';
+                let actionButtons = '';
                 
-                let approveBtns = status === 'pending' && u.role !== 'superadmin' ? `<button onclick="setApprovalStatus('${u.username}', 'approved')" class="text-emerald-500 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded mr-1" title="Setujui Akun"><i class="fas fa-check"></i></button><button onclick="setApprovalStatus('${u.username}', 'rejected')" class="text-amber-500 bg-amber-50 hover:bg-amber-100 p-1.5 rounded mr-1" title="Tolak Akun"><i class="fas fa-times"></i></button>` : '';
-                let editBtn = `<button onclick="openEditUserModal('${u.username}')" class="text-amber-500 bg-amber-50 hover:bg-amber-100 p-1.5 rounded mr-1" title="Edit Akun"><i class="fas fa-pen"></i></button>`;
+                if (u.approval_status === 'pending') {
+                    statusBadge = '<span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold uppercase ml-2 border border-amber-200">Menunggu</span>';
+                    actionButtons = `
+                        <button onclick="approveUser('${u.username}')" class="p-2 bg-emerald-100 text-emerald-600 rounded hover:bg-emerald-200 transition-colors mr-1" title="Setujui Akun"><i class="fas fa-check"></i></button>
+                        <button onclick="rejectUser('${u.username}')" class="p-2 bg-rose-100 text-rose-600 rounded hover:bg-rose-200 transition-colors mr-1" title="Tolak Akun"><i class="fas fa-times"></i></button>
+                        <button onclick="deleteUser('${u.username}')" class="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors" title="Hapus Permanen"><i class="fas fa-trash"></i></button>
+                    `;
+                } else if (u.approval_status === 'rejected') {
+                    statusBadge = '<span class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-[10px] font-bold uppercase ml-2 border border-rose-200">Ditolak</span>';
+                } else {
+                    statusBadge = '<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold uppercase ml-2 border border-emerald-200">Aktif</span>';
+                }
 
-                tb.innerHTML += `<tr><td class="py-2 font-bold">${u.username} ${statusBadge}</td><td>${badge}</td><td>${wil}</td><td class="text-center">${approveBtns}${editBtn}<button onclick="deleteUser('${u.username}')" class="text-rose-500 bg-rose-50 hover:bg-rose-100 p-1.5 rounded" title="Hapus Akun"><i class="fas fa-trash"></i></button></td></tr>`;
+                // Tombol Aksi Default (Jika bukan pending)
+                let baseActions = `
+                    <button onclick="editUser('${u.username}')" class="p-2 bg-amber-100 text-amber-600 rounded hover:bg-amber-200 transition-colors mr-1" title="Edit Akun"><i class="fas fa-edit"></i></button>
+                    ${!isSuper ? `<button onclick="deleteUser('${u.username}')" class="p-2 bg-rose-100 text-rose-600 rounded hover:bg-rose-200 transition-colors" title="Hapus Akun"><i class="fas fa-trash"></i></button>` : ''}
+                `;
+
+                tb.innerHTML += `<tr>
+                    <td class="px-6 py-4 font-bold text-slate-700 flex items-center">${u.username} ${statusBadge}</td>
+                    <td class="px-6 py-4 font-bold text-rose-500">${u.password}</td>
+                    <td class="px-6 py-4"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold uppercase">${u.role}</span></td>
+                    <td class="px-6 py-4 text-xs font-bold text-slate-500">RK: ${u.rk||'all'} | RT: ${u.rt||'all'}</td>
+                    <td class="px-6 py-4 text-center">
+                        ${u.approval_status === 'pending' ? actionButtons : baseActions}
+                    </td>
+                </tr>`;
             });
         }
 
-        function setApprovalStatus(username, status) {
-            let uDb = JSON.parse(localStorage.getItem('app_users_db')||'[]');
-            let user = uDb.find(u => u.username === username);
-            if(user) {
-                user.approval_status = status;
+        // Fungsi Baru: Setujui Akun
+        function approveUser(username) {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let idx = uDb.findIndex(x => x.username === username);
+            if(idx > -1) {
+                uDb[idx].approval_status = 'approved';
                 localStorage.setItem('app_users_db', JSON.stringify(uDb));
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
                 renderUsersTable();
-                showToast(`Akun ${username} telah ${status==='approved'?'disetujui':'ditolak'}.`, 'success');
-                // Sync status akun ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_users_db',value:JSON.stringify(uDb)})}).catch(e=>{});
+                showToast(`Akun ${username} berhasil disetujui`, "success");
             }
+        }
+
+        // Fungsi Baru: Tolak Akun
+        function rejectUser(username) {
+            showConfirmModal("Tolak Pendaftaran", `Apakah Anda yakin ingin menolak akun ${username}?`, () => {
+                let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+                let idx = uDb.findIndex(x => x.username === username);
+                if(idx > -1) {
+                    uDb[idx].approval_status = 'rejected';
+                    localStorage.setItem('app_users_db', JSON.stringify(uDb));
+                    fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
+                    renderUsersTable();
+                    showToast(`Pendaftaran ${username} ditolak`, "info");
+                }
+            });
         }
 
         function handleAddUser(e) {
             e.preventDefault();
-            let u = document.getElementById('new-username').value, p = document.getElementById('new-password').value, r = document.getElementById('new-role').value, rk = document.getElementById('new-rk').value, rt = document.getElementById('new-rt').value;
-            let uDb = JSON.parse(localStorage.getItem('app_users_db')||'[]'); if(uDb.find(x=>x.username===u)) return showToast("Username sudah ada", "error");
-            uDb.push({username:u, password:p, role:r, rk:rk, rt:rt, approval_status:'approved'}); 
-            localStorage.setItem('app_users_db', JSON.stringify(uDb)); showToast("Akun ditambahkan", "success"); renderUsersTable(); document.getElementById('add-user-form').reset();
-            // Sync user baru (admin created) ke cloud
-            fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_users_db',value:JSON.stringify(uDb)})}).catch(e=>{});
+            let u = document.getElementById('new-username').value;
+            let p = document.getElementById('new-password').value;
+            let r = document.getElementById('new-role').value;
+            let rk = document.getElementById('new-rk').value;
+            let rt = document.getElementById('new-rt').value;
+            
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            if(uDb.find(x => x.username === u)) return showToast("Username sudah ada", "warning");
+            
+            uDb.push({username:u, password:p, role:r, rk:rk, rt:rt, approval_status: 'approved'});
+            localStorage.setItem('app_users_db', JSON.stringify(uDb));
+            
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
+            
+            document.getElementById('add-user-form').reset();
+            renderUsersTable();
+            showToast("Pengguna berhasil ditambah", "success");
         }
 
-        function deleteUser(u) { if(u===currentUser.username) return showToast("Tidak bisa hapus diri sendiri", "warning"); showConfirmModal("Hapus Akun","Yakin hapus "+u+"?",()=>{ let db=JSON.parse(localStorage.getItem('app_users_db')||'[]').filter(x=>x.username!==u); localStorage.setItem('app_users_db',JSON.stringify(db)); renderUsersTable(); showToast("Terhapus"); fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_users_db',value:JSON.stringify(db)})}).catch(e=>{}); }); }
+        function deleteUser(username) {
+            showConfirmModal("Hapus Pengguna", `Yakin hapus akun ${username}?`, () => {
+                let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+                uDb = uDb.filter(x => x.username !== username);
+                localStorage.setItem('app_users_db', JSON.stringify(uDb));
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
+                renderUsersTable();
+                showToast("Pengguna dihapus", "success");
+            });
+        }
 
-        function openEditUserModal(username) {
-            let uDb = JSON.parse(localStorage.getItem('app_users_db')||'[]');
-            let user = uDb.find(u => u.username === username);
-            if(!user) return;
-            document.getElementById('edit-original-username').value = user.username;
-            document.getElementById('edit-username').value = user.username;
+        function editUser(username) {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let u = uDb.find(x => x.username === username);
+            if(!u) return;
+            document.getElementById('edit-original-username').value = u.username;
+            document.getElementById('edit-username').value = u.username;
             document.getElementById('edit-password').value = '';
-            document.getElementById('edit-role').value = user.role;
-            document.getElementById('edit-rk').value = user.rk || 'all';
-            document.getElementById('edit-rt').value = user.rt || 'all';
+            document.getElementById('edit-role').value = u.role;
+            document.getElementById('edit-rk').value = u.rk || 'all';
+            document.getElementById('edit-rt').value = u.rt || 'all';
             
             let modal = document.getElementById('edit-user-modal');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
 
         function closeEditUserModal() {
             let modal = document.getElementById('edit-user-modal');
-            modal.classList.add('opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            modal.classList.add('opacity-0'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
         function saveEditUser(e) {
             e.preventDefault();
-            let origU = document.getElementById('edit-original-username').value;
+            let orig = document.getElementById('edit-original-username').value;
             let u = document.getElementById('edit-username').value;
             let p = document.getElementById('edit-password').value;
             let r = document.getElementById('edit-role').value;
             let rk = document.getElementById('edit-rk').value;
             let rt = document.getElementById('edit-rt').value;
             
-            let uDb = JSON.parse(localStorage.getItem('app_users_db')||'[]');
-            if (u !== origU && uDb.find(x => x.username === u)) return showToast("Username sudah dipakai", "error");
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let idx = uDb.findIndex(x => x.username === orig);
+            if(idx === -1) return;
             
-            let idx = uDb.findIndex(x => x.username === origU);
-            if (idx > -1) {
-                uDb[idx].username = u;
-                if (p.trim() !== '') uDb[idx].password = p;
-                uDb[idx].role = r;
-                uDb[idx].rk = rk;
-                uDb[idx].rt = rt;
-                localStorage.setItem('app_users_db', JSON.stringify(uDb));
-                renderUsersTable();
-                closeEditUserModal();
-                showToast("Akun berhasil diperbarui", "success");
-                
-                // Sync user edit ke cloud
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'save_setting',key:'app_users_db',value:JSON.stringify(uDb)})}).catch(err=>{});
-                
-                if (currentUser && currentUser.username === origU) {
-                    currentUser.username = u;
-                    currentUser.role = r;
-                    currentUser.rk = rk;
-                    currentUser.rt = rt;
-                    sessionStorage.setItem('app_session', JSON.stringify(currentUser));
-                    document.getElementById('current-username-display').innerText = currentUser.username;
-                }
+            if(u !== orig && uDb.find(x => x.username === u)) return showToast("Username sudah dipakai", "warning");
+            
+            uDb[idx].username = u;
+            if(p.trim() !== '') uDb[idx].password = p;
+            uDb[idx].role = r;
+            uDb[idx].rk = rk;
+            uDb[idx].rt = rt;
+            
+            localStorage.setItem('app_users_db', JSON.stringify(uDb));
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
+            
+            closeEditUserModal();
+            renderUsersTable();
+            showToast("Perubahan disimpan", "success");
+        }
+
+        // Inisialisasi awal saat pertama reload
+        window.onload = () => {
+            initAuth();
+            if (!sessionStorage.getItem('app_session')) {
+                document.getElementById('login-view').classList.remove('hidden');
+                document.getElementById('app-wrapper').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('flex');
             }
-        }
-
-        function triggerImportExcel() { document.getElementById('excel-file-input').click(); }
-        function importExcel(e) {
-            let f = e.target.files[0]; if(!f) return; showToast("Membaca Excel...", "info");
-            let r = new FileReader(); r.onload = ev => {
-                try {
-                    let wb = XLSX.read(ev.target.result, {type:'binary'}), jd = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                    let g={}; jd.forEach(row => {
-                        let nk = row["No. KK"]||row["No KK"]; if(!nk) return;
-                        
-                        // Fix untuk mencegah Excel mendeteksi 01/01 (RT/RW) sebagai Serial Number Date
-                        let rtrw_val = row["RT/RW"] || "";
-                        if (typeof rtrw_val === 'number' && rtrw_val > 1000) { 
-                            let d = new Date((rtrw_val - 25569) * 86400 * 1000);
-                            rtrw_val = `${d.getDate().toString().padStart(3,'0')}/${(d.getMonth()+1).toString().padStart(3,'0')}`;
-                        } else if (typeof rtrw_val === 'string' && (rtrw_val.includes('GMT') || rtrw_val.includes('Time)'))) {
-                            let cleanDateStr = rtrw_val.replace(/RT/gi, '').replace(/RK/gi, '').split('/')[0].trim();
-                            let d = new Date(cleanDateStr);
-                            if (!isNaN(d.getTime())) rtrw_val = `${d.getDate().toString().padStart(3,'0')}/${(d.getMonth()+1).toString().padStart(3,'0')}`;
-                        }
-
-                        if(!g[nk]) g[nk]={header:{no_kk:nk,nama_kepala_keluarga:row["Nama Kepala Keluarga"]||row["Nama KK"]||"",alamat:row["Alamat"]||"",rt_rw:String(rtrw_val),kode_pos:row["Kode Pos"]||"",desa_kelurahan:row["Desa/Kelurahan"]||"",kecamatan:row["Kecamatan"]||"",kabupaten_kota:row["Kabupaten/Kota"]||"",provinsi:row["Provinsi"]||""},anggota_keluarga:[]};
-                        g[nk].anggota_keluarga.push({nama_lengkap:row["Nama Lengkap"]||row["Nama"]||"",nik:row["NIK"]||"",jenis_kelamin:row["Jenis Kelamin"]||row["J.Kelamin"]||"",tempat_lahir:row["Tempat Lahir"]||row["Tmp Lahir"]||"",tanggal_lahir:row["Tanggal Lahir"]||row["Tgl Lahir"]||"",agama:row["Agama"]||"",pendidikan:row["Pendidikan"]||"",jenis_pekerjaan:row["Pekerjaan"]||"",golongan_darah:row["Golongan Darah"]||"-",status_perkawinan:row["Status Perkawinan"]||row["Status Kawin"]||"",tanggal_perkawinan:row["Tanggal Perkawinan"]||"-",status_hubungan_keluarga:row["Hubungan Keluarga"]||row["Hubungan"]||"",kewarganegaraan:row["Kewarganegaraan"]||"WNI",no_paspor:row["No Paspor"]||"-",no_kitap:row["No KITAP"]||"-",nama_ayah:row["Nama Ayah"]||"-",nama_ibu:row["Nama Ibu"]||"-"});
-                    });
-                    localStorage.setItem('kk_data', JSON.stringify(Object.values(g))); loadDashboardData(); renderRekapTable(); showToast(`Import ${Object.values(g).length} KK berhasil`, "success");
-                    
-                } catch(e) { showToast("Gagal baca Excel", "error"); }
-            }; r.readAsBinaryString(f); e.target.value='';
-        }
-        function exportExcel() {
-            let sD = getFilteredKKData(), f = [];
-            sD.forEach(k => { (k.anggota_keluarga||[]).forEach(a => { f.push({ "No KK":k.header.no_kk, "Nama KK":k.header.nama_kepala_keluarga, "Alamat":k.header.alamat, "RT/RW":k.header.rt_rw, "Nama":a.nama_lengkap, "NIK":a.nik, "J.Kelamin":a.jenis_kelamin, "Tmp Lahir":a.tempat_lahir, "Tgl Lahir":formatDateID(a.tanggal_lahir), "Agama":a.agama, "Pendidikan":a.pendidikan, "Pekerjaan":a.jenis_pekerjaan, "Status Kawin":a.status_perkawinan, "Hubungan":a.status_hubungan_keluarga }); }); });
-            let ws = XLSX.utils.json_to_sheet(f), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Database"); XLSX.writeFile(wb, `Data_Penduduk_${new Date().getTime()}.xlsx`); showToast("Export Selesai", "success");
-        }
-
-        window.onload = () => { 
-            applyThemeAndBg(); 
-            initAuth(); 
-            loadSettingsUI(); 
-            
-            // Mengaktifkan looping interval realtime
-            startRealtimeSync(); 
-            
-            // Eksekusi sync pertama
-            (async () => {
-                if (GOOGLE_SHEETS_API_URL && GOOGLE_SHEETS_API_URL !== "MASUKKAN_URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI") {
-                    await syncFromCloudBackground();
-                }
-            })();
         };
     </script>
 </body>
