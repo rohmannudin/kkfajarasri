@@ -536,12 +536,36 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div onclick="setDashFilter(null)" class="bg-white p-5 rounded-3xl shadow-sm border cursor-pointer hover:border-brand-300"><p class="text-slate-500 text-[10px] font-bold uppercase mb-2">Total KK</p><h3 class="text-3xl font-black text-slate-800" id="dash-total-kk">0</h3></div>
-                    <div onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="bg-white p-5 rounded-3xl shadow-sm border cursor-pointer hover:border-amber-300"><p class="text-slate-500 text-[10px] font-bold uppercase mb-2">Kepala Keluarga</p><h3 class="text-3xl font-black text-slate-800" id="dash-total-kepala">0</h3></div>
-                    <div onclick="setDashFilter(null)" class="bg-white p-5 rounded-3xl shadow-sm border cursor-pointer hover:border-indigo-300"><p class="text-slate-500 text-[10px] font-bold uppercase mb-2">Penduduk Aktif</p><h3 class="text-3xl font-black text-slate-800" id="dash-total-penduduk">0</h3></div>
-                    <div onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="bg-gradient-to-br from-indigo-600 to-brand-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all"><p class="text-indigo-100 text-[10px] font-bold uppercase mb-2">Mata Pilih</p><h3 class="text-3xl font-black text-white" id="dash-total-pemilih">0</h3></div>
-                    <div onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="bg-white p-5 rounded-3xl shadow-sm border cursor-pointer hover:border-sky-300"><p class="text-slate-500 text-[10px] font-bold uppercase mb-2">Laki-Laki</p><h3 class="text-3xl font-black text-slate-800" id="dash-total-l">0</h3></div>
-                    <div onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="bg-white p-5 rounded-3xl shadow-sm border cursor-pointer hover:border-pink-300"><p class="text-slate-500 text-[10px] font-bold uppercase mb-2">Perempuan</p><h3 class="text-3xl font-black text-slate-800" id="dash-total-p">0</h3></div>
+                    <div onclick="setDashFilter(null)" class="bg-gradient-to-br from-slate-700 to-slate-900 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity duration-300"><i class="fas fa-file-invoice text-7xl text-white"></i></div>
+                        <p class="text-slate-300 text-[10px] font-bold uppercase mb-2 relative z-10">Total KK</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kk">0</h3>
+                    </div>
+                    <div onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-user-tie text-7xl text-white"></i></div>
+                        <p class="text-amber-100 text-[10px] font-bold uppercase mb-2 relative z-10">Kepala Keluarga</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kepala">0</h3>
+                    </div>
+                    <div onclick="setDashFilter(null)" class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-users text-7xl text-white"></i></div>
+                        <p class="text-emerald-100 text-[10px] font-bold uppercase mb-2 relative z-10">Penduduk Aktif</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-penduduk">0</h3>
+                    </div>
+                    <div onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="bg-gradient-to-br from-indigo-600 to-brand-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-check-to-slot text-7xl text-white"></i></div>
+                        <p class="text-indigo-100 text-[10px] font-bold uppercase mb-2 relative z-10">Mata Pilih</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-pemilih">0</h3>
+                    </div>
+                    <div onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="bg-gradient-to-br from-sky-500 to-blue-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-male text-7xl text-white"></i></div>
+                        <p class="text-sky-100 text-[10px] font-bold uppercase mb-2 relative z-10">Laki-Laki</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-l">0</h3>
+                    </div>
+                    <div onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-female text-7xl text-white"></i></div>
+                        <p class="text-rose-100 text-[10px] font-bold uppercase mb-2 relative z-10">Perempuan</p>
+                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-p">0</h3>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2211,30 +2235,24 @@
                     <td style="border: 1px solid black; padding: 4px;">${p.golongan_darah || '-'}</td>
                 </tr>`;
             });
-            html += `
-                    </tbody>
-                </table>
-                <table class="dukcapil-table" style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 10px; text-align: center; color: black;">
+            html += `</tbody></table>
+                <table class="dukcapil-table" style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px; text-align: center; color: black;">
                     <thead>
                         <tr>
-                            <th style="border: 1.5px solid black; padding: 4px;" rowspan="2">No</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" rowspan="2">Status Perkawinan</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" rowspan="2">Tanggal Perkawinan</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" rowspan="2">Status Hubungan Dalam Keluarga</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" rowspan="2">Kewarganegaraan</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" colspan="2">Dokumen Imigrasi</th>
-                            <th style="border: 1.5px solid black; padding: 4px;" colspan="2">Nama Orang Tua</th>
-                        </tr>
-                        <tr>
+                            <th style="border: 1.5px solid black; padding: 4px;">No</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Status Perkawinan</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Tanggal Perkawinan</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Status Hubungan Dalam Keluarga</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Kewarganegaraan</th>
                             <th style="border: 1.5px solid black; padding: 4px;">No. Paspor</th>
                             <th style="border: 1.5px solid black; padding: 4px;">No. KITAP</th>
-                            <th style="border: 1.5px solid black; padding: 4px;">Ayah</th>
-                            <th style="border: 1.5px solid black; padding: 4px;">Ibu</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Nama Ayah</th>
+                            <th style="border: 1.5px solid black; padding: 4px;">Nama Ibu</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
-                a.forEach((p, i) => {
+            a.forEach((p, i) => {
                 html += `<tr>
                     <td style="border: 1px solid black; padding: 4px;">${i+1}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.status_perkawinan || '-'}</td>
@@ -2243,92 +2261,249 @@
                     <td style="border: 1px solid black; padding: 4px;">${p.kewarganegaraan || '-'}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.no_paspor || '-'}</td>
                     <td style="border: 1px solid black; padding: 4px;">${p.no_kitap || '-'}</td>
-                    <td style="border: 1px solid black; padding: 4px; text-align:left;">${p.nama_ayah || '-'}</td>
-                    <td style="border: 1px solid black; padding: 4px; text-align:left;">${p.nama_ibu || '-'}</td>
+                    <td style="border: 1px solid black; padding: 4px;">${p.nama_ayah || '-'}</td>
+                    <td style="border: 1px solid black; padding: 4px;">${p.nama_ibu || '-'}</td>
                 </tr>`;
             });
             
-            let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"tgl":"","bln":"","thn":""}');
-            let todayDate = s.tgl ? `${s.tgl} ${s.bln} ${s.thn}` : new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            let tgl = localStorage.getItem('set_tgl') || new Date().getDate();
+            let bln = localStorage.getItem('set_bln') || new Date().toLocaleString('id-ID', {month: 'long'});
+            let thn = localStorage.getItem('set_thn') || new Date().getFullYear();
+            let kab = localStorage.getItem('set_kab') || 'KABUPATEN';
+            let jab_kk = localStorage.getItem('set_jabatan_kk') || 'KEPALA DESA';
+            let nm_kk = localStorage.getItem('set_nama_kk') || '(.......................................)';
+            let nip_kk = localStorage.getItem('set_nip_kk') || 'NIP. ';
 
-            let jabatanKk = s.jabatan_kk || "KEPALA DESA FAJAR ASRI";
-            let namaKk = s.nama_kk || "(............................................................)";
-            let nipKk = s.nip_kk || "NIP. ........................................";
-
-            html += `
-                    </tbody>
-                </table>
-                <div style="display: flex; justify-content: space-between; font-size: 11px; padding: 0 40px; font-weight:bold; color: black; break-inside: avoid;">
-                    <div style="text-align: center;">
-                        <p style="margin-bottom: 60px;">KEPALA KELUARGA</p>
-                        <p style="text-decoration: underline;">${h.nama_kepala_keluarga || '-'}</p>
-                        <p>Tanda Tangan/Cap Jempol</p>
+            html += `</tbody></table>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 20px; font-family: Arial, sans-serif;">
+                    <div style="text-align: center; width: 30%;">
+                        <p style="margin:0;">KEPALA KELUARGA</p>
+                        <br><br><br><br>
+                        <p style="margin:0; font-weight: bold; text-decoration: underline;">${h.nama_kepala_keluarga || '............................'}</p>
+                        <p style="margin:0;">Tanda Tangan/Cap Jempol</p>
                     </div>
-                    <div style="text-align: center;">
-                        <p style="margin-bottom: 5px;">Dikeluarkan Tanggal: ${todayDate}</p>
-                        <p style="margin-bottom: 60px;">${jabatanKk}</p>
-                        <p style="text-decoration: underline;">${namaKk}</p>
-                        <p>${nipKk}</p>
+                    <div style="text-align: center; width: 30%;">
+                        <p style="margin:0;">${kab}, ${tgl} ${bln} ${thn}</p>
+                        <p style="margin:0;">${jab_kk}</p>
+                        <br><br><br><br>
+                        <p style="margin:0; font-weight: bold; text-decoration: underline;">${nm_kk}</p>
+                        <p style="margin:0;">${nip_kk}</p>
                     </div>
                 </div>
             `;
-            
-            let printArea = document.getElementById('dukcapil-print-area');
-            printArea.innerHTML = html;
-            
-            printArea.classList.remove('hidden');
-
-            document.body.className = 'printing-dukcapil'; 
-            window.print(); 
-            
-            document.body.className = ''; 
-            
-            printArea.classList.add('hidden');
+            document.getElementById('dukcapil-print-area').innerHTML = html;
+            document.body.classList.add('printing-dukcapil');
+            window.print();
+            document.body.classList.remove('printing-dukcapil');
         }
-        function printPendidikanFormat() { document.body.className = 'printing-pendidikan'; window.print(); document.body.className = ''; }
-        function printRtFormat() { document.body.className = 'printing-rt'; window.print(); document.body.className = ''; }
-        function printAgamaFormat() { document.body.className = 'printing-agama'; window.print(); document.body.className = ''; }
-        function printPengangguranFormat() { document.body.className = 'printing-pengangguran'; window.print(); document.body.className = ''; }
-        function printMataPilihFormat() { document.body.className = 'printing-matapilih'; window.print(); document.body.className = ''; }
 
-        // --- PENGATURAN & AKUN ---
-        function loadSettingsUI() {
-            let l = localStorage.getItem('instansi_logo'); if(l){ document.getElementById('settings-logo-preview').src=l; document.getElementById('settings-logo-preview').classList.remove('hidden'); document.getElementById('settings-logo-placeholder').classList.add('hidden'); }
-            let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{"app_title":"Smart E-KK", "app_subtitle":"Realtime Edition", "desa":"FAJAR ASRI","kec":"PANCA JAYA","kab":"MESUJI","kasi":"SUPRIYANTO","sekdes":"ROHMAN NUDIN","tgl":"31","bln":"Agustus","thn":"2026"}');
-            ['app_title','app_subtitle','desa','kec','kab','kasi','sekdes','tgl','bln','thn','jabatan_kk','nama_kk','nip_kk'].forEach(k => { if(document.getElementById(`set-${k}`)) document.getElementById(`set-${k}`).value = s[k]||''; });
-            
-            applyAppTitles();
+        function generatePDF() {
+            printDukcapilFormat(); // Call print and user can choose save as PDF
+        }
 
-            // Script tambahan untuk mengisi header judul laporan di semua menu view
-            const prefixes = ['rekap', 'pend', 'rt', 'agama', 'pengangguran', 'matapilih'];
-            prefixes.forEach(prefix => {
-                if(document.getElementById(`${prefix}-title-kab`)) document.getElementById(`${prefix}-title-kab`).innerText = s.kab || '-';
-                if(document.getElementById(`${prefix}-title-kec`)) document.getElementById(`${prefix}-title-kec`).innerText = s.kec || '-';
-                if(document.getElementById(`${prefix}-title-desa`)) document.getElementById(`${prefix}-title-desa`).innerText = s.desa || '-';
-                if(document.getElementById(`${prefix}-bulan`)) document.getElementById(`${prefix}-bulan`).innerText = s.bln || '-';
-                if(document.getElementById(`${prefix}-tahun`)) document.getElementById(`${prefix}-tahun`).innerText = s.thn || '-';
+        function triggerImportExcel() { document.getElementById('excel-file-input').click(); }
+
+        function importExcel(e) {
+            let f = e.target.files[0];
+            if(!f) return;
+            let reader = new FileReader();
+            reader.onload = (evt) => {
+                let data = new Uint8Array(evt.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                let json = XLSX.utils.sheet_to_json(sheet);
                 
-                if(document.getElementById(`${prefix}-ttd-desa`)) document.getElementById(`${prefix}-ttd-desa`).innerText = s.desa || '-';
-                if(document.getElementById(`${prefix}-ttd-kasi`)) document.getElementById(`${prefix}-ttd-kasi`).innerText = s.kasi || '-';
-                if(document.getElementById(`${prefix}-ttd-sekdes`)) document.getElementById(`${prefix}-ttd-sekdes`).innerText = s.sekdes || '-';
-                if(document.getElementById(`${prefix}-tanggal-ttd`)) document.getElementById(`${prefix}-tanggal-ttd`).innerText = `${s.tgl} ${s.bln} ${s.thn}`;
-            });
-            if(document.getElementById('rekap-ttd-tgl')) document.getElementById('rekap-ttd-tgl').innerText = `${s.tgl} ${s.bln} ${s.thn}`;
+                // Group by KK
+                let kks = {};
+                json.forEach(row => {
+                    let nokk = row['No KK'] || row['NO KK'] || row['no_kk'];
+                    if(!nokk) return;
+                    if(!kks[nokk]) {
+                        kks[nokk] = {
+                            header: {
+                                no_kk: nokk,
+                                nama_kepala_keluarga: row['Nama KK'] || row['Nama Kepala Keluarga'] || row['Kepala Keluarga'] || '-',
+                                alamat: row['Alamat'] || '-',
+                                rt_rw: row['RT/RW'] || row['RT RW'] || '-',
+                                kode_pos: row['Kode Pos'] || '-',
+                                desa_kelurahan: row['Desa'] || row['Kelurahan'] || '-',
+                                kecamatan: row['Kecamatan'] || '-',
+                                kabupaten_kota: row['Kabupaten'] || row['Kota'] || '-',
+                                provinsi: row['Provinsi'] || '-'
+                            },
+                            anggota_keluarga: [],
+                            input_by: currentUser.username
+                        };
+                    }
+                    kks[nokk].anggota_keluarga.push({
+                        nama_lengkap: row['Nama'] || row['Nama Lengkap'] || '-',
+                        nik: row['NIK'] || '-',
+                        jenis_kelamin: row['J.Kelamin'] || row['Jenis Kelamin'] || '-',
+                        tempat_lahir: row['Tmp Lahir'] || row['Tempat Lahir'] || '-',
+                        tanggal_lahir: row['Tgl Lahir'] || row['Tanggal Lahir'] || '-',
+                        agama: row['Agama'] || '-',
+                        pendidikan: row['Pendidikan'] || '-',
+                        jenis_pekerjaan: row['Pekerjaan'] || row['Jenis Pekerjaan'] || '-',
+                        golongan_darah: row['Gol. Darah'] || row['Golongan Darah'] || '-',
+                        status_perkawinan: row['Status Kawin'] || row['Status Perkawinan'] || '-',
+                        tanggal_perkawinan: row['Tgl Kawin'] || row['Tanggal Perkawinan'] || '-',
+                        status_hubungan_keluarga: row['Hubungan'] || row['Status Hubungan'] || '-',
+                        kewarganegaraan: row['Kewarganegaraan'] || row['WN'] || 'WNI',
+                        no_paspor: row['No Paspor'] || '-',
+                        no_kitap: row['No KITAP'] || '-',
+                        nama_ayah: row['Nama Ayah'] || '-',
+                        nama_ibu: row['Nama Ibu'] || '-',
+                        status_penduduk: 'AKTIF'
+                    });
+                });
+                
+                let sD = JSON.parse(localStorage.getItem('kk_data')||'[]');
+                Object.values(kks).forEach(newKk => {
+                    let idx = sD.findIndex(x => x.header.no_kk == newKk.header.no_kk);
+                    if(idx > -1) sD[idx] = newKk; else sD.push(newKk);
+                });
+                localStorage.setItem('kk_data', JSON.stringify(sD));
+                showToast("Berhasil Import " + Object.keys(kks).length + " KK", "success");
+                loadDashboardData();
+            };
+            reader.readAsArrayBuffer(f);
+        }
 
+        function exportExcel() { exportDashboardExcel(); }
+
+        function printPendidikanFormat() { document.body.classList.add('printing-pendidikan'); window.print(); document.body.classList.remove('printing-pendidikan'); }
+        function printRtFormat() { document.body.classList.add('printing-rt'); window.print(); document.body.classList.remove('printing-rt'); }
+        function printAgamaFormat() { document.body.classList.add('printing-agama'); window.print(); document.body.classList.remove('printing-agama'); }
+        function printPengangguranFormat() { document.body.classList.add('printing-pengangguran'); window.print(); document.body.classList.remove('printing-pengangguran'); }
+        function printMataPilihFormat() { document.body.classList.add('printing-matapilih'); window.print(); document.body.classList.remove('printing-matapilih'); }
+
+        function loadSettingsUI() {
+            document.getElementById('set-app-title').value = localStorage.getItem('set_app_title') || 'Smart E-KK';
+            document.getElementById('set-app-subtitle').value = localStorage.getItem('set_app_subtitle') || 'Realtime Edition';
+            document.getElementById('set-desa').value = localStorage.getItem('set_desa') || 'FAJAR ASRI';
+            document.getElementById('set-kec').value = localStorage.getItem('set_kec') || 'PANCA JAYA';
+            document.getElementById('set-kab').value = localStorage.getItem('set_kab') || 'MESUJI';
+            document.getElementById('set-kasi').value = localStorage.getItem('set_kasi') || 'SUPRIYANTO';
+            document.getElementById('set-sekdes').value = localStorage.getItem('set_sekdes') || 'ROHMAN NUDIN';
+            document.getElementById('set-jabatan_kk').value = localStorage.getItem('set_jabatan_kk') || 'KEPALA DESA FAJAR ASRI';
+            document.getElementById('set-nama_kk').value = localStorage.getItem('set_nama_kk') || '(............................................)';
+            document.getElementById('set-nip_kk').value = localStorage.getItem('set_nip_kk') || 'NIP. ........................................';
+            
+            let d = new Date();
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            document.getElementById('set-tgl').value = localStorage.getItem('set_tgl') || d.getDate();
+            document.getElementById('set-bln').value = localStorage.getItem('set_bln') || months[d.getMonth()];
+            document.getElementById('set-thn').value = localStorage.getItem('set_thn') || d.getFullYear();
+            
+            document.getElementById('set-paper').value = localStorage.getItem('set_paper') || 'A4';
+            document.getElementById('set-margin').value = localStorage.getItem('set_margin') || '5';
+            
             document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
             
+            // Load API Keys
             for(let i=0; i<10; i++) {
-                let inputEl = document.getElementById(`set-api-key-${i}`);
-                let checkEl = document.getElementById(`active-key-${i}`);
-                if (inputEl) inputEl.value = apiKeysList[i] || (i === 0 ? apiKey : '');
-                if (checkEl) checkEl.checked = activeKeyIndices.includes(i);
+                document.getElementById(`set-api-key-${i}`).value = apiKeysList[i] || '';
+                document.getElementById(`active-key-${i}`).checked = activeKeyIndices.includes(i);
             }
+            
+            // Apply text to reports
+            updateReportTitles();
+        }
+        
+        function updateReportTitles() {
+            let title = document.getElementById('set-app-title').value;
+            let sub = document.getElementById('set-app-subtitle').value;
+            let desa = document.getElementById('set-desa').value;
+            let kec = document.getElementById('set-kec').value;
+            let kab = document.getElementById('set-kab').value;
+            let bln = document.getElementById('set-bln').value;
+            let thn = document.getElementById('set-thn').value;
+            let tgl = document.getElementById('set-tgl').value;
+            let kasi = document.getElementById('set-kasi').value;
+            let sekdes = document.getElementById('set-sekdes').value;
+            
+            // Nav & Login
+            document.getElementById('app-title-nav').innerText = title;
+            document.getElementById('app-subtitle-nav').innerText = sub;
+            document.getElementById('app-title-login').innerText = title;
+            document.getElementById('app-subtitle-login').innerText = sub;
+            
+            // Rekap
+            let el;
+            if(el = document.getElementById('rekap-bulan')) el.innerText = bln;
+            if(el = document.getElementById('rekap-tahun')) el.innerText = thn;
+            if(el = document.getElementById('rekap-title-desa')) el.innerText = desa;
+            if(el = document.getElementById('rekap-title-kec')) el.innerText = kec;
+            if(el = document.getElementById('rekap-title-kab')) el.innerText = kab;
+            if(el = document.getElementById('rekap-ttd-desa')) el.innerText = desa;
+            if(el = document.getElementById('rekap-ttd-tgl')) el.innerText = `${tgl} ${bln} ${thn}`;
+            if(el = document.getElementById('rekap-ttd-kasi')) el.innerText = kasi;
+            if(el = document.getElementById('rekap-ttd-sekdes')) el.innerText = sekdes;
+
+            // Pend
+            ['pend', 'rt', 'agama', 'pengangguran', 'matapilih'].forEach(p => {
+                if(el = document.getElementById(`${p}-title-kab`)) el.innerText = kab;
+                if(el = document.getElementById(`${p}-title-kec`)) el.innerText = kec;
+                if(el = document.getElementById(`${p}-title-desa`)) el.innerText = desa;
+                if(el = document.getElementById(`${p}-bulan`)) el.innerText = bln;
+                if(el = document.getElementById(`${p}-tahun`)) el.innerText = thn;
+                if(el = document.getElementById(`${p}-ttd-desa`)) el.innerText = desa;
+                if(el = document.getElementById(`${p}-tanggal-ttd`)) el.innerText = `${tgl} ${bln} ${thn}`;
+                if(el = document.getElementById(`${p}-ttd-kasi`)) el.innerText = kasi;
+                if(el = document.getElementById(`${p}-ttd-sekdes`)) el.innerText = sekdes;
+            });
         }
 
+        function saveTextSettings() {
+            let ids = ['set-app-title', 'set-app-subtitle', 'set-desa', 'set-kec', 'set-kab', 'set-kasi', 'set-sekdes', 'set-jabatan_kk', 'set-nama_kk', 'set-nip_kk', 'set-tgl', 'set-bln', 'set-thn'];
+            ids.forEach(id => localStorage.setItem(id.replace('-', '_'), document.getElementById(id).value));
+            
+            ids.forEach(id => {
+               fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:id.replace('-', '_'), value:document.getElementById(id).value})}).catch(e=>{});
+            });
+            
+            updateReportTitles();
+            showToast("Pengaturan Teks Disimpan", "success");
+        }
+
+        function savePrintSettings() {
+            localStorage.setItem('set_paper', document.getElementById('set-paper').value);
+            localStorage.setItem('set_margin', document.getElementById('set-margin').value);
+            
+            let st = document.createElement('style');
+            let m = document.getElementById('set-margin').value;
+            st.innerHTML = `@media print { @page { size: ${document.getElementById('set-paper').value} landscape; margin: ${m}mm; } }`;
+            document.head.appendChild(st);
+            showToast("Pengaturan Cetak Disimpan", "success");
+        }
+
+        function saveIntegrationSettings() {
+            apiKeysList = [];
+            activeKeyIndices = [];
+            for(let i=0; i<10; i++) {
+                let v = document.getElementById(`set-api-key-${i}`).value.trim();
+                apiKeysList.push(v);
+                if(document.getElementById(`active-key-${i}`).checked) activeKeyIndices.push(i);
+            }
+            if(activeKeyIndices.length > 0) apiKey = apiKeysList[activeKeyIndices[0]] || '';
+            
+            localStorage.setItem('gemini_api_keys', JSON.stringify(apiKeysList));
+            localStorage.setItem('gemini_active_key_indices', JSON.stringify(activeKeyIndices));
+            localStorage.setItem('gemini_api_key', apiKey); // for backward compatibility
+            
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(activeKeyIndices)})}).catch(e=>{});
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
+            
+            showToast("Integrasi Disimpan", "success");
+        }
+
+        // --- LOGO & THEME ---
         document.getElementById('logo-file-input').addEventListener('change', (e) => {
             let f = e.target.files[0]; if(!f) return;
             let r = new FileReader(); r.onload = (ev) => {
-                document.getElementById('settings-logo-preview').src = ev.target.result;
+                let base64 = ev.target.result;
+                document.getElementById('settings-logo-preview').src = base64;
                 document.getElementById('settings-logo-preview').classList.remove('hidden');
                 document.getElementById('settings-logo-placeholder').classList.add('hidden');
             }; r.readAsDataURL(f);
@@ -2336,140 +2511,132 @@
 
         function saveLogo() {
             let src = document.getElementById('settings-logo-preview').src;
-            if (src && src.startsWith('data:image')) {
-                localStorage.setItem('instansi_logo', src);
-                applyLogo();
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'instansi_logo', value:src})}).catch(e=>{});
-                showToast("Logo berhasil disimpan", "success");
-            } else {
-                showToast("Pilih logo terlebih dahulu", "warning");
-            }
+            if(!src || src.includes('index.html') || src === '') return showToast("Pilih logo dulu", "warning");
+            localStorage.setItem('app_logo', src);
+            applyLogo();
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_logo', value:src})}).catch(e=>{});
+            showToast("Logo disimpan", "success");
         }
-
+        
         function removeLogo() {
-            localStorage.removeItem('instansi_logo');
+            localStorage.removeItem('app_logo');
             document.getElementById('settings-logo-preview').src = '';
             document.getElementById('settings-logo-preview').classList.add('hidden');
             document.getElementById('settings-logo-placeholder').classList.remove('hidden');
             applyLogo();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'instansi_logo', value:''})}).catch(e=>{});
-            showToast("Logo dihapus", "success");
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_logo', value:''})}).catch(e=>{});
+            showToast("Logo dihapus", "info");
         }
-
+        
         function applyLogo() {
-            let l = localStorage.getItem('instansi_logo');
-            const lgs = ['nav-logo', 'login-logo'];
-            lgs.forEach(id => {
-                let img = document.getElementById(`${id}-img`), icon = document.getElementById(`${id}-icon`), cont = document.getElementById(`${id}-container`);
-                if (img && icon && cont) {
-                    if (l) { img.src = l; img.classList.remove('hidden'); icon.classList.add('hidden'); cont.classList.add('bg-white'); cont.classList.remove('bg-gradient-to-br'); }
-                    else { img.src = ''; img.classList.add('hidden'); icon.classList.remove('hidden'); cont.classList.remove('bg-white'); cont.classList.add('bg-gradient-to-br'); }
+            let l = localStorage.getItem('app_logo');
+            if(l) {
+                if(document.getElementById('settings-logo-preview')) {
+                    document.getElementById('settings-logo-preview').src = l;
+                    document.getElementById('settings-logo-preview').classList.remove('hidden');
+                    document.getElementById('settings-logo-placeholder').classList.add('hidden');
                 }
-            });
-        }
-
-        function applyAppTitles() {
-            let s = JSON.parse(localStorage.getItem('app_laporan_settings')||'{}');
-            let appTitle = s.app_title || 'Smart E-KK';
-            let appSubtitle = s.app_subtitle || 'Realtime Edition';
-            document.title = `${appTitle} - ${appSubtitle}`;
-            
-            if(document.getElementById('app-title-nav')) document.getElementById('app-title-nav').innerText = appTitle;
-            if(document.getElementById('app-subtitle-nav')) document.getElementById('app-subtitle-nav').innerText = appSubtitle;
-            
-            if(document.getElementById('app-title-login')) document.getElementById('app-title-login').innerText = appTitle;
-            if(document.getElementById('app-subtitle-login')) document.getElementById('app-subtitle-login').innerText = appSubtitle;
-        }
-
-        function saveTextSettings() {
-            let s = {
-                app_title: document.getElementById('set-app-title').value,
-                app_subtitle: document.getElementById('set-app-subtitle').value,
-                desa: document.getElementById('set-desa').value, kec: document.getElementById('set-kec').value, kab: document.getElementById('set-kab').value,
-                kasi: document.getElementById('set-kasi').value, sekdes: document.getElementById('set-sekdes').value,
-                tgl: document.getElementById('set-tgl').value, bln: document.getElementById('set-bln').value, thn: document.getElementById('set-thn').value,
-                jabatan_kk: document.getElementById('set-jabatan_kk').value, nama_kk: document.getElementById('set-nama_kk').value, nip_kk: document.getElementById('set-nip_kk').value
-            };
-            localStorage.setItem('app_laporan_settings', JSON.stringify(s));
-            loadSettingsUI();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_laporan_settings', value:JSON.stringify(s)})}).catch(e=>{});
-            showToast("Pengaturan Laporan Tersimpan", "success");
-        }
-
-        function savePrintSettings() {
-            showToast("Pengaturan Cetak Tersimpan", "success");
-        }
-
-        function saveIntegrationSettings() {
-            let newApiKeys = [];
-            let newActiveIndices = [];
-            let hasAtLeastOneKey = false;
-
-            for(let i=0; i<10; i++) {
-                let val = document.getElementById(`set-api-key-${i}`).value.trim();
-                newApiKeys.push(val);
-                if(val) hasAtLeastOneKey = true;
                 
-                let checkEl = document.getElementById(`active-key-${i}`);
-                if (checkEl && checkEl.checked && val) {
-                    newActiveIndices.push(i);
-                }
+                ['login', 'nav'].forEach(id => {
+                    let img = document.getElementById(`${id}-logo-img`);
+                    let ic = document.getElementById(`${id}-logo-icon`);
+                    if(img && ic) { img.src = l; img.classList.remove('hidden'); ic.classList.add('hidden'); }
+                });
+            } else {
+                ['login', 'nav'].forEach(id => {
+                    let img = document.getElementById(`${id}-logo-img`);
+                    let ic = document.getElementById(`${id}-logo-icon`);
+                    if(img && ic) { img.src = ''; img.classList.add('hidden'); ic.classList.remove('hidden'); }
+                });
             }
-
-            if(newActiveIndices.length === 0 && hasAtLeastOneKey) {
-                // Auto check the first available key if none are checked
-                let firstIdx = newApiKeys.findIndex(k => k !== '');
-                if(firstIdx !== -1) newActiveIndices.push(firstIdx);
-            }
-
-            localStorage.setItem('gemini_api_keys', JSON.stringify(newApiKeys));
-            localStorage.setItem('gemini_active_key_indices', JSON.stringify(newActiveIndices));
-            
-            // Set backward compatibility for apiKey variable
-            if(newActiveIndices.length > 0) {
-                localStorage.setItem('gemini_api_key', newApiKeys[newActiveIndices[0]]);
-                apiKey = newApiKeys[newActiveIndices[0]];
-            }
-            
-            apiKeysList = newApiKeys;
-            activeKeyIndices = newActiveIndices;
-
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(newApiKeys)})}).catch(e=>{});
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(newActiveIndices)})}).catch(e=>{});
-            
-            showToast("Integrasi AI Tersimpan", "success");
         }
-
+        
         document.getElementById('bg-file-input').addEventListener('change', (e) => {
             let f = e.target.files[0]; if(!f) return;
             let r = new FileReader(); r.onload = (ev) => {
-                localStorage.setItem('app_login_bg', ev.target.result);
+                let base64 = ev.target.result;
+                localStorage.setItem('app_login_bg', base64);
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_login_bg', value:base64})}).catch(e=>{});
                 applyThemeAndBg();
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_login_bg', value:ev.target.result})}).catch(e=>{});
-                showToast("Background Login Diperbarui", "success");
+                showToast("Background diubah", "success");
             }; r.readAsDataURL(f);
         });
 
         function removeLoginBg() {
-            localStorage.removeItem('app_login_bg'); applyThemeAndBg();
+            localStorage.removeItem('app_login_bg');
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_login_bg', value:''})}).catch(e=>{});
-            showToast("Background dihapus", "success");
+            applyThemeAndBg();
+            showToast("Background dihapus", "info");
         }
 
-        function setAppTheme(theme) {
-            localStorage.setItem('app_ui_theme', theme); applyThemeAndBg();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_ui_theme', value:theme})}).catch(e=>{});
-            showToast("Tema Diperbarui", "success");
+        function setAppTheme(t) {
+            localStorage.setItem('app_theme', t);
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_theme', value:t})}).catch(e=>{});
+            applyThemeAndBg();
+            showToast("Tema diubah", "success");
         }
 
         function applyThemeAndBg() {
             let bg = localStorage.getItem('app_login_bg');
-            if (bg) { loginView.style.backgroundImage = `url(${bg})`; loginView.style.backgroundSize = 'cover'; loginView.style.backgroundPosition = 'center'; loginView.classList.remove('animated-bg'); }
-            else { loginView.style.backgroundImage = ''; loginView.classList.add('animated-bg'); }
+            if(bg) {
+                document.getElementById('login-view').style.backgroundImage = `url(${bg})`;
+                document.getElementById('login-view').style.backgroundSize = 'cover';
+                document.getElementById('login-view').style.backgroundPosition = 'center';
+                document.getElementById('login-view').classList.remove('animated-bg');
+            } else {
+                document.getElementById('login-view').style.backgroundImage = '';
+                document.getElementById('login-view').classList.add('animated-bg');
+            }
             
-            let t = localStorage.getItem('app_ui_theme') || 'default';
-            document.body.className = document.body.className.replace(/theme-\w+/g, '').trim();
-            if (t !== 'default') document.body.classList.add(`theme-${t}`);
+            let t = localStorage.getItem('app_theme');
+            document.body.className = "text-slate-800 min-h-screen custom-scrollbar"; 
+            if(t && t !== 'default') document.body.classList.add(`theme-${t}`);
+        }
+
+        // --- MANAJEMEN AKUN ---
+        function renderUsersTable() {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let tb = document.getElementById('users-table-body'); tb.innerHTML = '';
+            uDb.forEach(u => {
+                let isMe = u.username === currentUser.username;
+                let isSup = u.role === 'superadmin';
+                let btnHtml = '';
+                if(u.approval_status === 'pending') {
+                    btnHtml = `<button onclick="approveUser('${u.username}')" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded mr-1"><i class="fas fa-check"></i></button><button onclick="rejectUser('${u.username}')" class="px-2 py-1 bg-rose-100 text-rose-700 rounded"><i class="fas fa-times"></i></button>`;
+                } else {
+                    btnHtml = `<button onclick="openEditUserModal('${u.username}')" class="px-2 py-1 bg-amber-100 text-amber-700 rounded mr-1" title="Edit Akun"><i class="fas fa-edit"></i></button>` + (!isMe && !isSup ? `<button onclick="deleteUser('${u.username}')" class="px-2 py-1 bg-rose-100 text-rose-700 rounded"><i class="fas fa-trash"></i></button>` : '');
+                }
+                
+                let st = u.approval_status === 'pending' ? '<span class="ml-2 text-[8px] bg-amber-200 px-1 rounded">PENDING</span>' : '';
+                
+                tb.innerHTML += `<tr>
+                    <td class="px-6 py-4 font-bold ${isMe?'text-brand-600':''}">${u.username} ${isMe?'(Anda)':''} ${st}</td>
+                    <td class="px-6 py-4 font-mono text-xs opacity-50">***</td>
+                    <td class="px-6 py-4 uppercase text-xs font-bold">${u.role}</td>
+                    <td class="px-6 py-4">RK: ${u.rk||'all'} | RT: ${u.rt||'all'}</td>
+                    <td class="px-6 py-4 text-center">${btnHtml}</td>
+                </tr>`;
+            });
+        }
+        
+        async function syncUsersFromCloud() {
+            let btn = document.getElementById('btn-sync-users');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Loading...'; }
+            
+            await syncFromCloudBackground();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data'; }
+            showToast("Data Akun Disinkronisasi!", "success");
+        }
+
+        function approveUser(u) {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            let i = uDb.findIndex(x => x.username === u);
+            if(i>-1) { uDb[i].approval_status = 'approved'; localStorage.setItem('app_users_db', JSON.stringify(uDb)); fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{}); renderUsersTable(); showToast("User disetujui", "success"); }
+        }
+        function rejectUser(u) {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            uDb = uDb.filter(x => x.username !== u); localStorage.setItem('app_users_db', JSON.stringify(uDb)); fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{}); renderUsersTable(); showToast("User ditolak dan dihapus", "info");
         }
 
         function handleAddUser(e) {
@@ -2477,128 +2644,44 @@
             let u = document.getElementById('new-username').value, p = document.getElementById('new-password').value, r = document.getElementById('new-role').value, rk = document.getElementById('new-rk').value, rt = document.getElementById('new-rt').value;
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(uDb.find(x => x.username === u)) return showToast("Username sudah ada", "error");
-            uDb.push({username:u, password:p, role:r, rk:rk, rt:rt, approval_status: 'approved'});
+            uDb.push({username:u, password:p, role:r, rk:rk||'all', rt:rt||'all', approval_status:'approved'});
             localStorage.setItem('app_users_db', JSON.stringify(uDb));
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
-            document.getElementById('add-user-form').reset(); showToast("Pengguna Ditambahkan", "success"); renderUsersTable();
-        }
-
-        async function syncUsersFromCloud() {
-            let btn = document.getElementById('btn-sync-users');
-            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
-            showToast("Menarik data pengguna terbaru dari cloud...", "info");
-            
-            try {
-                let res = await fetch(GOOGLE_SHEETS_API_URL + "?action=get"); 
-                let json = await res.json();
-                
-                if(json.settings) {
-                    let userDbSetting = json.settings.find(s => s.key === 'app_users_db');
-                    if(userDbSetting && userDbSetting.value) {
-                        localStorage.setItem('app_users_db', userDbSetting.value);
-                        renderUsersTable();
-                        showToast("Data akun berhasil disinkronkan!", "success");
-                    } else {
-                        showToast("Tidak ada data akun di Cloud.", "warning");
-                    }
-                }
-            } catch(e) {
-                showToast("Gagal menarik data dari cloud.", "error");
-            }
-            
-            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data'; }
-        }
-
-        function renderUsersTable() {
-            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            let tb = document.getElementById('users-table-body'); tb.innerHTML = '';
-            uDb.forEach(u => {
-                let isCurr = u.username === currentUser.username;
-                let bgBadge = u.role==='superadmin'?'bg-amber-100 text-amber-700':u.role==='admin'?'bg-rose-100 text-rose-700':'bg-indigo-100 text-indigo-700';
-                
-                let statusBadge = '';
-                if(u.approval_status === 'pending') statusBadge = '<span class="ml-2 px-2 py-0.5 text-[9px] bg-amber-100 text-amber-700 rounded uppercase font-bold">Menunggu</span>';
-                else if(u.approval_status === 'rejected') statusBadge = '<span class="ml-2 px-2 py-0.5 text-[9px] bg-rose-100 text-rose-700 rounded uppercase font-bold">Ditolak</span>';
-                else statusBadge = '<span class="ml-2 px-2 py-0.5 text-[9px] bg-emerald-100 text-emerald-700 rounded uppercase font-bold">Aktif</span>';
-
-                let actionBtns = '';
-                if (!isCurr) {
-                    actionBtns += `<button onclick="editUser('${u.username}')" class="p-1.5 bg-sky-100 text-sky-600 rounded hover:bg-sky-200 mx-1" title="Edit Pengguna"><i class="fas fa-edit"></i></button>`;
-                    actionBtns += `<button onclick="deleteUser('${u.username}')" class="p-1.5 bg-rose-100 text-rose-600 rounded hover:bg-rose-200 mx-1" title="Hapus Pengguna"><i class="fas fa-trash"></i></button>`;
-                    
-                    if (u.approval_status === 'pending') {
-                        actionBtns += `<button onclick="approveUser('${u.username}')" class="p-1.5 bg-emerald-100 text-emerald-600 rounded hover:bg-emerald-200 mx-1" title="Setujui Akun"><i class="fas fa-check"></i></button>`;
-                        actionBtns += `<button onclick="rejectUser('${u.username}')" class="p-1.5 bg-orange-100 text-orange-600 rounded hover:bg-orange-200 mx-1" title="Tolak Akun"><i class="fas fa-times"></i></button>`;
-                    }
-                } else {
-                    actionBtns = `<span class="text-xs font-bold text-emerald-500"><i class="fas fa-check-circle"></i> Sedang Digunakan</span>`;
-                }
-
-                tb.innerHTML += `<tr>
-                    <td class="px-6 py-4 font-bold text-slate-800">${u.username} ${statusBadge}</td>
-                    <td class="px-6 py-4 font-mono text-xs text-slate-500">${u.password}</td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold ${bgBadge}">${u.role}</span></td>
-                    <td class="px-6 py-4 text-xs font-bold text-slate-600">RK: ${u.rk||'all'} <br> RT: ${u.rt||'all'}</td>
-                    <td class="px-6 py-4 text-center">${actionBtns}</td>
-                </tr>`;
-            });
+            document.getElementById('add-user-form').reset();
+            renderUsersTable(); showToast("User ditambahkan", "success");
         }
 
         function deleteUser(u) {
-            showConfirmModal("Hapus Pengguna", `Hapus akun ${u}?`, () => {
+            showConfirmModal("Hapus User", `Yakin hapus ${u}?`, () => {
                 let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
                 uDb = uDb.filter(x => x.username !== u);
                 localStorage.setItem('app_users_db', JSON.stringify(uDb));
                 fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
-                showToast("Pengguna dihapus", "success"); renderUsersTable();
+                renderUsersTable(); showToast("User dihapus", "success");
             });
         }
         
-        function approveUser(u) {
+        function openEditUserModal(username) {
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            let idx = uDb.findIndex(x => x.username === u);
-            if(idx > -1) {
-                uDb[idx].approval_status = 'approved';
-                localStorage.setItem('app_users_db', JSON.stringify(uDb));
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
-                showToast("Akun disetujui", "success"); renderUsersTable();
-            }
+            let u = uDb.find(x => x.username === username);
+            if(!u) return;
+            
+            document.getElementById('edit-original-username').value = u.username;
+            document.getElementById('edit-username').value = u.username;
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-role').value = u.role;
+            document.getElementById('edit-rk').value = u.rk || 'all';
+            document.getElementById('edit-rt').value = u.rt || 'all';
+            
+            let modal = document.getElementById('edit-user-modal');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(()=>modal.classList.remove('opacity-0'), 10);
         }
         
-        function rejectUser(u) {
-            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            let idx = uDb.findIndex(x => x.username === u);
-            if(idx > -1) {
-                uDb[idx].approval_status = 'rejected';
-                localStorage.setItem('app_users_db', JSON.stringify(uDb));
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
-                showToast("Akun ditolak", "warning"); renderUsersTable();
-            }
-        }
-
-        function editUser(u) {
-            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            let user = uDb.find(x => x.username === u);
-            if(user) {
-                document.getElementById('edit-original-username').value = user.username;
-                document.getElementById('edit-username').value = user.username;
-                document.getElementById('edit-password').value = '';
-                document.getElementById('edit-role').value = user.role;
-                document.getElementById('edit-rk').value = user.rk || 'all';
-                document.getElementById('edit-rt').value = user.rt || 'all';
-                
-                let modalEl = document.getElementById('edit-user-modal');
-                modalEl.classList.remove('hidden'); modalEl.classList.add('flex');
-                setTimeout(() => modalEl.classList.remove('opacity-0'), 10);
-            }
-        }
-
         function closeEditUserModal() {
-            let modalEl = document.getElementById('edit-user-modal');
-            modalEl.classList.add('opacity-0');
-            setTimeout(() => { modalEl.classList.add('hidden'); modalEl.classList.remove('flex'); }, 300);
+            let modal = document.getElementById('edit-user-modal');
+            modal.classList.add('opacity-0'); setTimeout(()=>{modal.classList.add('hidden'); modal.classList.remove('flex');}, 300);
         }
-
+        
         function saveEditUser(e) {
             e.preventDefault();
             let origU = document.getElementById('edit-original-username').value;
@@ -2609,164 +2692,35 @@
             let rt = document.getElementById('edit-rt').value;
             
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            
-            if (u !== origU && uDb.find(x => x.username === u)) {
-                return showToast("Username baru sudah dipakai akun lain", "error");
-            }
-            
             let idx = uDb.findIndex(x => x.username === origU);
-            if (idx > -1) {
+            if(idx > -1) {
+                if(origU !== u && uDb.find(x => x.username === u)) return showToast("Username baru sudah terpakai", "error");
+                
                 uDb[idx].username = u;
-                if (p.trim() !== '') uDb[idx].password = p;
+                if(p.trim() !== '') uDb[idx].password = p;
                 uDb[idx].role = r;
                 uDb[idx].rk = rk;
                 uDb[idx].rt = rt;
                 
                 localStorage.setItem('app_users_db', JSON.stringify(uDb));
                 fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
-                showToast("Data akun diperbarui", "success");
-                closeEditUserModal();
+                
+                if(origU === currentUser.username) {
+                    currentUser.username = u;
+                    currentUser.role = r;
+                    currentUser.rk = rk;
+                    currentUser.rt = rt;
+                    sessionStorage.setItem('app_session', JSON.stringify(currentUser));
+                    document.getElementById('current-username-display').innerText = u;
+                }
+                
                 renderUsersTable();
+                closeEditUserModal();
+                showToast("Data akun diperbarui", "success");
             }
         }
 
-        function triggerImportExcel() { document.getElementById('excel-file-input').click(); }
-
-        function importExcel(e) {
-            let f = e.target.files[0]; if(!f) return;
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, {type: 'array'});
-                let firstSheetName = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheetName];
-                let json = XLSX.utils.sheet_to_json(worksheet, {raw: false});
-                
-                let oldData = JSON.parse(localStorage.getItem('kk_data') || '[]');
-                let newKkMap = {};
-                
-                json.forEach(row => {
-                    let noKk = row["No KK"]; if(!noKk) return;
-                    if(!newKkMap[noKk]) {
-                        newKkMap[noKk] = {
-                            header: {
-                                no_kk: noKk,
-                                nama_kepala_keluarga: row["Nama KK"] || "-",
-                                alamat: row["Alamat"] || "-",
-                                rt_rw: row["RT/RW"] || "-",
-                                kode_pos: row["Kode Pos"] || "-",
-                                desa_kelurahan: row["Desa/Kelurahan"] || "-",
-                                kecamatan: row["Kecamatan"] || "-",
-                                kabupaten_kota: row["Kabupaten/Kota"] || "-",
-                                provinsi: row["Provinsi"] || "-"
-                            },
-                            anggota_keluarga: [],
-                            input_by: row["Input By"] || currentUser.username
-                        };
-                    }
-                    newKkMap[noKk].anggota_keluarga.push({
-                        nama_lengkap: row["Nama"] || "-",
-                        nik: row["NIK"] || "-",
-                        jenis_kelamin: row["J.Kelamin"] || "-",
-                        tempat_lahir: row["Tmp Lahir"] || "-",
-                        tanggal_lahir: row["Tgl Lahir"] || "-",
-                        agama: row["Agama"] || "-",
-                        pendidikan: row["Pendidikan"] || "-",
-                        jenis_pekerjaan: row["Pekerjaan"] || "-",
-                        status_perkawinan: row["Status Kawin"] || "-",
-                        status_hubungan_keluarga: row["Hubungan"] || "-",
-                        golongan_darah: row["Gol. Darah"] || "-",
-                        kewarganegaraan: row["Warga Negara"] || "WNI",
-                        no_paspor: row["No Paspor"] || "-",
-                        no_kitap: row["No KITAP"] || "-",
-                        nama_ayah: row["Nama Ayah"] || "-",
-                        nama_ibu: row["Nama Ibu"] || "-",
-                        status_penduduk: row["Status Penduduk"] || "AKTIF"
-                    });
-                });
-                
-                Object.values(newKkMap).forEach(newKk => {
-                    let idx = oldData.findIndex(k => k.header.no_kk === newKk.header.no_kk);
-                    if(idx > -1) oldData[idx] = newKk; else oldData.push(newKk);
-                    // Sync each to cloud in background
-                    let d = {...newKk, action: 'save'};
-                    fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(d)}).catch(e=>{});
-                });
-                
-                localStorage.setItem('kk_data', JSON.stringify(oldData));
-                showToast("Import Excel Berhasil!", "success");
-                
-                if(document.getElementById('rekap-view').classList.contains('flex')) renderRekapTable();
-                if(document.getElementById('dashboard-view').classList.contains('flex')) loadDashboardData();
-                document.getElementById('excel-file-input').value = '';
-            };
-            reader.readAsArrayBuffer(f);
-        }
-
-        function exportExcel() {
-            let sD = getFilteredKKData(), flat = [];
-            sD.forEach(k => { 
-                (k.anggota_keluarga||[]).forEach(a => { 
-                    flat.push({ 
-                        "No KK": k.header.no_kk, 
-                        "Nama KK": k.header.nama_kepala_keluarga, 
-                        "Alamat": k.header.alamat, 
-                        "RT/RW": k.header.rt_rw,
-                        "Kode Pos": k.header.kode_pos,
-                        "Desa/Kelurahan": k.header.desa_kelurahan,
-                        "Kecamatan": k.header.kecamatan,
-                        "Kabupaten/Kota": k.header.kabupaten_kota,
-                        "Provinsi": k.header.provinsi,
-                        "Nama": a.nama_lengkap, 
-                        "NIK": a.nik, 
-                        "J.Kelamin": a.jenis_kelamin, 
-                        "Tmp Lahir": a.tempat_lahir, 
-                        "Tgl Lahir": formatDateID(a.tanggal_lahir), 
-                        "Umur": calculateAge(a.tanggal_lahir), 
-                        "Agama": a.agama, 
-                        "Pendidikan": a.pendidikan, 
-                        "Pekerjaan": a.jenis_pekerjaan, 
-                        "Status Kawin": a.status_perkawinan, 
-                        "Hubungan": a.status_hubungan_keluarga,
-                        "Gol. Darah": a.golongan_darah,
-                        "Warga Negara": a.kewarganegaraan,
-                        "No Paspor": a.no_paspor,
-                        "No KITAP": a.no_kitap,
-                        "Nama Ayah": a.nama_ayah,
-                        "Nama Ibu": a.nama_ibu,
-                        "Status Penduduk": a.status_penduduk || 'AKTIF',
-                        "Input By": k.input_by || 'Unknown'
-                    }); 
-                }); 
-            });
-            let ws = XLSX.utils.json_to_sheet(flat), wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Database Penduduk"); 
-            XLSX.writeFile(wb, "Data_Penduduk_Lengkap.xlsx"); 
-            showToast("Export Database Lengkap OK", "success");
-        }
-
-        function generatePDF() {
-            let btn = document.getElementById('btn-pdf');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
-            btn.disabled = true;
-
-            const element = document.getElementById('dukcapil-print-area');
-            
-            printDukcapilFormat();
-            
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
-                btn.disabled = false;
-                showToast("Simpan sebagai PDF melalui dialog Print (Save as PDF)", "info");
-            }, 1000);
-        }
-
-        window.onload = () => { 
-            initAuth(); 
-            applyThemeAndBg(); 
-            applyLogo(); 
-            applyAppTitles();
-        };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); initAuth(); };
     </script>
 </body>
 </html>
