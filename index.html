@@ -62,8 +62,17 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+            transition: all 0.3s ease !important;
+        }
+        /* Efek gelap glossy saat kolom input diklik/ketik (focus) agar teks putih/gelap terlihat jelas */
+        #login-view input:focus {
+            background: rgba(15, 23, 42, 0.85) !important;
+            color: #f8fafc !important;
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), 0 0 15px rgba(99, 102, 241, 0.5) !important;
         }
         #login-view input::placeholder { color: rgba(255, 255, 255, 0.8) !important; }
+        #login-view input:focus::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
         #login-view .text-slate-400 { color: rgba(255, 255, 255, 0.9) !important; }
 
         /* Efek Kaca (Glassmorphism) untuk SEMUA Tombol (Buttons) di Aplikasi */
@@ -236,6 +245,15 @@
         body.theme-rose nav, body.theme-rose #app-sidebar, body.theme-rose #login-view .glass-panel, body.theme-rose .bg-gradient-to-r, body.theme-rose .bg-gradient-to-br, body.theme-rose .text-brand-600, body.theme-rose .bg-brand-600, body.theme-rose .bg-brand-50, body.theme-rose .text-brand-500 { filter: hue-rotate(130deg); }
         body.theme-emerald nav, body.theme-emerald #app-sidebar, body.theme-emerald #login-view .glass-panel, body.theme-emerald .bg-gradient-to-r, body.theme-emerald .bg-gradient-to-br, body.theme-emerald .text-brand-600, body.theme-emerald .bg-brand-600, body.theme-emerald .bg-brand-50, body.theme-emerald .text-brand-500 { filter: hue-rotate(-90deg); }
         body.theme-amber nav, body.theme-amber #app-sidebar, body.theme-amber #login-view .glass-panel, body.theme-amber .bg-gradient-to-r, body.theme-amber .bg-gradient-to-br, body.theme-amber .text-brand-600, body.theme-amber .bg-brand-600, body.theme-amber .bg-brand-50, body.theme-amber .text-brand-500 { filter: hue-rotate(-160deg); }
+
+        @keyframes marquee-scroll {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            animation: marquee-scroll 25s linear infinite;
+            padding-right: 50px;
+        }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
@@ -374,6 +392,11 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Teks Berjalan di Bawah Layar Login -->
+        <div id="login-running-text-container" class="absolute bottom-0 left-0 w-full bg-black/40 text-white py-3 overflow-hidden hidden backdrop-blur-md border-t border-white/10 z-10 pointer-events-none">
+            <div class="whitespace-nowrap inline-block animate-marquee font-bold tracking-wide text-sm shadow-sm" id="login-running-text"></div>
+        </div>
     </div>
 
     <!-- App Wrapper -->
@@ -381,7 +404,12 @@
         <nav class="glass-dark text-white shadow-xl print-hide sticky top-0 z-50">
             <div class="px-6 py-4 flex justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors"><i class="fas fa-bars text-2xl"></i></button>
+                    <!-- Tombol Menu: Diganti dari garis tiga (bars) menjadi 3 titik bulat warna-warni yang elegan -->
+                    <button onclick="toggleSidebar()" class="flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group" title="Buka/Tutup Menu Utama">
+                        <div class="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)] group-hover:scale-125 transition-transform duration-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)] group-hover:scale-125 transition-transform duration-300 delay-75"></div>
+                        <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] group-hover:scale-125 transition-transform duration-300 delay-150"></div>
+                    </button>
                     <div id="nav-logo-container" class="bg-gradient-to-br from-brand-500 to-indigo-600 rounded-xl shadow-lg overflow-hidden w-11 h-11 flex items-center justify-center relative">
                         <img id="nav-logo-img" src="" class="absolute inset-0 w-full h-full object-contain bg-white hidden" alt="Logo">
                         <i id="nav-logo-icon" class="fas fa-id-card-clip text-2xl"></i>
@@ -1176,6 +1204,16 @@
                             <p class="text-[10px] text-slate-400 mt-2">Pilih warna tema agar tidak bosan.</p>
                         </div>
                     </div>
+                    
+                    <div class="mt-6 border-t border-slate-100 pt-6">
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Teks Berjalan (Halaman Login)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="set-running-text" class="flex-1 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-sm" placeholder="Contoh: Selamat Datang di Sistem Informasi Smart E-KK...">
+                            <button onclick="saveRunningText()" class="px-4 py-2 bg-brand-600 text-white rounded-xl font-bold shadow-sm text-xs hover:bg-brand-700 transition-colors"><i class="fas fa-save mr-1"></i> Simpan</button>
+                            <button onclick="removeRunningText()" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm text-xs hover:bg-rose-100 transition-colors" title="Hapus Teks"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Teks pengumuman ini akan muncul berjalan di bagian bawah layar saat pengguna membuka aplikasi sebelum login.</p>
+                    </div>
                 </div>
             </div>
 
@@ -1424,10 +1462,8 @@
         // --- SISTEM REALTIME BACKGROUND SYNC ---
         function startRealtimeSync() {
             if(syncInterval) clearInterval(syncInterval);
-            // Polling interval setiap 10 detik agar tetap 100% realtime statis
-            syncInterval = setInterval(() => {
-                syncFromCloudBackground();
-            }, 10000); 
+            // Fitur auto-refresh (setInterval) telah dinonaktifkan sesuai permintaan.
+            // Sinkronisasi kini hanya berjalan secara manual melalui tombol-tombol yang tersedia.
         }
 
         async function syncFromCloudBackground() {
@@ -1480,6 +1516,7 @@
                     if(typeof applyThemeAndBg === 'function') applyThemeAndBg();
                     loadSettingsUI();
                     applyLogo();
+                    if(typeof applyRunningText === 'function') applyRunningText();
                 }
                 
                 let indicator = document.getElementById('sync-status-indicator');
@@ -1558,6 +1595,21 @@
             
             const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
             
+            // Map Ikon untuk masing-masing menu agar berubah secara dinamis
+            const viewIcons = {
+                'ocr-view': 'fa-camera-retro',
+                'dashboard-view': 'fa-chart-pie',
+                'inactive-view': 'fa-box-archive',
+                'rekap-view': 'fa-table-list',
+                'pendidikan-view': 'fa-graduation-cap',
+                'rt-view': 'fa-map-location-dot',
+                'agama-view': 'fa-mosque',
+                'pengangguran-view': 'fa-user-xmark',
+                'matapilih-view': 'fa-check-to-slot',
+                'settings-view': 'fa-gear',
+                'users-view': 'fa-users-gear'
+            };
+
             // Definisi warna-warni untuk setiap menu
             const tabColors = {
                 'ocr-view': ['from-brand-500/40', 'border-l-brand-400'],
@@ -1573,7 +1625,23 @@
                 'users-view': ['from-amber-500/40', 'border-l-amber-400']
             };
 
+            // Warna gradien solid khusus untuk kotak logo di navigasi atas
+            const navLogoColors = {
+                'ocr-view': ['from-brand-500', 'to-indigo-600'],
+                'dashboard-view': ['from-sky-500', 'to-blue-600'],
+                'inactive-view': ['from-slate-500', 'to-slate-700'],
+                'rekap-view': ['from-fuchsia-500', 'to-fuchsia-700'],
+                'pendidikan-view': ['from-cyan-500', 'to-cyan-700'],
+                'rt-view': ['from-orange-500', 'to-orange-700'],
+                'agama-view': ['from-emerald-500', 'to-emerald-700'],
+                'pengangguran-view': ['from-rose-500', 'to-rose-700'],
+                'matapilih-view': ['from-indigo-500', 'to-indigo-700'],
+                'settings-view': ['from-sky-500', 'to-sky-700'],
+                'users-view': ['from-amber-500', 'to-amber-700']
+            };
+
             const allColorClasses = Object.values(tabColors).flat();
+            const allNavLogoClasses = Object.values(navLogoColors).flat();
             
             Object.values(tabs).forEach(t => { 
                 let e = document.getElementById(t); 
@@ -1587,6 +1655,28 @@
             });
             
             document.getElementById(viewId).classList.remove('hidden'); document.getElementById(viewId).classList.add('flex');
+            
+            // Ubah icon navbar sesuai menu/view yang sedang aktif dipilih
+            let navIcon = document.getElementById('nav-logo-icon');
+            let navImg = document.getElementById('nav-logo-img');
+            let navContainer = document.getElementById('nav-logo-container');
+            
+            if (navIcon && viewIcons[viewId]) {
+                // Animasi pergantian icon dengan efek scale
+                navIcon.className = `fas ${viewIcons[viewId]} text-2xl transition-all duration-300 transform scale-110`;
+                if (navImg) navImg.classList.add('hidden'); // Pastikan foto logo tidak tampil di navbar
+                
+                // Ubah warna gradien kotak logo sesuai menu
+                if (navContainer && navLogoColors[viewId]) {
+                    // Hapus semua warna sebelumnya
+                    navContainer.classList.remove(...allNavLogoClasses);
+                    // Terapkan warna baru
+                    navContainer.classList.add(...navLogoColors[viewId]);
+                    // Tambahkan efek transisi pada warna background
+                    if(!navContainer.classList.contains('transition-colors')) navContainer.classList.add('transition-colors', 'duration-500');
+                }
+            }
+
             let aTab = document.getElementById(tabs[viewId]);
             if(aTab && tabColors[viewId]) { 
                 // Terapkan efek terpilih (Active Menu) dengan WARNA-WARNI ke menu sidebar
@@ -2061,6 +2151,9 @@
                     let deleteBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
                         `<button onclick="deleteDataKK('${kk.header.no_kk}')" class="p-1 bg-rose-100 text-rose-600 rounded" title="Hapus Data KK"><i class="fas fa-trash"></i></button>` : '';
 
+                    let hideBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
+                        `<button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors" title="Sembunyikan dari Laporan"><i class="fas fa-ghost"></i></button>` : '';
+
                     let clsAktif = st==='AKTIF' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200';
                     let clsLahir = st==='LAHIR' ? 'bg-sky-500 text-white shadow-sm' : 'bg-sky-100 text-sky-700 hover:bg-sky-200';
                     let clsDatang = st==='PENDATANG' ? 'bg-indigo-500 text-white shadow-sm' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
@@ -2076,7 +2169,7 @@
                         <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
                         <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
                         ${deleteBtnHTML}
-                        <button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors" title="Sembunyikan dari Laporan"><i class="fas fa-ghost"></i></button>
+                        ${hideBtnHTML}
                         <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
                         </div><div class="flex flex-wrap gap-1 text-[8px] font-bold mt-1">
                         <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'LAHIR')" class="px-1.5 py-1 rounded transition-colors ${clsLahir}">LAHIR</button>
@@ -2630,6 +2723,8 @@
             document.getElementById('set-paper').value = localStorage.getItem('set_paper') || 'A4';
             document.getElementById('set-margin').value = localStorage.getItem('set_margin') || '5';
             
+            document.getElementById('set-running-text').value = localStorage.getItem('app_running_text') || '';
+            
             document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
             
             // Load API Keys
@@ -2769,17 +2864,15 @@
                     document.getElementById('settings-logo-placeholder').classList.add('hidden');
                 }
                 
-                ['login', 'nav'].forEach(id => {
-                    let img = document.getElementById(`${id}-logo-img`);
-                    let ic = document.getElementById(`${id}-logo-icon`);
-                    if(img && ic) { img.src = l; img.classList.remove('hidden'); ic.classList.add('hidden'); }
-                });
+                // HANYA terapkan logo custom berbentuk foto ke Halaman Login. 
+                // Biarkan Navbar tetap menggunakan Icon dinamis.
+                let img = document.getElementById(`login-logo-img`);
+                let ic = document.getElementById(`login-logo-icon`);
+                if(img && ic) { img.src = l; img.classList.remove('hidden'); ic.classList.add('hidden'); }
             } else {
-                ['login', 'nav'].forEach(id => {
-                    let img = document.getElementById(`${id}-logo-img`);
-                    let ic = document.getElementById(`${id}-logo-icon`);
-                    if(img && ic) { img.src = ''; img.classList.add('hidden'); ic.classList.remove('hidden'); }
-                });
+                let img = document.getElementById(`login-logo-img`);
+                let ic = document.getElementById(`login-logo-icon`);
+                if(img && ic) { img.src = ''; img.classList.add('hidden'); ic.classList.remove('hidden'); }
             }
         }
         
@@ -2823,6 +2916,35 @@
             let t = localStorage.getItem('app_theme');
             document.body.className = "text-slate-800 min-h-screen custom-scrollbar"; 
             if(t && t !== 'default') document.body.classList.add(`theme-${t}`);
+        }
+
+        function saveRunningText() {
+            let txt = document.getElementById('set-running-text').value.trim();
+            localStorage.setItem('app_running_text', txt);
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_running_text', value:txt})}).catch(e=>{});
+            applyRunningText();
+            showToast("Teks berjalan disimpan", "success");
+        }
+
+        function removeRunningText() {
+            document.getElementById('set-running-text').value = '';
+            localStorage.removeItem('app_running_text');
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_running_text', value:''})}).catch(e=>{});
+            applyRunningText();
+            showToast("Teks berjalan dihapus", "info");
+        }
+
+        function applyRunningText() {
+            let txt = localStorage.getItem('app_running_text');
+            let container = document.getElementById('login-running-text-container');
+            let textEl = document.getElementById('login-running-text');
+            if (txt && txt.trim() !== '') {
+                textEl.innerText = txt;
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                textEl.innerText = '';
+            }
         }
 
         // --- MANAJEMEN AKUN ---
@@ -3008,7 +3130,7 @@
             window.addEventListener("mousemove", drag, false);
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); initAuth(); initDraggableLogin(); };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
