@@ -1086,8 +1086,8 @@
                         <button onclick="syncSettingsFromCloud()" id="btn-sync-settings" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg font-bold shadow-sm flex items-center gap-2 text-xs transition-all hover:bg-emerald-100" title="Sinkronisasi Manual dari Cloud"><i class="fas fa-sync-alt"></i> Sinkronisasi Manual</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1">Nama Aplikasi Utama</label><input type="text" id="set-app-title" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="Smart E-KK"></div>
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1">Sub-Judul / Edisi Aplikasi</label><input type="text" id="set-app-subtitle" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="Realtime Edition"></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">Nama Aplikasi Utama</label><input type="text" id="set-app-title" oninput="updateTitlesRealtime()" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="Smart E-KK"></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">Sub-Judul / Edisi Aplikasi</label><input type="text" id="set-app-subtitle" oninput="updateTitlesRealtime()" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="Realtime Edition"></div>
                         <div><label class="block text-xs font-bold text-slate-500 mb-1">Nama Desa</label><input type="text" id="set-desa" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500"></div>
                         <div><label class="block text-xs font-bold text-slate-500 mb-1">Nama Kecamatan</label><input type="text" id="set-kec" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500"></div>
                         <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1">Nama Kabupaten</label><input type="text" id="set-kab" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500"></div>
@@ -2737,6 +2737,20 @@
             updateReportTitles();
         }
         
+        function updateTitlesRealtime() {
+            let title = document.getElementById('set-app-title').value;
+            let sub = document.getElementById('set-app-subtitle').value;
+            
+            // TUGAS BARU: Simpan langsung ke local storage agar tidak hilang saat di-refresh manual
+            localStorage.setItem('set_app_title', title);
+            localStorage.setItem('set_app_subtitle', sub);
+            
+            document.getElementById('app-title-nav').innerText = title || 'Smart E-KK';
+            document.getElementById('app-subtitle-nav').innerText = sub;
+            document.getElementById('app-title-login').innerText = title || 'Smart E-KK';
+            document.getElementById('app-subtitle-login').innerText = sub;
+        }
+
         function updateReportTitles() {
             let title = document.getElementById('set-app-title').value;
             let sub = document.getElementById('set-app-subtitle').value;
@@ -2749,11 +2763,8 @@
             let kasi = document.getElementById('set-kasi').value;
             let sekdes = document.getElementById('set-sekdes').value;
             
-            // Nav & Login
-            document.getElementById('app-title-nav').innerText = title;
-            document.getElementById('app-subtitle-nav').innerText = sub;
-            document.getElementById('app-title-login').innerText = title;
-            document.getElementById('app-subtitle-login').innerText = sub;
+            // Nav & Login (Langsung diarahkan ke fungsi realtime)
+            updateTitlesRealtime();
             
             // Rekap
             let el;
@@ -2947,6 +2958,22 @@
             }
         }
 
+        // TUGAS BARU: Menerapkan Nama Aplikasi saat load pertama kali (termasuk layar login)
+        function applyAppTitles() {
+            let title = localStorage.getItem('set_app_title') || 'Smart E-KK';
+            let sub = localStorage.getItem('set_app_subtitle') || 'Realtime Edition';
+            
+            let navTitle = document.getElementById('app-title-nav');
+            if(navTitle) navTitle.innerText = title;
+            let navSub = document.getElementById('app-subtitle-nav');
+            if(navSub) navSub.innerText = sub;
+            
+            let loginTitle = document.getElementById('app-title-login');
+            if(loginTitle) loginTitle.innerText = title;
+            let loginSub = document.getElementById('app-subtitle-login');
+            if(loginSub) loginSub.innerText = sub;
+        }
+
         // --- MANAJEMEN AKUN ---
         function renderUsersTable() {
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
@@ -3130,7 +3157,7 @@
             window.addEventListener("mousemove", drag, false);
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); initAuth(); initDraggableLogin(); };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
