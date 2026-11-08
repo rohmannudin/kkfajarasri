@@ -444,7 +444,7 @@
                     <button onclick="switchView('dashboard-view'); closeSidebarMobile()" id="tab-dashboard" class="px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left">
                         <i class="fas fa-chart-pie w-6 text-center text-lg"></i> Dasbor & Filter
                     </button>
-                    <button onclick="switchView('inactive-view'); closeSidebarMobile()" id="tab-inactive" class="px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left text-slate-400">
+                    <button onclick="switchView('inactive-view'); closeSidebarMobile()" id="tab-inactive" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left text-slate-400">
                         <i class="fas fa-box-archive w-6 text-center text-lg"></i> Data Tidak Aktif
                     </button>
                     
@@ -1431,7 +1431,7 @@
             loginView.classList.add('hidden'); appWrapper.classList.remove('hidden'); appWrapper.classList.add('flex');
             document.getElementById('current-username-display').innerText = currentUser.username;
             
-            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'];
+            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'];
             const rBadge = document.getElementById('role-badge');
             
             if (currentUser.role === 'superadmin') {
@@ -1440,10 +1440,10 @@
                 if (document.getElementById('superadmin-theme-card')) document.getElementById('superadmin-theme-card').classList.replace('hidden', 'flex');
             } else if (currentUser.role === 'admin') {
                 ['tab-users', 'tab-settings'].forEach(t => document.getElementById(t).classList.add('hidden'));
-                ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
+                ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-rose-300 bg-rose-500/20 border border-rose-500/30"; rBadge.innerText = 'ADMIN';
             } else {
-                ['tab-users', 'tab-settings'].forEach(t => document.getElementById(t).classList.add('hidden'));
+                ['tab-users', 'tab-settings', 'tab-inactive'].forEach(t => document.getElementById(t).classList.add('hidden'));
                 ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
