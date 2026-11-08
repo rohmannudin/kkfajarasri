@@ -585,32 +585,32 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div onclick="setDashFilter(null)" class="bg-gradient-to-br from-slate-700 to-slate-900 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-kk" onclick="setDashFilter(null)" class="dash-filter-card bg-gradient-to-br from-slate-700 to-slate-900 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group ring-4 ring-offset-4 ring-brand-500 scale-105 z-10">
                         <div class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity duration-300"><i class="fas fa-file-invoice text-7xl text-white"></i></div>
                         <p class="text-slate-300 text-[10px] font-bold uppercase mb-2 relative z-10">Total KK</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kk">0</h3>
                     </div>
-                    <div onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-kepala" onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="dash-filter-card bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-user-tie text-7xl text-white"></i></div>
                         <p class="text-amber-100 text-[10px] font-bold uppercase mb-2 relative z-10">Kepala Keluarga</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kepala">0</h3>
                     </div>
-                    <div onclick="setDashFilter(null)" class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-penduduk" onclick="setDashFilter('aktif', true, 'Penduduk Aktif')" class="dash-filter-card bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-users text-7xl text-white"></i></div>
                         <p class="text-emerald-100 text-[10px] font-bold uppercase mb-2 relative z-10">Penduduk Aktif</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-penduduk">0</h3>
                     </div>
-                    <div onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="bg-gradient-to-br from-indigo-600 to-brand-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-pemilih" onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="dash-filter-card bg-gradient-to-br from-indigo-600 to-brand-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-check-to-slot text-7xl text-white"></i></div>
                         <p class="text-indigo-100 text-[10px] font-bold uppercase mb-2 relative z-10">Mata Pilih</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-pemilih">0</h3>
                     </div>
-                    <div onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="bg-gradient-to-br from-sky-500 to-blue-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-l" onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="dash-filter-card bg-gradient-to-br from-sky-500 to-blue-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-male text-7xl text-white"></i></div>
                         <p class="text-sky-100 text-[10px] font-bold uppercase mb-2 relative z-10">Laki-Laki</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-l">0</h3>
                     </div>
-                    <div onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
+                    <div id="card-filter-p" onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="dash-filter-card bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-female text-7xl text-white"></i></div>
                         <p class="text-rose-100 text-[10px] font-bold uppercase mb-2 relative z-10">Perempuan</p>
                         <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-p">0</h3>
@@ -1795,7 +1795,36 @@
             }
         }
 
-        function setDashFilter(type, val, lbl) { currentDashFilter = type?{type,val,lbl}:null; let id = document.getElementById('dash-filter-indicator'); if(currentDashFilter){ id.innerHTML=`Filter: ${lbl} <button onclick="setDashFilter(null)" class="ml-2 text-rose-500"><i class="fas fa-times"></i></button>`; id.classList.remove('hidden'); }else id.classList.add('hidden'); loadDashboardData(); }
+        function setDashFilter(type, val, lbl) { 
+            currentDashFilter = type ? {type, val, lbl} : null; 
+            let id = document.getElementById('dash-filter-indicator'); 
+            if(currentDashFilter){ 
+                id.innerHTML = `Filter: ${lbl} <button onclick="setDashFilter(null)" class="ml-2 text-rose-500"><i class="fas fa-times"></i></button>`; 
+                id.classList.remove('hidden'); 
+            } else {
+                id.classList.add('hidden'); 
+            }
+            
+            loadDashboardData(); 
+
+            // Logika UI Penanda (Highlight) Kartu Aktif
+            document.querySelectorAll('.dash-filter-card').forEach(c => {
+                c.classList.remove('ring-4', 'ring-offset-4', 'ring-brand-500', 'scale-105', 'z-10');
+            });
+
+            let activeId = 'card-filter-kk'; // Default aktif di kartu pertama jika tidak ada filter
+            if (type === 'kepala_keluarga') activeId = 'card-filter-kepala';
+            else if (type === 'aktif') activeId = 'card-filter-penduduk';
+            else if (type === 'pemilih') activeId = 'card-filter-pemilih';
+            else if (type === 'gender' && val === 'LAKI-LAKI') activeId = 'card-filter-l';
+            else if (type === 'gender' && val === 'PEREMPUAN') activeId = 'card-filter-p';
+            else if (type) activeId = null; // Jika diklik dari grafik (chart), biarkan kartu di atas netral
+            
+            if (activeId) {
+                let card = document.getElementById(activeId);
+                if (card) card.classList.add('ring-4', 'ring-offset-4', 'ring-brand-500', 'scale-105', 'z-10');
+            }
+        }
 
         function updatePendudukStatus(noKk, pIdx, st) {
             let s = JSON.parse(localStorage.getItem('kk_data')||'[]'), k = s.findIndex(x=>x.header.no_kk===noKk);
@@ -1962,6 +1991,7 @@
                     }
                     if(currentDashFilter) {
                         let ok = false;
+                        if(currentDashFilter.type==='aktif' && isAktif) ok=true;
                         if(currentDashFilter.type==='pemilih' && isPem) ok=true;
                         if(currentDashFilter.type==='kepala_keluarga' && (a.status_hubungan_keluarga||'').toUpperCase() === 'KEPALA KELUARGA') ok=true;
                         if(currentDashFilter.type==='gender' && jk===currentDashFilter.val.toUpperCase()) ok=true;
