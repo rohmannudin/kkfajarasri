@@ -34,13 +34,18 @@
         body { background-color: #f8fafc; overflow-x: hidden; }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(25px) !important;
-            -webkit-backdrop-filter: blur(25px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
-            border-left: 1px solid rgba(255, 255, 255, 0.6) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.9) !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
+            box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.4), inset -1px -1px 2px rgba(255, 255, 255, 0.1), 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+            cursor: grab;
+        }
+        
+        .glass-panel:active {
+            cursor: grabbing;
         }
 
         /* --- PENAMBAHAN EFEK KACA (GLASSMORPHISM) SESUAI REQUEST --- */
@@ -51,22 +56,22 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         #login-view input {
-            background: rgba(255, 255, 255, 0.15) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.25) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
             color: white !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
         }
-        #login-view input::placeholder { color: rgba(255, 255, 255, 0.7) !important; }
-        #login-view .text-slate-400 { color: rgba(255, 255, 255, 0.8) !important; }
+        #login-view input::placeholder { color: rgba(255, 255, 255, 0.8) !important; }
+        #login-view .text-slate-400 { color: rgba(255, 255, 255, 0.9) !important; }
 
         /* Efek Kaca (Glassmorphism) untuk SEMUA Tombol (Buttons) di Aplikasi */
         button {
-            --tw-bg-opacity: 0.6 !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+            --tw-bg-opacity: 0.8 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.6), inset -1px -1px 0px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.15) !important;
             transition: all 0.3s ease !important;
         }
         
@@ -183,14 +188,18 @@
             body.printing-matapilih #matapilih-print-wrapper { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; color: black; background: white; padding: 5mm; box-shadow: none; border: none; }
             body.printing-matapilih .laporan-pend-table th { background-color: #6366f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-view { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; padding: 0 !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-print-wrapper { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; overflow: visible !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-print-wrapper .overflow-x-auto { overflow: visible !important; padding: 0 !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-table-main { width: 100% !important; min-width: 100% !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
+            body.printing-ktp * { visibility: hidden; }
+            body.printing-ktp #ktp-print-area, body.printing-ktp #ktp-print-area * { visibility: visible; }
+            body.printing-ktp #ktp-print-area { display: flex !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20mm; justify-content: center; align-items: flex-start; background: white; }
+
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-view { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; padding: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-print-wrapper { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; overflow: visible !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-print-wrapper .overflow-x-auto { overflow: visible !important; padding: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main { width: 100% !important; min-width: 100% !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
             
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-table-main th, 
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) #rekap-table-main td { 
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main th, 
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main td { 
                 border: 1px solid black !important; 
                 padding: 4px 2px !important; 
                 font-size: 9px !important; 
@@ -199,8 +208,8 @@
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
             }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) .print-show { display: block !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih) table { min-width: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) .print-show { display: block !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) table { min-width: 0 !important; }
             
             @page { size: A4 landscape; margin: 5mm; }
         }
@@ -249,7 +258,18 @@
         </button>
     </div>
 
+    <!-- TUGAS BARU: Tombol Navigasi Scroll Atas & Bawah -->
+    <div id="floating-vertical-scroll" class="fixed bottom-32 right-10 flex flex-col gap-3 z-[150] print-hide hidden transition-opacity duration-300">
+        <button onclick="scrollToTop()" class="w-12 h-12 bg-white/90 text-slate-700 hover:text-brand-600 hover:bg-white rounded-full shadow-xl hover:scale-105 flex items-center justify-center border border-slate-200 backdrop-blur-md transition-all" title="Ke Atas">
+            <i class="fas fa-arrow-up text-lg"></i>
+        </button>
+        <button onclick="scrollToBottom()" class="w-12 h-12 bg-white/90 text-slate-700 hover:text-brand-600 hover:bg-white rounded-full shadow-xl hover:scale-105 flex items-center justify-center border border-slate-200 backdrop-blur-md transition-all" title="Ke Bawah">
+            <i class="fas fa-arrow-down text-lg"></i>
+        </button>
+    </div>
+
     <div id="dukcapil-print-area" class="hidden"></div>
+    <div id="ktp-print-area" class="hidden"></div>
 
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity opacity-0">
         <div class="bg-white rounded-3xl shadow-2xl p-8 w-11/12 max-w-md transform scale-95 transition-transform duration-300">
@@ -295,7 +315,7 @@
 
     <!-- Halaman Login -->
     <div id="login-view" class="fixed inset-0 z-50 animated-bg flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+        <div id="login-panel" class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-transform duration-75">
             <button onclick="syncBeforeLogin()" id="btn-login-sync" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-white/50 hover:bg-white text-slate-500 hover:text-brand-600 rounded-full shadow-sm transition-all z-20" title="Sinkronisasi Pengaturan & Logo">
                 <i class="fas fa-sync-alt"></i>
             </button>
@@ -432,7 +452,7 @@
             
             <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hide backdrop-blur-sm"></div>
 
-            <main class="flex-grow overflow-y-auto w-full pb-12 relative custom-scrollbar">
+            <main id="main-scroll-area" class="flex-grow overflow-y-auto w-full pb-12 relative custom-scrollbar">
             
             <!-- VIEW: OCR & EKSTRAKSI -->
             <div id="ocr-view" class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8 fade-in">
@@ -1390,6 +1410,10 @@
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
             }
+            
+            // Tampilkan tombol navigasi vertikal setelah masuk (login)
+            if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
+
             switchView('ocr-view'); loadDashboardData();
             startRealtimeSync();
             
@@ -1533,11 +1557,42 @@
             views.forEach(v => { let e = document.getElementById(v); if(e){ e.classList.add('hidden'); e.classList.remove('flex'); } });
             
             const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
-            Object.values(tabs).forEach(t => { let e = document.getElementById(t); if(e){ e.classList.add('bg-transparent', 'border-transparent'); e.classList.remove('bg-white/10', 'shadow-inner'); } });
+            
+            // Definisi warna-warni untuk setiap menu
+            const tabColors = {
+                'ocr-view': ['from-brand-500/40', 'border-l-brand-400'],
+                'dashboard-view': ['from-sky-500/40', 'border-l-sky-400'],
+                'inactive-view': ['from-slate-500/40', 'border-l-slate-400'],
+                'rekap-view': ['from-fuchsia-500/40', 'border-l-fuchsia-400'],
+                'pendidikan-view': ['from-cyan-500/40', 'border-l-cyan-400'],
+                'rt-view': ['from-orange-500/40', 'border-l-orange-400'],
+                'agama-view': ['from-emerald-500/40', 'border-l-emerald-400'],
+                'pengangguran-view': ['from-rose-500/40', 'border-l-rose-400'],
+                'matapilih-view': ['from-indigo-500/40', 'border-l-indigo-400'],
+                'settings-view': ['from-sky-500/40', 'border-l-sky-400'],
+                'users-view': ['from-amber-500/40', 'border-l-amber-400']
+            };
+
+            const allColorClasses = Object.values(tabColors).flat();
+            
+            Object.values(tabs).forEach(t => { 
+                let e = document.getElementById(t); 
+                if(e){ 
+                    // Reset styling semua tab saat tidak aktif
+                    e.classList.add('bg-transparent', 'border-transparent'); 
+                    e.classList.remove('bg-white/20', 'shadow-inner', 'border-white/30', 'pl-6', 'bg-white/10', 'bg-gradient-to-r', 'to-transparent', 'border-l-4', ...allColorClasses); 
+                    // Tambahkan transisi halus agar efek warna tidak kaku
+                    if(!e.classList.contains('transition-all')) e.classList.add('transition-all', 'duration-300');
+                } 
+            });
             
             document.getElementById(viewId).classList.remove('hidden'); document.getElementById(viewId).classList.add('flex');
             let aTab = document.getElementById(tabs[viewId]);
-            if(aTab && !['tab-users','tab-settings','tab-rekap','tab-pendidikan','tab-rt','tab-agama','tab-pengangguran','tab-matapilih'].includes(tabs[viewId])) { aTab.classList.remove('bg-transparent'); aTab.classList.add('bg-white/10', 'shadow-inner'); }
+            if(aTab && tabColors[viewId]) { 
+                // Terapkan efek terpilih (Active Menu) dengan WARNA-WARNI ke menu sidebar
+                aTab.classList.remove('bg-transparent', 'border-transparent'); 
+                aTab.classList.add('bg-gradient-to-r', 'to-transparent', 'border-l-4', 'pl-6', ...tabColors[viewId]); 
+            }
 
             floatingScrollBtns.classList.toggle('hidden', !['rekap-view','pendidikan-view','dashboard-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
 
@@ -2019,6 +2074,7 @@
                     let actBtn = `<div class="flex gap-1 mb-1">
                         <button onclick="editDataKK('${kk.header.no_kk}')" class="p-1 bg-amber-100 text-amber-600 rounded" title="Edit Data KK"><i class="fas fa-edit"></i></button>
                         <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
+                        <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
                         ${deleteBtnHTML}
                         <button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors" title="Sembunyikan dari Laporan"><i class="fas fa-ghost"></i></button>
                         <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
@@ -2075,6 +2131,42 @@
         }
 
         function scrollActiveTable(a) { document.querySelectorAll('.overflow-x-auto').forEach(e => e.scrollBy({left:a, behavior:'smooth'})); }
+
+        // TUGAS BARU: Fungsi untuk mengontrol scroll vertikal pada area main dengan animasi kustom (Sangat Smooth)
+        function smoothScrollVertical(element, targetPosition, duration) {
+            let startPosition = element.scrollTop;
+            let distance = targetPosition - startPosition;
+            let startTime = null;
+
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                let timeElapsed = currentTime - startTime;
+                let run = ease(timeElapsed, startPosition, distance, duration);
+                element.scrollTop = run;
+                if (timeElapsed < duration) requestAnimationFrame(animation);
+                else element.scrollTop = targetPosition; // Pastikan posisi akhir akurat
+            }
+
+            // Easing function (easeInOutCubic) untuk perlambatan halus di awal dan akhir (Tidak langsung loncat)
+            function ease(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t * t + b;
+                t -= 2;
+                return c / 2 * (t * t * t + 2) + b;
+            }
+
+            requestAnimationFrame(animation);
+        }
+
+        function scrollToTop() {
+            let m = document.getElementById('main-scroll-area');
+            if (m) smoothScrollVertical(m, 0, 1000); // Durasi 1000ms (1 Detik)
+        }
+
+        function scrollToBottom() {
+            let m = document.getElementById('main-scroll-area');
+            if (m) smoothScrollVertical(m, m.scrollHeight, 1000); // Durasi 1000ms (1 Detik)
+        }
 
         // --- LAPORAN & REKAP ---
         function generateRekapData() {
@@ -2466,6 +2558,57 @@
         function printPengangguranFormat() { document.body.classList.add('printing-pengangguran'); window.print(); document.body.classList.remove('printing-pengangguran'); }
         function printMataPilihFormat() { document.body.classList.add('printing-matapilih'); window.print(); document.body.classList.remove('printing-matapilih'); }
 
+        function printKTP(noKk, pIdx) {
+            let sD = JSON.parse(localStorage.getItem('kk_data')||'[]');
+            let kk = sD.find(x => x.header.no_kk === noKk);
+            if(!kk) return showToast("Data KK tidak ditemukan", "error");
+            let p = kk.anggota_keluarga[pIdx];
+            if(!p) return showToast("Data anggota tidak ditemukan", "error");
+            let h = kk.header;
+
+            let html = `
+                <div style="width: 8.56cm; height: 5.398cm; border: 2px solid black; border-radius: 8px; background: linear-gradient(to bottom, #dbeafe, #bae6fd); -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, sans-serif; padding: 8px; box-sizing: border-box; color: black; position: relative; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px; line-height: 1.1; text-transform: uppercase;">
+                        PROVINSI ${h.provinsi || '....................'}<br>
+                        ${(h.kabupaten_kota||'').toUpperCase().includes('KOTA') ? '' : 'KABUPATEN '} ${h.kabupaten_kota || '....................'}
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold; margin-left: 10px; margin-bottom: 4px;">NIK <span style="margin-left:25px;">: ${p.nik || '-'}</span></div>
+                    
+                    <div style="display: flex; font-size: 8.5px; font-weight: bold; line-height: 1.25;">
+                        <div style="width: 72%; padding-left: 2px;">
+                            <div style="display:flex;"><div style="width:85px;">Nama</div><div>: ${p.nama_lengkap || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Tempat/Tgl Lahir</div><div>: ${p.tempat_lahir || '-'}, ${formatDateID(p.tanggal_lahir)}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Jenis Kelamin</div><div style="width:70px;">: ${p.jenis_kelamin || '-'}</div> <div style="width:40px;">Gol. Darah</div><div>: ${p.golongan_darah || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Alamat</div><div>: ${h.alamat || '-'}</div></div>
+                            <div style="display:flex; margin-left:15px;"><div style="width:70px;">RT/RW</div><div>: ${h.rt_rw || '-'}</div></div>
+                            <div style="display:flex; margin-left:15px;"><div style="width:70px;">Kel/Desa</div><div>: ${h.desa_kelurahan || '-'}</div></div>
+                            <div style="display:flex; margin-left:15px;"><div style="width:70px;">Kecamatan</div><div>: ${h.kecamatan || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Agama</div><div>: ${p.agama || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Status Perkawinan</div><div>: ${p.status_perkawinan || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Pekerjaan</div><div>: ${p.jenis_pekerjaan || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Kewarganegaraan</div><div>: ${p.kewarganegaraan || '-'}</div></div>
+                            <div style="display:flex;"><div style="width:85px;">Berlaku Hingga</div><div>: SEUMUR HIDUP</div></div>
+                        </div>
+                        
+                        <div style="width: 28%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+                            <div style="width: 2cm; height: 2.8cm; border: 1px solid #333; background: #fff; margin-bottom: 2px;"></div>
+                            <div style="font-size: 7px; text-align: center; text-transform: uppercase;">
+                                ${h.kabupaten_kota || 'KABUPATEN'}<br>
+                                ${formatDateID(new Date().toISOString().split('T')[0])}
+                            </div>
+                            <div style="width: 1.5cm; height: 0.8cm; border-bottom: 1px solid #333; margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            let printArea = document.getElementById('ktp-print-area');
+            printArea.innerHTML = html;
+            document.body.classList.add('printing-ktp');
+            window.print();
+            document.body.classList.remove('printing-ktp');
+        }
+
         function loadSettingsUI() {
             document.getElementById('set-app-title').value = localStorage.getItem('set_app_title') || 'Smart E-KK';
             document.getElementById('set-app-subtitle').value = localStorage.getItem('set_app_subtitle') || 'Realtime Edition';
@@ -2809,7 +2952,63 @@
             }
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); initAuth(); };
+        // TUGAS BARU: Fitur Drag (Geser) untuk Panel Login
+        function initDraggableLogin() {
+            let dragItem = document.getElementById("login-panel");
+            if (!dragItem) return;
+            
+            let active = false;
+            let currentX = 0, currentY = 0, initialX = 0, initialY = 0;
+            let xOffset = 0, yOffset = 0;
+
+            function dragStart(e) {
+                // Cegah fungsi geser jika sedang mengklik input atau tombol
+                if (['INPUT', 'BUTTON', 'A', 'I', 'LABEL'].includes(e.target.tagName)) return;
+                
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                
+                if (e.target.closest('#login-panel')) active = true;
+            }
+
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                active = false;
+            }
+
+            function drag(e) {
+                if (active) {
+                    e.preventDefault();
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    dragItem.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+                }
+            }
+
+            // Event listener untuk touch (smartphone) dan mouse (desktop)
+            dragItem.addEventListener("touchstart", dragStart, {passive: false});
+            window.addEventListener("touchend", dragEnd, false);
+            window.addEventListener("touchmove", drag, {passive: false});
+
+            dragItem.addEventListener("mousedown", dragStart, false);
+            window.addEventListener("mouseup", dragEnd, false);
+            window.addEventListener("mousemove", drag, false);
+        }
+
+        window.onload = () => { applyThemeAndBg(); applyLogo(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
