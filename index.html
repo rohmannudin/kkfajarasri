@@ -1258,6 +1258,16 @@
                                 k.header.rt_rw = "000/000";
                             }
                         }
+                    } else {
+                        // NORMALISASI: Jadikan 1 Laporan untuk input RT/RW yang tidak seragam (Misal "1/2" dan " 001/002 " otomatis jadi "001/002")
+                        let parts = rtrwStr.split(/[\/\-]/);
+                        if (parts.length > 0) {
+                            let pRt = parts[0].replace(/\D/g, '');
+                            let pRk = (parts[1] || '').replace(/\D/g, '');
+                            if (pRt || pRk) {
+                                k.header.rt_rw = `${pRt ? pRt.padStart(3, '0') : '000'}/${pRk ? pRk.padStart(3, '0') : '000'}`;
+                            }
+                        }
                     }
                 }
             });
@@ -2040,7 +2050,7 @@
         function generateRekapData() {
             let sD = getFilteredKKData(), r = {};
             sD.forEach(k => {
-                let p = (k.header.rt_rw||'').split(/[\/\-]/), rt = p[0]||'-', rk = p[1]||'-'; let wil = `${rk}_${rt}`;
+                let p = (k.header.rt_rw||'').split(/[\/\-]/), rt = (p[0]||'-').trim(), rk = (p[1]||'-').trim(); let wil = `${rk}_${rt}`;
                 if(!r[wil]) r[wil] = { label:`RT ${rt.padStart(3,'0')}/RK ${rk.padStart(3,'0')}`, rk, rt, kk:0, awk:0, awl:0, awp:0, jml_l:0, jml_p:0, lhr_l:0, lhr_p:0, dtg_l:0, dtg_p:0, dom_l:0, dom_p:0, wft_l:0, wft_p:0, pnd_l:0, pnd_p:0, mrt_l:0, mrt_p:0, tki_l:0, tki_p:0 };
                 
                 let isAktif = false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','PENDATANG','DOMISILI','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) isAktif=true; });
@@ -2078,7 +2088,7 @@
 
         function renderPendidikanTable() {
             let sD = getFilteredKKData(), r = {};
-            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=p[0]||'-', rk=p[1]||'-', wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,P:{BELUM:{l:0,p:0},BS:{l:0,p:0},SD:{l:0,p:0},SMP:{l:0,p:0},SMA:{l:0,p:0},SMK:{l:0,p:0},D2:{l:0,p:0},D3:{l:0,p:0},S1:{l:0,p:0}}};
+            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,P:{BELUM:{l:0,p:0},BS:{l:0,p:0},SD:{l:0,p:0},SMP:{l:0,p:0},SMA:{l:0,p:0},SMK:{l:0,p:0},D2:{l:0,p:0},D3:{l:0,p:0},S1:{l:0,p:0}}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
                     let pend=(a.pendidikan||'').toUpperCase(), isL=(a.jenis_kelamin||'').toUpperCase().includes('LAKI'), key='BELUM';
@@ -2099,7 +2109,7 @@
 
         function renderRtTable() {
             let sD = getFilteredKKData(), r = {}; const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75+"];
-            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=p[0]||'-', rk=p[1]||'-', wil=`${rk}_${rt}`; if(!r[wil]) { r[wil]={rt,rk,kk:0,U:{}}; BR.forEach(b=>r[wil].U[b]={l:0,p:0}); }
+            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) { r[wil]={rt,rk,kk:0,U:{}}; BR.forEach(b=>r[wil].U[b]={l:0,p:0}); }
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
                     let um=calculateAge(a.tanggal_lahir), isL=(a.jenis_kelamin||'').toUpperCase().includes('LAKI'), key="75+";
@@ -2123,7 +2133,7 @@
 
         function renderAgamaTable() {
             let sD = getFilteredKKData(), r = {};
-            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=p[0]||'-', rk=p[1]||'-', wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,A:{ISLAM:{l:0,p:0},KRISTEN:{l:0,p:0},KATHOLIK:{l:0,p:0},HINDU:{l:0,p:0},BUDHA:{l:0,p:0},KONGHUCHU:{l:0,p:0}}};
+            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,A:{ISLAM:{l:0,p:0},KRISTEN:{l:0,p:0},KATHOLIK:{l:0,p:0},HINDU:{l:0,p:0},BUDHA:{l:0,p:0},KONGHUCHU:{l:0,p:0}}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
                     let agm=(a.agama||'').toUpperCase(), isL=(a.jenis_kelamin||'').toUpperCase().includes('LAKI'), key='KONGHUCHU';
@@ -2202,7 +2212,7 @@
 
         function renderMataPilihTable() {
             let sD = getFilteredKKData(), r = {};
-            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=p[0]||'-', rk=p[1]||'-', wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,PIL:{l:0,p:0},BEL:{l:0,p:0}};
+            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,PIL:{l:0,p:0},BEL:{l:0,p:0}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
                     let um=calculateAge(a.tanggal_lahir), sk=(a.status_perkawinan||'').toUpperCase(), isL=(a.jenis_kelamin||'').toUpperCase().includes('LAKI');
