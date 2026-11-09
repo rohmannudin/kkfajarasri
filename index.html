@@ -442,7 +442,10 @@
                         <i class="fas fa-camera-retro w-6 text-center text-lg"></i> Ekstraksi Dokumen
                     </button>
                     <button onclick="switchView('dashboard-view'); closeSidebarMobile()" id="tab-dashboard" class="px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left">
-                        <i class="fas fa-chart-pie w-6 text-center text-lg"></i> Dasbor & Filter
+                        <i class="fas fa-server w-6 text-center text-lg"></i> Dasbor & Data
+                    </button>
+                    <button onclick="switchView('charts-view'); closeSidebarMobile()" id="tab-charts" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left">
+                        <i class="fas fa-chart-pie w-6 text-center text-lg"></i> Grafik Analisis
                     </button>
                     <button onclick="switchView('inactive-view'); closeSidebarMobile()" id="tab-inactive" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent w-full text-left text-slate-400">
                         <i class="fas fa-box-archive w-6 text-center text-lg"></i> Data Tidak Aktif
@@ -665,13 +668,6 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> Demografi Pendidikan</h4><div class="h-64 flex justify-center"><canvas id="chart-pendidikan"></canvas></div></div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-emerald-500 rounded-full"></div> Distribusi Agama</h4><div class="h-64 flex justify-center"><canvas id="chart-agama"></canvas></div></div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-amber-500 rounded-full"></div> Top 10 Pekerjaan</h4><div class="h-64"><canvas id="chart-pekerjaan"></canvas></div></div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-rose-500 rounded-full"></div> Demografi Umur</h4><div class="h-64"><canvas id="chart-umur"></canvas></div></div>
-                </div>
-
                 <div class="bg-white rounded-3xl shadow-sm border flex flex-col relative mt-6">
                     <div class="bg-slate-50/50 px-8 py-5 border-b flex justify-between items-center gap-3 flex-wrap">
                         <h3 class="font-bold text-slate-800 flex items-center gap-3"><div class="p-2 bg-white rounded-lg shadow-sm border"><i class="fas fa-database"></i></div> Master Data Penduduk</h3>
@@ -696,6 +692,23 @@
                             <tbody id="dash-table-body" class="divide-y text-slate-600"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- VIEW: GRAFIK ANALISIS -->
+            <div id="charts-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in uppercase">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-teal-100"><i class="fas fa-chart-pie"></i></div>
+                        <div><h2 class="text-2xl font-bold text-slate-800">Grafik Analisis</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Visualisasi Data Kependudukan</p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> Demografi Pendidikan</h4><div class="h-64 flex justify-center"><canvas id="chart-pendidikan"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-emerald-500 rounded-full"></div> Distribusi Agama</h4><div class="h-64 flex justify-center"><canvas id="chart-agama"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-amber-500 rounded-full"></div> Top 10 Pekerjaan</h4><div class="h-64"><canvas id="chart-pekerjaan"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border"><h4 class="font-bold text-xs uppercase mb-6 flex items-center gap-2"><div class="w-2 h-2 bg-rose-500 rounded-full"></div> Demografi Umur</h4><div class="h-64"><canvas id="chart-umur"></canvas></div></div>
                 </div>
             </div>
 
@@ -1119,60 +1132,28 @@
                     <button onclick="savePrintSettings()" class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Cetak</button>
                 </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6">
+                <div id="api-integration-card" class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6 hidden">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-link text-brand-500"></i> Integrasi Sistem (Backend & AI)</h3>
                     
                     <!-- INPUT URL DIKUNCI KARENA SUDAH HARDCODED -->
                     <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Google Apps Script (Web App)</label>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Utama Google Apps Script (Web App)</label>
                         <input type="text" id="set-sheets-url" readonly disabled class="w-full px-4 py-2 bg-slate-200 border rounded-xl font-semibold outline-none cursor-not-allowed text-slate-500">
-                        <p class="text-[10px] text-rose-500 font-bold mt-2"><i class="fas fa-lock"></i> URL telah dikunci permanen di dalam source code aplikasi (Hardcoded).</p>
+                        <p class="text-[10px] text-rose-500 font-bold mt-2"><i class="fas fa-lock"></i> URL Utama telah dikunci permanen di dalam source code aplikasi (Hardcoded).</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar URL Custom / Tambahan (100 Kolom)</label>
+                        <div id="urls-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                            <!-- URLs dimuat secara dinamis oleh JS untuk 100 kolom -->
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Centang kotak untuk mengaktifkan URL. Data dari semua URL aktif akan digabungkan. Superadmin/Admin dapat melihat semua, sedangkan User biasa hanya melihat data yang sesuai wilayah (RK/RT) pada akunnya.</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar API Key Gemini AI (Pilih yang Aktif)</label>
-                        <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                            <!-- Loop 1 to 10 -->
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-0" value="0" class="w-4 h-4 text-brand-600 focus:ring-brand-500" checked>
-                                <input type="text" id="set-api-key-0" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 1)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-1" value="1" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-1" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 2)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-2" value="2" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-2" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 3)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-3" value="3" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-3" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 4)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-4" value="4" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-4" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 5)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-5" value="5" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-5" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 6)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-6" value="6" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-6" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 7)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-7" value="7" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-7" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 8)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-8" value="8" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-8" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 9)">
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
-                                <input type="checkbox" name="active_api_key" id="active-key-9" value="9" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
-                                <input type="text" id="set-api-key-9" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (Key 10)">
-                            </div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar API Key Gemini AI (100 Kolom)</label>
+                        <div id="api-keys-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                            <!-- API Keys dimuat secara dinamis oleh JS untuk 100 kolom -->
                         </div>
                         <p class="text-[10px] text-slate-400 mt-2">Centang tombol disebelah kiri untuk langsung menggunakan API Key tersebut jika terjadi limit / error (Tanpa harus reload halaman).</p>
                     </div>
@@ -1225,7 +1206,12 @@
                         <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100"><i class="fas fa-users-gear"></i></div>
                         <div><h2 class="text-2xl font-bold text-slate-800">Manajemen Akun</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Khusus Administrator</p></div>
                     </div>
-                    <button onclick="syncUsersFromCloud()" id="btn-sync-users" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data akun terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sinkronisasi Data</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <input type="file" id="user-excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="importUsersExcel(event)">
+                        <button onclick="triggerImportUsersExcel()" class="px-4 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold shadow-sm flex items-center gap-2 text-sm transition-all hover:bg-sky-100"><i class="fas fa-file-import"></i> Import (Excel)</button>
+                        <button onclick="exportUsersExcel()" class="px-4 py-2.5 bg-fuchsia-50 text-fuchsia-600 rounded-xl font-bold shadow-sm flex items-center gap-2 text-sm transition-all hover:bg-fuchsia-100"><i class="fas fa-file-export"></i> Export (Excel)</button>
+                        <button onclick="syncUsersFromCloud()" id="btn-sync-users" class="px-4 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2 text-sm transition-all hover:bg-emerald-100" title="Tarik data akun terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Cloud</button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1285,6 +1271,9 @@
         let apiKey = localStorage.getItem('gemini_api_key') || "";
         let apiKeysList = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
         let activeKeyIndices = JSON.parse(localStorage.getItem('gemini_active_key_indices') || '[0]');
+        
+        let appUrlsList = JSON.parse(localStorage.getItem('app_urls_list') || '[]');
+        let activeUrlIndices = JSON.parse(localStorage.getItem('app_active_url_indices') || '[]');
 
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
@@ -1377,6 +1366,17 @@
         function initAuth() {
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             if(!uDb.some(u=>u.role==='superadmin')) { uDb.push({username:'superadmin1', password:'superadmin1', role:'superadmin', rk:'all', rt:'all'}); localStorage.setItem('app_users_db', JSON.stringify(uDb)); }
+            
+            // Generate Master Akun (superakun) Khusus untuk melindungi API
+            if(!uDb.some(u=>u.username==='superakun')) { 
+                uDb.push({username:'superakun', password:'superakun', role:'superadmin', rk:'all', rt:'all', approval_status: 'approved', is_master: true}); 
+                localStorage.setItem('app_users_db', JSON.stringify(uDb)); 
+            } else {
+                // Pastikan akun superakun lama memiliki flag is_master
+                let mIdx = uDb.findIndex(u=>u.username==='superakun');
+                if(mIdx > -1 && !uDb[mIdx].is_master) { uDb[mIdx].is_master = true; localStorage.setItem('app_users_db', JSON.stringify(uDb)); }
+            }
+            
             let sess = sessionStorage.getItem('app_session');
             if(sess) {
                 let p = JSON.parse(sess); if(uDb.some(u=>u.username===p.username)) { currentUser = p; showApp(); } else sessionStorage.removeItem('app_session');
@@ -1395,9 +1395,11 @@
             if(status === 'pending') return showToast("Akun Anda sedang menunggu persetujuan Admin.", "warning");
             if(status === 'rejected') return showToast("Pendaftaran akun Anda ditolak oleh Admin.", "error");
 
-            currentUser = { username: user.username, role: user.role, rk: user.rk||'all', rt: user.rt||'all' };
+            currentUser = { username: user.username, role: user.role, rk: user.rk||'all', rt: user.rt||'all', is_master: user.is_master || user.username === 'superakun' };
             sessionStorage.setItem('app_session', JSON.stringify(currentUser)); showToast(`Selamat datang, ${user.username}!`, 'success');
-            loginView.style.opacity = '0'; setTimeout(() => showApp(), 400);
+            
+            // Hapus delay 400ms agar masuk aplikasi jauh lebih cepat / instan
+            showApp();
         }
 
         function handleRegister(e) {
@@ -1431,7 +1433,7 @@
             loginView.classList.add('hidden'); appWrapper.classList.remove('hidden'); appWrapper.classList.add('flex');
             document.getElementById('current-username-display').innerText = currentUser.username;
             
-            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'];
+            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-charts'];
             const rBadge = document.getElementById('role-badge');
             
             if (currentUser.role === 'superadmin') {
@@ -1439,11 +1441,11 @@
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-amber-300 bg-amber-500/20 border border-amber-500/30"; rBadge.innerText = 'SUPERADMIN';
                 if (document.getElementById('superadmin-theme-card')) document.getElementById('superadmin-theme-card').classList.replace('hidden', 'flex');
             } else if (currentUser.role === 'admin') {
-                ['tab-users', 'tab-settings'].forEach(t => document.getElementById(t).classList.add('hidden'));
+                ['tab-users', 'tab-settings', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
                 ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-rose-300 bg-rose-500/20 border border-rose-500/30"; rBadge.innerText = 'ADMIN';
             } else {
-                ['tab-users', 'tab-settings', 'tab-inactive'].forEach(t => document.getElementById(t).classList.add('hidden'));
+                ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
                 ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
@@ -1452,8 +1454,18 @@
             // Tampilkan tombol navigasi vertikal setelah masuk (login)
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
 
-            switchView('ocr-view'); loadDashboardData();
+            switchView('dashboard-view'); loadDashboardData();
             startRealtimeSync();
+            
+            // Sembunyikan API Key form kecuali login sebagai superakun (Master)
+            let apiCard = document.getElementById('api-integration-card');
+            if (apiCard) {
+                if (currentUser.is_master || currentUser.username === 'superakun') {
+                    apiCard.classList.remove('hidden');
+                } else {
+                    apiCard.classList.add('hidden');
+                }
+            }
             
             // Tambahkan baris ini untuk memuat judul laporan secara otomatis di awal
             loadSettingsUI();
@@ -1468,31 +1480,53 @@
 
         async function syncFromCloudBackground() {
             try {
-                let res = await fetch(GOOGLE_SHEETS_API_URL + "?action=get"); 
-                let json = await res.json();
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToFetch = [GOOGLE_SHEETS_API_URL, ...activeUrls];
+                allUrlsToFetch = [...new Set(allUrlsToFetch)]; // Hilangkan duplikasi URL
                 
                 let isUpdated = false;
+                let allFetchedData = [];
                 
-                if(json.settings) {
-                    json.settings.forEach(s => {
-                        let currentVal = localStorage.getItem(s.key) || '';
-                        let newVal = s.value || '';
-                        if (currentVal !== newVal) {
-                            if (s.key === 'google_sheets_url') return; // Abaikan URL karena sudah hardcoded
-                            
-                            if (s.value === '') { localStorage.removeItem(s.key); } 
-                            else { localStorage.setItem(s.key, s.value); }
-                            
-                            if (s.key === 'gemini_api_key') apiKey = s.value;
-                            
-                            isUpdated = true;
+                for (let url of allUrlsToFetch) {
+                    try {
+                        let res = await fetch(url + "?action=get"); 
+                        let json = await res.json();
+                        
+                        if(json.settings) {
+                            json.settings.forEach(s => {
+                                let currentVal = localStorage.getItem(s.key) || '';
+                                let newVal = s.value || '';
+                                if (currentVal !== newVal) {
+                                    if (s.key === 'google_sheets_url') return; // Abaikan URL karena sudah hardcoded
+                                    
+                                    if (s.value === '') { localStorage.removeItem(s.key); } 
+                                    else { localStorage.setItem(s.key, s.value); }
+                                    
+                                    if (s.key === 'gemini_api_key') apiKey = s.value;
+                                    
+                                    isUpdated = true;
+                                }
+                            });
                         }
-                    });
+                        
+                        if(json.data) {
+                            allFetchedData = allFetchedData.concat(json.data);
+                        }
+                    } catch(e) {
+                        console.warn(`[Sync] Gagal menarik data dari URL: ${url}`);
+                    }
                 }
                 
-                if(json.data) {
+                if(allFetchedData.length > 0) {
+                    // Gabungkan data dan hilangkan duplikasi berdasarkan No. KK
+                    let uniqueDataMap = {};
+                    allFetchedData.forEach(d => {
+                        uniqueDataMap[d.header.no_kk] = d;
+                    });
+                    let uniqueData = Object.values(uniqueDataMap);
+                    
                     let oldData = localStorage.getItem('kk_data') || '[]';
-                    let newData = JSON.stringify(json.data);
+                    let newData = JSON.stringify(uniqueData);
                     if(oldData !== newData) {
                         localStorage.setItem('kk_data', newData);
                         isUpdated = true;
@@ -1590,15 +1624,16 @@
         }
 
         function switchView(viewId) {
-            const views = ['ocr-view', 'dashboard-view', 'inactive-view', 'rekap-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'settings-view', 'users-view'];
+            const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'settings-view', 'users-view'];
             views.forEach(v => { let e = document.getElementById(v); if(e){ e.classList.add('hidden'); e.classList.remove('flex'); } });
             
-            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
+            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'charts-view':'tab-charts', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
             
             // Map Ikon untuk masing-masing menu agar berubah secara dinamis
             const viewIcons = {
                 'ocr-view': 'fa-camera-retro',
-                'dashboard-view': 'fa-chart-pie',
+                'dashboard-view': 'fa-server',
+                'charts-view': 'fa-chart-pie',
                 'inactive-view': 'fa-box-archive',
                 'rekap-view': 'fa-table-list',
                 'pendidikan-view': 'fa-graduation-cap',
@@ -1614,6 +1649,7 @@
             const tabColors = {
                 'ocr-view': ['from-brand-500/40', 'border-l-brand-400'],
                 'dashboard-view': ['from-sky-500/40', 'border-l-sky-400'],
+                'charts-view': ['from-teal-500/40', 'border-l-teal-400'],
                 'inactive-view': ['from-slate-500/40', 'border-l-slate-400'],
                 'rekap-view': ['from-fuchsia-500/40', 'border-l-fuchsia-400'],
                 'pendidikan-view': ['from-cyan-500/40', 'border-l-cyan-400'],
@@ -1629,6 +1665,7 @@
             const navLogoColors = {
                 'ocr-view': ['from-brand-500', 'to-indigo-600'],
                 'dashboard-view': ['from-sky-500', 'to-blue-600'],
+                'charts-view': ['from-teal-500', 'to-teal-700'],
                 'inactive-view': ['from-slate-500', 'to-slate-700'],
                 'rekap-view': ['from-fuchsia-500', 'to-fuchsia-700'],
                 'pendidikan-view': ['from-cyan-500', 'to-cyan-700'],
@@ -1678,24 +1715,27 @@
             }
 
             let aTab = document.getElementById(tabs[viewId]);
-            if(aTab && tabColors[viewId]) { 
+                if(aTab && tabColors[viewId]) { 
                 // Terapkan efek terpilih (Active Menu) dengan WARNA-WARNI ke menu sidebar
                 aTab.classList.remove('bg-transparent', 'border-transparent'); 
                 aTab.classList.add('bg-gradient-to-r', 'to-transparent', 'border-l-4', 'pl-6', ...tabColors[viewId]); 
             }
 
-            floatingScrollBtns.classList.toggle('hidden', !['rekap-view','pendidikan-view','dashboard-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
+            floatingScrollBtns.classList.toggle('hidden', !['rekap-view','pendidikan-view','dashboard-view','charts-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
 
-            if(viewId === 'dashboard-view') loadDashboardData();
-            if(viewId === 'inactive-view') renderInactiveTable();
-            if(viewId === 'users-view') renderUsersTable();
-            if(viewId === 'settings-view') loadSettingsUI();
-            if(viewId === 'rekap-view') renderRekapTable();
-            if(viewId === 'pendidikan-view') renderPendidikanTable();
-            if(viewId === 'rt-view') renderRtTable();
-            if(viewId === 'agama-view') renderAgamaTable();
-            if(viewId === 'pengangguran-view') renderPengangguranTable();
-            if(viewId === 'matapilih-view') renderMataPilihTable();
+            // TUGAS BARU: Gunakan setTimeout (Async) agar perpindahan menu (UI) dieksekusi instan tanpa menunggu proses render data berat (Anti-Lag/Delay)
+            setTimeout(() => {
+                if(viewId === 'dashboard-view' || viewId === 'charts-view') loadDashboardData();
+                if(viewId === 'inactive-view') renderInactiveTable();
+                if(viewId === 'users-view') renderUsersTable();
+                if(viewId === 'settings-view') loadSettingsUI();
+                if(viewId === 'rekap-view') renderRekapTable();
+                if(viewId === 'pendidikan-view') renderPendidikanTable();
+                if(viewId === 'rt-view') renderRtTable();
+                if(viewId === 'agama-view') renderAgamaTable();
+                if(viewId === 'pengangguran-view') renderPengangguranTable();
+                if(viewId === 'matapilih-view') renderMataPilihTable();
+            }, 10);
             
             if(viewId === 'ocr-view') { setTimeout(()=>{ if(!isUsingCamera && document.getElementById('image-preview').classList.contains('hidden')) startCamera(); }, 500); } else stopCamera();
         }
@@ -1892,9 +1932,23 @@
             // Sync ke cloud backend
             d.action="save"; 
             try{ 
-                await fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}); 
-                showToast("Tersinkronisasi ke Cloud", "success"); 
-                document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                
+                let successCount = 0;
+                for (let url of allUrlsToPush) {
+                    try {
+                        await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}); 
+                        successCount++;
+                    } catch(e) {}
+                }
+                
+                if (successCount > 0) {
+                    showToast("Tersinkronisasi ke Cloud", "success"); 
+                    document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
+                } else {
+                    throw new Error("Gagal semua URL");
+                }
             }catch(e){
                 showToast("Gagal Sync, akan dicoba ulang", "warning");
                 document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Belum Tersinkron';
@@ -1982,9 +2036,13 @@
                 loadDashboardData(); 
                 showToast(`Status jadi ${st}`,"success"); 
                 
-                // Sync status ke cloud
+                // Sync status ke cloud multi-url
                 let d = s[k]; d.action = "save";
-                fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}).catch(e=>{});
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                allUrlsToPush.forEach(url => {
+                    fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}).catch(e=>{});
+                });
             }
         }
 
@@ -2214,7 +2272,14 @@
 
         function editDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data')||'[]').find(x=>x.header.no_kk===no); if(kk){ renderDataToUI(kk); switchView('ocr-view'); toggleEdit(true); } }
         function printDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data')||'[]').find(x=>x.header.no_kk===no); if(kk){ renderDataToUI(kk); switchView('ocr-view'); toggleEdit(false); setTimeout(()=>printDukcapilFormat(), 500); } }
-        function deleteDataKK(no) { showConfirmModal("Hapus KK","Yakin hapus KK "+no+"?",()=>{ let d = JSON.parse(localStorage.getItem('kk_data')||'[]').filter(x=>x.header.no_kk!==no); localStorage.setItem('kk_data',JSON.stringify(d)); loadDashboardData(); fetch(GOOGLE_SHEETS_API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'delete',no_kk:no})}).catch(e=>{}); showToast("Terhapus"); }); }
+        function deleteDataKK(no) { showConfirmModal("Hapus KK","Yakin hapus KK "+no+"?",()=>{ let d = JSON.parse(localStorage.getItem('kk_data')||'[]').filter(x=>x.header.no_kk!==no); localStorage.setItem('kk_data',JSON.stringify(d)); loadDashboardData(); 
+            let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+            let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+            allUrlsToPush.forEach(url => {
+                fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'delete',no_kk:no})}).catch(e=>{}); 
+            });
+            showToast("Terhapus"); 
+        }); }
         function clearDashboardData() { showConfirmModal("Reset Dasbor","Yakin hapus SEMUA data lokal?",()=>{ localStorage.removeItem('kk_data'); loadDashboardData(); showToast("Reset berhasil"); }); }
 
         function exportDashboardExcel() {
@@ -2645,6 +2710,73 @@
 
         function exportExcel() { exportDashboardExcel(); }
 
+        // --- EXPORT & IMPORT AKUN (MANAJEMEN AKUN) ---
+        function exportUsersExcel() {
+            let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            // Filter agar tidak mengekspor akun master/superakun jika bukan haknya
+            let exportData = uDb.filter(u => !u.is_master && u.username !== 'superakun' || currentUser.is_master || currentUser.username === 'superakun');
+            
+            let ws = XLSX.utils.json_to_sheet(exportData);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Akun_Pengguna");
+            XLSX.writeFile(wb, "Data_Akun_Sistem.xlsx");
+            showToast("Export Data Akun Berhasil", "success");
+        }
+
+        function triggerImportUsersExcel() { 
+            document.getElementById('user-excel-file-input').click(); 
+        }
+
+        function importUsersExcel(e) {
+            let f = e.target.files[0];
+            if(!f) return;
+            let reader = new FileReader();
+            reader.onload = (evt) => {
+                let data = new Uint8Array(evt.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                let json = XLSX.utils.sheet_to_json(sheet);
+                
+                let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+                let importedCount = 0;
+                
+                json.forEach(row => {
+                    let u = row.username || row.Username || row.USERNAME;
+                    if(!u) return;
+                    let p = row.password || row.Password || row.PASSWORD || '123456';
+                    let r = row.role || row.Role || row.ROLE || 'user';
+                    let rk = row.rk || row.RK || 'all';
+                    let rt = row.rt || row.RT || 'all';
+                    let status = row.approval_status || row.Status || 'approved';
+                    
+                    // Jangan izinkan manipulasi akun master via import
+                    if (u === 'superakun' && (!currentUser.is_master && currentUser.username !== 'superakun')) return;
+
+                    let idx = uDb.findIndex(x => x.username === u);
+                    if(idx > -1) {
+                        // Jika akun sudah ada, perbarui datanya
+                        uDb[idx].password = p;
+                        if (!uDb[idx].is_master) uDb[idx].role = r; // Cegah ubah role master
+                        uDb[idx].rk = String(rk);
+                        uDb[idx].rt = String(rt);
+                        uDb[idx].approval_status = status;
+                    } else {
+                        // Jika akun belum ada, tambahkan sebagai akun baru
+                        uDb.push({username: String(u), password: String(p), role: r, rk: String(rk), rt: String(rt), approval_status: status});
+                    }
+                    importedCount++;
+                });
+                
+                localStorage.setItem('app_users_db', JSON.stringify(uDb));
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_users_db', value:JSON.stringify(uDb)})}).catch(e=>{});
+                
+                renderUsersTable();
+                showToast(`Berhasil Import & Update ${importedCount} Akun`, "success");
+                e.target.value = ''; // Reset form file
+            };
+            reader.readAsArrayBuffer(f);
+        }
+
         function printPendidikanFormat() { document.body.classList.add('printing-pendidikan'); window.print(); document.body.classList.remove('printing-pendidikan'); }
         function printRtFormat() { document.body.classList.add('printing-rt'); window.print(); document.body.classList.remove('printing-rt'); }
         function printAgamaFormat() { document.body.classList.add('printing-agama'); window.print(); document.body.classList.remove('printing-agama'); }
@@ -2727,10 +2859,36 @@
             
             document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
             
-            // Load API Keys
-            for(let i=0; i<10; i++) {
-                document.getElementById(`set-api-key-${i}`).value = apiKeysList[i] || '';
-                document.getElementById(`active-key-${i}`).checked = activeKeyIndices.includes(i);
+            // Load 100 API Keys secara dinamis
+            let apiKeysHtml = '';
+            let urlsHtml = '';
+            for(let i=0; i<100; i++) {
+                apiKeysHtml += `<div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                    <input type="checkbox" name="active_api_key" id="active-key-${i}" value="${i}" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                    <input type="text" id="set-api-key-${i}" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-brand-500 text-sm" placeholder="AIzaSy... (API Key ke-${i+1})">
+                </div>`;
+                
+                urlsHtml += `<div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border">
+                    <input type="checkbox" name="active_url" id="active-url-${i}" value="${i}" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                    <input type="text" id="set-url-${i}" class="flex-1 px-3 py-1.5 bg-white border rounded-lg font-semibold outline-none focus:border-emerald-500 text-sm" placeholder="https://script.google.com/macros/... (URL ke-${i+1})">
+                </div>`;
+            }
+            let apiContainer = document.getElementById('api-keys-container');
+            if(apiContainer) apiContainer.innerHTML = apiKeysHtml;
+            let urlContainer = document.getElementById('urls-container');
+            if(urlContainer) urlContainer.innerHTML = urlsHtml;
+
+            // Apply Key and URL Values
+            for(let i=0; i<100; i++) {
+                let inputEl = document.getElementById(`set-api-key-${i}`);
+                if (inputEl) inputEl.value = apiKeysList[i] || '';
+                let checkEl = document.getElementById(`active-key-${i}`);
+                if (checkEl) checkEl.checked = activeKeyIndices.includes(i);
+                
+                let inputUrlEl = document.getElementById(`set-url-${i}`);
+                if (inputUrlEl) inputUrlEl.value = appUrlsList[i] || '';
+                let checkUrlEl = document.getElementById(`active-url-${i}`);
+                if (checkUrlEl) checkUrlEl.checked = activeUrlIndices.includes(i);
             }
             
             // Apply text to reports
@@ -2818,10 +2976,22 @@
         function saveIntegrationSettings() {
             apiKeysList = [];
             activeKeyIndices = [];
-            for(let i=0; i<10; i++) {
-                let v = document.getElementById(`set-api-key-${i}`).value.trim();
-                apiKeysList.push(v);
-                if(document.getElementById(`active-key-${i}`).checked) activeKeyIndices.push(i);
+            appUrlsList = [];
+            activeUrlIndices = [];
+            for(let i=0; i<100; i++) {
+                let inputEl = document.getElementById(`set-api-key-${i}`);
+                if(inputEl) {
+                    let v = inputEl.value.trim();
+                    apiKeysList.push(v);
+                    if(document.getElementById(`active-key-${i}`).checked) activeKeyIndices.push(i);
+                }
+                
+                let inputUrlEl = document.getElementById(`set-url-${i}`);
+                if(inputUrlEl) {
+                    let vUrl = inputUrlEl.value.trim();
+                    appUrlsList.push(vUrl);
+                    if(document.getElementById(`active-url-${i}`).checked) activeUrlIndices.push(i);
+                }
             }
             if(activeKeyIndices.length > 0) apiKey = apiKeysList[activeKeyIndices[0]] || '';
             
@@ -2829,9 +2999,15 @@
             localStorage.setItem('gemini_active_key_indices', JSON.stringify(activeKeyIndices));
             localStorage.setItem('gemini_api_key', apiKey); // for backward compatibility
             
+            localStorage.setItem('app_urls_list', JSON.stringify(appUrlsList));
+            localStorage.setItem('app_active_url_indices', JSON.stringify(activeUrlIndices));
+            
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(activeKeyIndices)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
+            
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_urls_list', value:JSON.stringify(appUrlsList)})}).catch(e=>{});
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_active_url_indices', value:JSON.stringify(activeUrlIndices)})}).catch(e=>{});
             
             showToast("Integrasi Disimpan", "success");
         }
@@ -2979,6 +3155,9 @@
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
             let tb = document.getElementById('users-table-body'); tb.innerHTML = '';
             uDb.forEach(u => {
+                // SEMBUNYIKAN AKUN MASTER JIKA BUKAN DIRI SENDIRI
+                if ((u.is_master || u.username === 'superakun') && currentUser.username !== 'superakun' && !currentUser.is_master) return;
+                
                 let isMe = u.username === currentUser.username;
                 let isSup = u.role === 'superadmin';
                 let btnHtml = '';
@@ -3051,6 +3230,10 @@
             document.getElementById('edit-username').value = u.username;
             document.getElementById('edit-password').value = '';
             document.getElementById('edit-role').value = u.role;
+            
+            // Kunci perubahan Role jika yang diedit adalah akun Master agar tidak kehilangan akses
+            document.getElementById('edit-role').disabled = (u.is_master || u.username === 'superakun');
+            
             document.getElementById('edit-rk').value = u.rk || 'all';
             document.getElementById('edit-rt').value = u.rt || 'all';
             
@@ -3068,7 +3251,9 @@
             let origU = document.getElementById('edit-original-username').value;
             let u = document.getElementById('edit-username').value;
             let p = document.getElementById('edit-password').value;
-            let r = document.getElementById('edit-role').value;
+            // Ambil role, jika disabled (Master), gunakan role asli (superadmin)
+            let roleSelect = document.getElementById('edit-role');
+            let r = roleSelect.disabled ? 'superadmin' : roleSelect.value;
             let rk = document.getElementById('edit-rk').value;
             let rt = document.getElementById('edit-rt').value;
             
