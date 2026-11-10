@@ -708,10 +708,11 @@
                                         <th class="px-5 py-4 font-bold min-w-[220px]">Nama Lengkap</th><th class="px-5 py-4 font-bold min-w-[160px]">NIK</th><th class="px-5 py-4 font-bold min-w-[120px]">Jenis Kelamin</th><th class="px-5 py-4 font-bold min-w-[150px]">Tempat Lahir</th><th class="px-5 py-4 font-bold min-w-[120px]">Tanggal Lahir</th><th class="px-5 py-4 font-bold min-w-[120px]">Agama</th><th class="px-5 py-4 font-bold min-w-[180px]">Pendidikan</th><th class="px-5 py-4 font-bold min-w-[180px]">Jenis Pekerjaan</th><th class="px-5 py-4 font-bold min-w-[90px]">Gol. Darah</th><th class="px-5 py-4 font-bold min-w-[140px]">Status Kawin</th><th class="px-5 py-4 font-bold min-w-[130px]">Tgl Kawin</th><th class="px-5 py-4 font-bold min-w-[180px]">Hub. Keluarga</th><th class="px-5 py-4 font-bold min-w-[120px]">Kewarganegaraan</th><th class="px-5 py-4 font-bold min-w-[120px]">No. Paspor</th><th class="px-5 py-4 font-bold min-w-[120px]">No. KITAP</th><th class="px-5 py-4 font-bold min-w-[180px]">Nama Ayah</th><th class="px-5 py-4 font-bold min-w-[180px]">Nama Ibu</th>
                                         <th class="px-5 py-4 font-bold min-w-[150px] text-blue-600">Datang Dari</th><th class="px-5 py-4 font-bold min-w-[120px] text-blue-600">Tgl Datang</th>
                                         <th class="px-5 py-4 font-bold min-w-[150px] text-rose-600">Pindah Ke</th><th class="px-5 py-4 font-bold min-w-[120px] text-rose-600">Tgl Pindah</th><th class="px-5 py-4 font-bold min-w-[120px] text-slate-800">Tgl Meninggal</th>
+                                        <th class="px-5 py-4 font-bold min-w-[80px] text-center sticky right-0 bg-white z-10 shadow-[-1px_0_0_#f1f5f9]">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body" class="divide-y divide-slate-50 text-sm font-medium">
-                                    <tr><td colspan="23" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>
+                                    <tr><td colspan="24" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -2012,13 +2013,35 @@
                     if (el) el.value = '';
                 });
                 let tb = document.getElementById('table-body');
-                if (tb) tb.innerHTML = '<tr><td colspan="23" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>';
+                if (tb) tb.innerHTML = '<tr><td colspan="24" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>';
                 let badge = document.getElementById('status-badge');
                 if (badge) {
                     badge.innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input';
                     badge.className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border";
                 }
                 showToast("Form berhasil dikosongkan", "info");
+            });
+        }
+
+        function deleteFamilyMemberRow(btn) {
+            showConfirmModal("Hapus Anggota", "Apakah Anda yakin ingin menghapus 1 anggota keluarga ini?", () => {
+                let row = btn.closest('tr');
+                if (row) {
+                    row.remove();
+                    let rows = document.querySelectorAll('#table-body tr');
+                    if (rows.length === 0 || rows[0].querySelectorAll('input').length === 0) {
+                        document.getElementById('table-body').innerHTML = '<tr><td colspan="24" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>';
+                    } else {
+                        rows.forEach((r, idx) => {
+                            let firstTd = r.querySelector('td');
+                            if (firstTd && !isNaN(parseInt(firstTd.innerText))) {
+                                firstTd.innerText = idx + 1;
+                            }
+                        });
+                    }
+                    autoSaveData();
+                    showToast("1 anggota keluarga berhasil dihapus", "success");
+                }
             });
         }
 
@@ -2155,6 +2178,7 @@
                 <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pindah_ke||'-'}"></td>
                 <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_pindah)}"></td>
                 <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_meninggal)}"></td>
+                <td class="px-3 py-2 text-center sticky right-0 bg-white border-l"><button type="button" onclick="deleteFamilyMemberRow(this)" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-lg transition-colors" title="Hapus Anggota Ini"><i class="fas fa-trash-alt"></i></button></td>
                 </tr>`;
             });
             ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
@@ -2194,7 +2218,7 @@
                 statusBadge.className = "px-3 py-1.5 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200 shadow-sm flex items-center";
                 
                 document.querySelectorAll('#right-panel input').forEach(i => i.value = '');
-                document.getElementById('table-body').innerHTML = '<tr><td colspan="23" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="24" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
                 ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
                     let el = document.getElementById(id);
                     if (el) el.classList.add('hidden');
@@ -2265,6 +2289,7 @@
                 <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
                 <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
                 <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td class="px-3 py-2 text-center sticky right-0 bg-white border-l"><button type="button" onclick="deleteFamilyMemberRow(this)" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-lg transition-colors" title="Hapus Anggota Ini"><i class="fas fa-trash-alt"></i></button></td>
             </tr>`;
             tb.insertAdjacentHTML('beforeend', newRow);
 
