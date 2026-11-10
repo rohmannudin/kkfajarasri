@@ -675,19 +675,19 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-6">
                                 <div class="col-span-1 md:col-span-2 xl:col-span-3 pb-4 border-b border-dashed bg-slate-50/50 p-4 rounded-2xl">
                                     <label class="block text-xs font-bold text-brand-600 uppercase mb-2">No. Kartu Keluarga</label>
-                                    <input type="text" id="hk_nokk" oninput="checkDuplicateKK()" readonly class="w-full px-2 py-1 bg-transparent font-black text-3xl text-slate-800 outline-none" placeholder="0000000000000000">
+                                    <input type="text" id="hk_nokk" oninput="checkDuplicateKK(); autoSaveData();" readonly class="w-full px-2 py-1 bg-transparent font-black text-3xl text-slate-800 outline-none" placeholder="0000000000000000">
                                 </div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Nama Kepala Keluarga</label><input type="text" id="hk_kepala" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div class="md:col-span-2 xl:col-span-2"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Alamat Lengkap</label><input type="text" id="hk_alamat" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Nama Kepala Keluarga</label><input type="text" id="hk_kepala" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div class="md:col-span-2 xl:col-span-2"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Alamat Lengkap</label><input type="text" id="hk_alamat" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 </div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kode Pos</label><input type="text" id="hk_kodepos" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kecamatan</label><input type="text" id="hk_kecamatan" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kabupaten / Kota</label><input type="text" id="hk_kabupaten" onkeyup="autoDetectKodePos()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Provinsi</label><input type="text" id="hk_provinsi" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kode Pos</label><input type="text" id="hk_kodepos" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" onkeyup="autoDetectKodePos()" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kecamatan</label><input type="text" id="hk_kecamatan" onkeyup="autoDetectKodePos()" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kabupaten / Kota</label><input type="text" id="hk_kabupaten" onkeyup="autoDetectKodePos()" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Provinsi</label><input type="text" id="hk_provinsi" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                             </div>
                         </div>
                     </div>
@@ -727,6 +727,7 @@
                         <div><h2 class="text-2xl font-bold text-slate-800">Dashboard Kependudukan</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Analisis Data Realtime</p></div>
                     </div>
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="quickAddMemberDashboard()" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-bold shadow-sm flex items-center gap-2 hover:bg-brand-700 transition-all"><i class="fas fa-user-plus"></i> Tambah Anggota / KK Baru</button>
                         <button onclick="exportDashboardExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-excel"></i> Export Filter</button>
                         <button onclick="syncFromCloud()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2" title="Tarik data terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
                         <button onclick="clearDashboardData()" class="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-trash-alt"></i> Reset Dasbor</button>
@@ -1972,7 +1973,158 @@
             btnC.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Ekstrak AI'; btnC.disabled=false; document.getElementById('media-container').classList.remove('scanning'); stopCamera();
         }
 
+        function toggleEdit(forceState) {
+            if (typeof forceState === 'boolean') {
+                isEditMode = forceState;
+            } else {
+                isEditMode = !isEditMode;
+            }
+
+            const btnEdit = document.getElementById('btn-edit');
+            const inputs = document.querySelectorAll('#right-panel input');
+
+            inputs.forEach(input => {
+                if (isEditMode) {
+                    input.removeAttribute('readonly');
+                    input.classList.add('bg-amber-50/30');
+                } else {
+                    input.setAttribute('readonly', 'readonly');
+                    input.classList.remove('bg-amber-50/30');
+                }
+            });
+
+            if (btnEdit) {
+                if (isEditMode) {
+                    btnEdit.innerHTML = '<i class="fas fa-lock"></i> Kunci / Selesai Edit';
+                    btnEdit.className = 'w-full py-3 bg-emerald-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 shadow-md';
+                } else {
+                    btnEdit.innerHTML = '<i class="fas fa-pen-to-square"></i> Mode Edit Data';
+                    btnEdit.className = 'w-full py-3 bg-amber-500 text-white rounded-xl font-bold flex justify-center items-center gap-2';
+                }
+            }
+        }
+
+        function confirmClearForm() {
+            showConfirmModal("Kosongkan Form", "Apakah Anda yakin ingin mengosongkan seluruh form data?", () => {
+                currentEditingKK = null;
+                ['hk_nokk','hk_kepala','hk_alamat','hk_rt','hk_rk','hk_kodepos','hk_desa','hk_kecamatan','hk_kabupaten','hk_provinsi'].forEach(id => {
+                    let el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                let tb = document.getElementById('table-body');
+                if (tb) tb.innerHTML = '<tr><td colspan="23" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>';
+                let badge = document.getElementById('status-badge');
+                if (badge) {
+                    badge.innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input';
+                    badge.className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border";
+                }
+                showToast("Form berhasil dikosongkan", "info");
+            });
+        }
+
+        function collectFormData() {
+            let rt = (document.getElementById('hk_rt') ? document.getElementById('hk_rt').value : '').trim();
+            let rk = (document.getElementById('hk_rk') ? document.getElementById('hk_rk').value : '').trim();
+            let rtrw = `${rt.padStart(3,'0')}/${rk.padStart(3,'0')}`;
+
+            let header = {
+                no_kk: document.getElementById('hk_nokk') ? document.getElementById('hk_nokk').value.trim() : '',
+                nama_kepala_keluarga: document.getElementById('hk_kepala') ? document.getElementById('hk_kepala').value.trim() : '',
+                alamat: document.getElementById('hk_alamat') ? document.getElementById('hk_alamat').value.trim() : '',
+                rt_rw: rtrw,
+                kode_pos: document.getElementById('hk_kodepos') ? document.getElementById('hk_kodepos').value.trim() : '',
+                desa_kelurahan: document.getElementById('hk_desa') ? document.getElementById('hk_desa').value.trim() : '',
+                kecamatan: document.getElementById('hk_kecamatan') ? document.getElementById('hk_kecamatan').value.trim() : '',
+                kabupaten_kota: document.getElementById('hk_kabupaten') ? document.getElementById('hk_kabupaten').value.trim() : '',
+                provinsi: document.getElementById('hk_provinsi') ? document.getElementById('hk_provinsi').value.trim() : ''
+            };
+
+            let anggota_keluarga = [];
+            let trs = document.querySelectorAll('#table-body tr');
+
+            trs.forEach(tr => {
+                let inputs = tr.querySelectorAll('input');
+                if (inputs.length >= 18) {
+                    anggota_keluarga.push({
+                        nama_lengkap: inputs[0].value.trim(),
+                        nik: inputs[1].value.trim(),
+                        jenis_kelamin: inputs[2].value.trim(),
+                        tempat_lahir: inputs[3].value.trim(),
+                        tanggal_lahir: inputs[4].value.trim(),
+                        agama: inputs[5].value.trim(),
+                        pendidikan: inputs[6].value.trim(),
+                        jenis_pekerjaan: inputs[7].value.trim(),
+                        golongan_darah: inputs[8].value.trim(),
+                        status_perkawinan: inputs[9].value.trim(),
+                        tanggal_perkawinan: inputs[10].value.trim(),
+                        status_hubungan_keluarga: inputs[11].value.trim(),
+                        kewarganegaraan: inputs[12].value.trim(),
+                        no_paspor: inputs[13].value.trim(),
+                        no_kitap: inputs[14].value.trim(),
+                        nama_ayah: inputs[15].value.trim(),
+                        nama_ibu: inputs[16].value.trim(),
+                        datang_dari: inputs[17] ? inputs[17].value.trim() : '-',
+                        tanggal_datang: inputs[18] ? inputs[18].value.trim() : '-',
+                        pindah_ke: inputs[19] ? inputs[19].value.trim() : '-',
+                        tanggal_pindah: inputs[20] ? inputs[20].value.trim() : '-',
+                        tanggal_meninggal: inputs[21] ? inputs[21].value.trim() : '-'
+                    });
+                }
+            });
+
+            return { header, anggota_keluarga };
+        }
+
+        async function saveToGoogleSheetsSilent() {
+            let d = collectFormData();
+            if (!d.header.no_kk || d.header.no_kk === '-' || d.header.no_kk === '0000000000000000') return;
+            d.action = "save";
+            d.input_by = currentUser ? currentUser.username : 'admin';
+
+            try {
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+
+                if (currentUser && currentUser.role === 'user' && currentUser.custom_url && currentUser.custom_url.startsWith('http')) {
+                    allUrlsToPush = [currentUser.custom_url];
+                }
+
+                allUrlsToPush.forEach(url => {
+                    fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) }).catch(() => {});
+                });
+            } catch (e) {}
+        }
+
         function enableManualInput() { currentEditingKK = null; renderDataToUI({header:{}, anggota_keluarga:[{jenis_kelamin:"LAKI-LAKI", status_perkawinan:"BELUM KAWIN", status_hubungan_keluarga:"KEPALA KELUARGA", kewarganegaraan:"WNI"}]}); toggleEdit(true); showToast("Mode Manual Aktif", "info"); }
+
+        function autoDetectKodePos() {
+            let desaEl = document.getElementById('hk_desa');
+            let kecEl = document.getElementById('hk_kecamatan');
+            let kabEl = document.getElementById('hk_kabupaten');
+            let posEl = document.getElementById('hk_kodepos');
+            if (!posEl) return;
+
+            let desa = (desaEl ? desaEl.value : '').trim().toUpperCase();
+            let kec = (kecEl ? kecEl.value : '').trim().toUpperCase();
+            let kab = (kabEl ? kabEl.value : '').trim().toUpperCase();
+
+            const posDatabase = {
+                "FAJAR ASRI": "34684",
+                "PANCA JAYA": "34684",
+                "SIMPANG PEMATANG": "34684",
+                "MESUJI": "34684"
+            };
+
+            if (!posEl.value || posEl.value === '-' || posEl.value === '00000' || posEl.value === '') {
+                if (posDatabase[desa]) {
+                    posEl.value = posDatabase[desa];
+                } else if (posDatabase[kec]) {
+                    posEl.value = posDatabase[kec];
+                } else if (posDatabase[kab]) {
+                    posEl.value = posDatabase[kab];
+                }
+            }
+        }
 
         function renderDataToUI(d) {
             let h = d.header||{};
@@ -1981,28 +2133,28 @@
             let tb = document.getElementById('table-body'); tb.innerHTML = '';
             (d.anggota_keluarga||[]).forEach((a,i) => {
                 tb.innerHTML += `<tr><td class="px-5 py-3 sticky left-0 bg-white font-bold">${i+1}</td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_lengkap||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nik||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.jenis_kelamin||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.tempat_lahir||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_lahir)}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.agama||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pendidikan||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.jenis_pekerjaan||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.golongan_darah||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_perkawinan||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_perkawinan)}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_hubungan_keluarga||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.kewarganegaraan||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_paspor||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_kitap||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ayah||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ibu||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.datang_dari||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_datang)}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pindah_ke||'-'}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_pindah)}"></td>
-                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_meninggal)}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_lengkap||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nik||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.jenis_kelamin||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.tempat_lahir||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_lahir)}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.agama||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pendidikan||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.jenis_pekerjaan||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.golongan_darah||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_perkawinan||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_perkawinan)}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.status_hubungan_keluarga||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.kewarganegaraan||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_paspor||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_kitap||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ayah||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ibu||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.datang_dari||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_datang)}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pindah_ke||'-'}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_pindah)}"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_meninggal)}"></td>
                 </tr>`;
             });
             ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
@@ -2026,18 +2178,21 @@
                 return;
             }
 
+            // Jika No KK sedang aktif dibuat / di-edit dalam form saat ini, jangan anggap duplikat
+            if (currentEditingKK === no_kk) {
+                if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                return;
+            }
+
             let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
             let exists = sD.find(x => x.header.no_kk === no_kk);
 
-            // Jika KK ada dan KK yang sedang dicek bukan KK yang sengaja sedang kita Edit
-            if (exists && currentEditingKK !== no_kk) {
+            if (exists) {
                 showToast("Duplikat! Nomor KK sudah ada di sistem.", "error");
                 
-                // Menambahkan tombol aksi untuk langsung membuka/mengedit KK lama yang terdeteksi duplikat
                 statusBadge.innerHTML = `<i class="fas fa-triangle-exclamation mr-2"></i> KK Sudah Ada <button onclick="editDataKK('${no_kk}')" class="ml-2 px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[10px] transition-colors shadow-sm cursor-pointer"><i class="fas fa-folder-open mr-1"></i> Buka Data</button>`;
                 statusBadge.className = "px-3 py-1.5 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200 shadow-sm flex items-center";
                 
-                // TUGAS BARU: Mengosongkan SEMUA format form data jika terdeteksi duplikat
                 document.querySelectorAll('#right-panel input').forEach(i => i.value = '');
                 document.getElementById('table-body').innerHTML = '<tr><td colspan="23" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
                 ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
@@ -2062,91 +2217,118 @@
         }
 
         function addFamilyMemberRow() {
+            if (!isEditMode) toggleEdit(true);
+
+            let nokkInput = document.getElementById('hk_nokk');
+            if (!nokkInput.value || nokkInput.value.trim() === '' || nokkInput.value.trim() === '-') {
+                nokkInput.value = '32' + Math.floor(10000000000000 + Math.random() * 90000000000000);
+                showToast("No. KK otomatis dibuat: " + nokkInput.value, "info");
+            }
+
+            // Kunci No KK saat ini ke state pengeditan agar tidak terdeteksi duplikat pada dirinya sendiri
+            currentEditingKK = nokkInput.value.trim();
+
+            // Auto-fill RK/RT default jika user memiliki pembatasan wilayah agar tidak terfilter
+            if (currentUser && currentUser.role === 'user') {
+                let rtEl = document.getElementById('hk_rt');
+                let rkEl = document.getElementById('hk_rk');
+                if (currentUser.rt !== 'all' && (!rtEl.value || rtEl.value === '-')) rtEl.value = currentUser.rt.split(',')[0].trim();
+                if (currentUser.rk !== 'all' && (!rkEl.value || rkEl.value === '-')) rkEl.value = currentUser.rk.split(',')[0].trim();
+            }
+
             let tb = document.getElementById('table-body');
-            if (tb.innerText.includes("Area Data Kosong")) tb.innerHTML = '';
+            if (tb.innerText.includes("Area Data Kosong") || tb.innerText.includes("Data Dikosongkan")) tb.innerHTML = '';
             let i = tb.querySelectorAll('tr').length;
             
-            let bgClass = isEditMode ? 'bg-amber-50/50 border-b border-amber-300' : 'bg-transparent';
-            let readonlyAttr = isEditMode ? '' : 'readonly';
+            let bgClass = 'bg-amber-50/50 border-b border-amber-300';
+            let readonlyAttr = '';
 
             let newRow = `<tr><td class="px-5 py-3 sticky left-0 bg-white font-bold">${i+1}</td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="LAKI-LAKI" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="ISLAM" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="BELUM / TIDAK BEKERJA" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="BELUM KAWIN" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="ANGGOTA KELUARGA" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="WNI" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
-                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="currentEditingKK=document.getElementById('hk_nokk').value.trim(); autoSaveData();" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="ANGGOTA BARU ${i+1}" placeholder="Nama Lengkap"></td>
+                <td><input type="text" oninput="currentEditingKK=document.getElementById('hk_nokk').value.trim(); autoSaveData();" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="32${Math.floor(10000000000000 + Math.random() * 90000000000000)}" placeholder="NIK"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="LAKI-LAKI" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr} placeholder="Tempat Lahir"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(new Date().toISOString().split('T')[0])}" ${readonlyAttr} placeholder="DD-MM-YYYY"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="ISLAM" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="SD / SEDERAJAT" ${readonlyAttr} placeholder="Pendidikan"></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="BELUM / TIDAK BEKERJA" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="BELUM KAWIN" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="${i===0?'KEPALA KELUARGA':'ANGGOTA KELUARGA'}" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="WNI" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" oninput="autoSaveData()" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
             </tr>`;
             tb.insertAdjacentHTML('beforeend', newRow);
-            
-            if (!isEditMode) toggleEdit(true);
-            showToast("Baris anggota ditambahkan", "success");
-        }
 
-        function toggleEdit(force) {
-            isEditMode = force !== undefined ? force : !isEditMode;
-            document.querySelectorAll('#right-panel input[type="text"]').forEach(i => { i.readOnly=!isEditMode; if(isEditMode) i.classList.add('bg-amber-50/50', 'border-b', 'border-amber-300'); else i.classList.remove('bg-amber-50/50', 'border-b', 'border-amber-300'); });
-            let bE = document.getElementById('btn-edit'); if(isEditMode) { bE.innerHTML='<i class="fas fa-lock"></i> Kunci Edit'; bE.className="w-full py-3 bg-indigo-500 text-white rounded-xl font-bold"; } else { bE.innerHTML='<i class="fas fa-pen-to-square"></i> Mode Edit Data'; bE.className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold"; }
-        }
-
-        function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { currentEditingKK = null; document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="23" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); document.getElementById('status-badge').innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input'; document.getElementById('status-badge').className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border"; let btnSave = document.getElementById('btn-save'); if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); } }); }
-
-        function autoDetectKodePos() {
-            let desa = document.getElementById('hk_desa').value.toUpperCase().trim();
-            let kec = document.getElementById('hk_kecamatan').value.toUpperCase().trim();
-            let kp = document.getElementById('hk_kodepos');
-            
-            // Database Kode Pos Lokal (Bisa ditambahkan sesuai kebutuhan desa/kecamatan lain)
-            const dbKodePos = {
-                "FAJAR ASRI": "34699",
-                "FAJAR BARU": "34699",
-                "FAJAR INDAH": "34699",
-                "MUKTI KARYA": "34699",
-                "ADI KARYA MULYA": "34699",
-                "PANCA JAYA": "34699",
-                "SIMPANG PEMATANG": "34698",
-                "WAY SERDANG": "34695",
-                "MESUJI": "34697",
-                "MESUJI TIMUR": "34692",
-                "RAWA JITU UTARA": "34696",
-                "TANJUNG RAYA": "34698"
-            };
-            
-            // Jika kode pos belum terisi atau hanya "-", coba deteksi
-            if (!kp.value || kp.value === '-' || kp.value.trim() === '') {
-                if (dbKodePos[desa]) {
-                    kp.value = dbKodePos[desa];
-                } else if (dbKodePos[kec]) {
-                    kp.value = dbKodePos[kec];
-                }
+            let kepEl = document.getElementById('hk_kepala');
+            if (!kepEl.value || kepEl.value === '-') {
+                kepEl.value = `ANGGOTA BARU ${i+1}`;
             }
+
+            showToast("Baris anggota ditambahkan & langsung tersimpan!", "success");
+
+            autoSaveData();
+            activeRkFilter = 'all';
+            activeUserFilter = 'all';
+            loadDashboardData();
         }
 
-        function collectFormData() {
-            let rt = document.getElementById('hk_rt').value, rk = document.getElementById('hk_rk').value;
-            let d = { header:{ no_kk:document.getElementById('hk_nokk').value, nama_kepala_keluarga:document.getElementById('hk_kepala').value, alamat:document.getElementById('hk_alamat').value, rt_rw:`${rt}/${rk}`, kode_pos:document.getElementById('hk_kodepos').value, desa_kelurahan:document.getElementById('hk_desa').value, kecamatan:document.getElementById('hk_kecamatan').value, kabupaten_kota:document.getElementById('hk_kabupaten').value, provinsi:document.getElementById('hk_provinsi').value }, anggota_keluarga:[] };
-            document.querySelectorAll('#table-body tr').forEach(r => { let i = r.querySelectorAll('input'); if(i.length>21) d.anggota_keluarga.push({nama_lengkap:i[0].value, nik:i[1].value, jenis_kelamin:i[2].value, tempat_lahir:i[3].value, tanggal_lahir:i[4].value, agama:i[5].value, pendidikan:i[6].value, jenis_pekerjaan:i[7].value, golongan_darah:i[8].value, status_perkawinan:i[9].value, tanggal_perkawinan:i[10].value, status_hubungan_keluarga:i[11].value, kewarganegaraan:i[12].value, no_paspor:i[13].value, no_kitap:i[14].value, nama_ayah:i[15].value, nama_ibu:i[16].value, datang_dari:i[17].value, tanggal_datang:i[18].value, pindah_ke:i[19].value, tanggal_pindah:i[20].value, tanggal_meninggal:i[21].value}); });
-            return d;
+        function quickAddMemberDashboard() {
+            switchView('ocr-view');
+            enableManualInput();
+            addFamilyMemberRow();
+        }
+
+        let autoSaveTimeout = null;
+        function autoSaveData() {
+            let noKk = document.getElementById('hk_nokk').value.trim();
+            if (!noKk || noKk === '-' || noKk === '0000000000000000') return;
+            
+            currentEditingKK = noKk;
+
+            let d = collectFormData();
+            if (!d.header.no_kk || d.header.no_kk === '-') return;
+            
+            let s = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            let idx = s.findIndex(x => x.header.no_kk === d.header.no_kk);
+            if (idx > -1) {
+                (d.anggota_keluarga || []).forEach((a, i) => {
+                    if (s[idx].anggota_keluarga[i] && s[idx].anggota_keluarga[i].status_penduduk) {
+                        a.status_penduduk = s[idx].anggota_keluarga[i].status_penduduk;
+                    } else {
+                        a.status_penduduk = a.status_penduduk || 'AKTIF';
+                    }
+                });
+                d.input_by = s[idx].input_by || (currentUser ? currentUser.username : 'admin');
+                s[idx] = d;
+            } else {
+                (d.anggota_keluarga || []).forEach(a => {
+                    a.status_penduduk = a.status_penduduk || 'AKTIF';
+                });
+                d.input_by = currentUser ? currentUser.username : 'admin';
+                s.unshift(d);
+            }
+            localStorage.setItem('kk_data', JSON.stringify(s));
+            loadDashboardData();
+
+            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                saveToGoogleSheetsSilent();
+            }, 800);
         }
 
         async function saveToGoogleSheets() {
             let d = collectFormData(); if(!d.header.no_kk || d.header.no_kk==='-') return showToast("No KK wajib ada!", "error");
             document.getElementById('btn-save').innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+            currentEditingKK = d.header.no_kk;
             let s = JSON.parse(localStorage.getItem('kk_data')||'[]'), idx = s.findIndex(x=>x.header.no_kk===d.header.no_kk);
             if(idx>-1){ 
                 (d.anggota_keluarga||[]).forEach((a,i)=>{ if(s[idx].anggota_keluarga[i]&&s[idx].anggota_keluarga[i].status_penduduk) a.status_penduduk=s[idx].anggota_keluarga[i].status_penduduk; }); 
@@ -2154,7 +2336,7 @@
                 s[idx]=d; 
             } else {
                 d.input_by = currentUser.username;
-                s.push(d); 
+                s.unshift(d); 
             }
             localStorage.setItem('kk_data', JSON.stringify(s)); showToast("Tersimpan lokal", "success");
             
@@ -2185,10 +2367,8 @@
             
             document.getElementById('btn-save').innerHTML='<i class="fas fa-cloud-arrow-up"></i> Simpan (Lokal/Cloud)'; 
             
-            // OPTIMASI: Hanya reload render tabel jika user sedang berada di halaman dashboard (Agar halaman Ekstraksi tetap ringan)
-            if(!document.getElementById('dashboard-view').classList.contains('hidden')) {
-                loadDashboardData();
-            }
+            // Pembaruan langsung data dasbor tanpa batasan tampilan view
+            loadDashboardData();
         }
 
         // --- DASHBOARD & ANALISIS ---
