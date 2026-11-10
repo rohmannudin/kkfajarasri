@@ -1936,10 +1936,18 @@
             // Jika KK ada dan KK yang sedang dicek bukan KK yang sengaja sedang kita Edit
             if (exists && currentEditingKK !== no_kk) {
                 showToast("Duplikat! Nomor KK sudah ada di sistem.", "error");
-                statusBadge.innerHTML = '<i class="fas fa-triangle-exclamation mr-2"></i> Duplikat / KK Sudah Ada';
-                statusBadge.className = "px-4 py-2 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200 shadow-sm flex items-center";
                 
-                nokkInput.value = ''; // KK dikosongkan secara otomatis
+                // Menambahkan tombol aksi untuk langsung membuka/mengedit KK lama yang terdeteksi duplikat
+                statusBadge.innerHTML = `<i class="fas fa-triangle-exclamation mr-2"></i> KK Sudah Ada <button onclick="editDataKK('${no_kk}')" class="ml-2 px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[10px] transition-colors shadow-sm cursor-pointer"><i class="fas fa-folder-open mr-1"></i> Buka Data</button>`;
+                statusBadge.className = "px-3 py-1.5 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200 shadow-sm flex items-center";
+                
+                // TUGAS BARU: Mengosongkan SEMUA format form data jika terdeteksi duplikat
+                document.querySelectorAll('#right-panel input').forEach(i => i.value = '');
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="18" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
+                ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
+                    let el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
                 
                 if (btnSave) { 
                     btnSave.disabled = true; 
@@ -1950,7 +1958,7 @@
                     btnSave.disabled = false; 
                     btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); 
                 }
-                if (statusBadge.innerText.includes('Duplikat')) {
+                if (statusBadge.innerText.includes('Ada') || statusBadge.innerText.includes('Duplikat')) {
                     statusBadge.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Ekstraksi Valid'; 
                     statusBadge.className = "px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200 shadow-sm flex items-center";
                 }
