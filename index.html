@@ -284,14 +284,19 @@
             body.printing-ktp #ktp-print-area, body.printing-ktp #ktp-print-area * { visibility: visible; }
             body.printing-ktp #ktp-print-area { display: flex !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20mm; justify-content: center; align-items: flex-start; background: white; }
 
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-view { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; padding: 0 !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-print-wrapper { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; overflow: visible !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-print-wrapper .overflow-x-auto { overflow: visible !important; padding: 0 !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main { width: 100% !important; min-width: 100% !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
+            body.printing-mutasi * { visibility: hidden; }
+            body.printing-mutasi #mutasi-print-wrapper, body.printing-mutasi #mutasi-print-wrapper * { visibility: visible; }
+            body.printing-mutasi #mutasi-print-wrapper { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; color: black; background: white; padding: 5mm; box-shadow: none; border: none; }
+            body.printing-mutasi .laporan-pend-table th { background-color: #e9d5ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-view { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; padding: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-print-wrapper { width: 100% !important; max-width: 100% !important; border: none; box-shadow: none; margin: 0; padding: 0; overflow: visible !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-print-wrapper .overflow-x-auto { overflow: visible !important; padding: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-table-main { width: 100% !important; min-width: 100% !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) input { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
             
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main th, 
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) #rekap-table-main td { 
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-table-main th, 
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) #rekap-table-main td { 
                 border: 1px solid black !important; 
                 padding: 4px 2px !important; 
                 font-size: 9px !important; 
@@ -300,8 +305,8 @@
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
             }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) .print-show { display: block !important; }
-            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp) table { min-width: 0 !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) .print-show { display: block !important; }
+            body:not(.printing-dukcapil):not(.printing-pendidikan):not(.printing-rt):not(.printing-agama):not(.printing-pengangguran):not(.printing-matapilih):not(.printing-ktp):not(.printing-mutasi) table { min-width: 0 !important; }
             
             @page { size: A4 landscape; margin: 5mm; }
         }
@@ -403,6 +408,33 @@
                 <div class="flex justify-center gap-4 mt-6">
                     <button type="button" onclick="closeEditUserModal()" class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 w-full">Batal</button>
                     <button type="submit" class="px-6 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 w-full">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mutasi Date Modal -->
+    <div id="mutasi-date-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 w-11/12 max-w-md transform scale-95 transition-transform duration-300">
+            <div class="flex flex-col items-center text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-calendar-alt text-3xl"></i>
+                </div>
+                <h3 id="mutasi-modal-title" class="text-2xl font-bold text-slate-800">Input Detail Mutasi</h3>
+                <p class="text-slate-500 mt-2 font-medium text-sm">Pilih tanggal dan isi detail wilayah agar tercatat di Laporan Bulanan.</p>
+            </div>
+            <form onsubmit="submitMutasiDate(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Tanggal Perubahan / Mutasi</label>
+                    <input type="date" id="mutasi-modal-date" required class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700">
+                </div>
+                <div id="mutasi-modal-place-container" class="hidden">
+                    <label id="mutasi-modal-place-label" class="block text-xs font-bold text-slate-500 mb-1">Wilayah Asal/Tujuan</label>
+                    <input type="text" id="mutasi-modal-place" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik nama desa/kota/alamat...">
+                </div>
+                <div class="flex justify-center gap-4 mt-6">
+                    <button type="button" onclick="closeMutasiDateModal()" class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 w-full">Batal</button>
+                    <button type="submit" class="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 w-full">Simpan</button>
                 </div>
             </form>
         </div>
@@ -531,6 +563,9 @@
                     <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-6 mb-2 px-2">Laporan & Rekap</div>
                     <button onclick="switchView('rekap-view'); closeSidebarMobile()" id="tab-rekap" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent text-fuchsia-300 w-full text-left">
                         <i class="fas fa-table-list w-6 text-center text-lg"></i> Rekap Penduduk
+                    </button>
+                    <button onclick="switchView('mutasi-view'); closeSidebarMobile()" id="tab-mutasi" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent text-purple-300 w-full text-left">
+                        <i class="fas fa-right-left w-6 text-center text-lg"></i> Mutasi Penduduk
                     </button>
                     <button onclick="switchView('pendidikan-view'); closeSidebarMobile()" id="tab-pendidikan" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent text-cyan-300 w-full text-left">
                         <i class="fas fa-graduation-cap w-6 text-center text-lg"></i> Lap. Pendidikan
@@ -663,7 +698,7 @@
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-3">
                                 <div class="p-2 bg-white rounded-lg border shadow-sm text-emerald-500"><i class="fas fa-users"></i></div> Detail Anggota Keluarga
                             </h2>
-                            <span class="text-[10px] uppercase font-bold bg-emerald-100/50 text-emerald-700 px-3 py-1.5 rounded-full border">17 Kolom Lengkap</span>
+                            <span class="text-[10px] uppercase font-bold bg-emerald-100/50 text-emerald-700 px-3 py-1.5 rounded-full border">22 Kolom Lengkap</span>
                         </div>
                         <div class="p-0 overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left border-collapse min-w-max">
@@ -671,10 +706,12 @@
                                     <tr class="bg-white text-slate-500 text-[10px] uppercase border-b-2 border-slate-100">
                                         <th class="px-5 py-4 font-bold sticky left-0 bg-white z-10 shadow-[1px_0_0_#f1f5f9]">No</th>
                                         <th class="px-5 py-4 font-bold min-w-[220px]">Nama Lengkap</th><th class="px-5 py-4 font-bold min-w-[160px]">NIK</th><th class="px-5 py-4 font-bold min-w-[120px]">Jenis Kelamin</th><th class="px-5 py-4 font-bold min-w-[150px]">Tempat Lahir</th><th class="px-5 py-4 font-bold min-w-[120px]">Tanggal Lahir</th><th class="px-5 py-4 font-bold min-w-[120px]">Agama</th><th class="px-5 py-4 font-bold min-w-[180px]">Pendidikan</th><th class="px-5 py-4 font-bold min-w-[180px]">Jenis Pekerjaan</th><th class="px-5 py-4 font-bold min-w-[90px]">Gol. Darah</th><th class="px-5 py-4 font-bold min-w-[140px]">Status Kawin</th><th class="px-5 py-4 font-bold min-w-[130px]">Tgl Kawin</th><th class="px-5 py-4 font-bold min-w-[180px]">Hub. Keluarga</th><th class="px-5 py-4 font-bold min-w-[120px]">Kewarganegaraan</th><th class="px-5 py-4 font-bold min-w-[120px]">No. Paspor</th><th class="px-5 py-4 font-bold min-w-[120px]">No. KITAP</th><th class="px-5 py-4 font-bold min-w-[180px]">Nama Ayah</th><th class="px-5 py-4 font-bold min-w-[180px]">Nama Ibu</th>
+                                        <th class="px-5 py-4 font-bold min-w-[150px] text-blue-600">Datang Dari</th><th class="px-5 py-4 font-bold min-w-[120px] text-blue-600">Tgl Datang</th>
+                                        <th class="px-5 py-4 font-bold min-w-[150px] text-rose-600">Pindah Ke</th><th class="px-5 py-4 font-bold min-w-[120px] text-rose-600">Tgl Pindah</th><th class="px-5 py-4 font-bold min-w-[120px] text-slate-800">Tgl Meninggal</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body" class="divide-y divide-slate-50 text-sm font-medium">
-                                    <tr><td colspan="18" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>
+                                    <tr><td colspan="23" class="px-6 py-20 text-center text-slate-400 bg-slate-50/30">Area Data Kosong</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -892,6 +929,56 @@
                         <div class="flex justify-between mt-8 text-[10px] px-10 text-black">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><p class="font-bold underline" id="rekap-ttd-kasi">SUPRIYANTO</p></div>
                             <div class="text-center"><p><span id="rekap-ttd-desa">FAJAR ASRI</span>, <span id="rekap-ttd-tgl">31 Agustus 2026</span><br>SEKRETARIS DESA</p><br><br><br><p class="font-bold underline" id="rekap-ttd-sekdes">ROHMAN NUDIN</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: MUTASI PENDUDUK -->
+            <div id="mutasi-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border gap-4 print-hide">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-right-left"></i></div>
+                        <div><h2 class="text-2xl font-bold">Laporan Mutasi Penduduk</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Lahir, Datang, Mati, Pindah</p></div>
+                    </div>
+                    <button onclick="printMutasiFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="mutasi-print-wrapper">
+                    <div class="min-w-[1100px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN MUTASI KEPENDUDUKAN BULANAN</h2></div>
+                        <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
+                            <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="mutasi-title-kab"></span></div></div>
+                            <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="mutasi-title-kec"></span></div></div>
+                            <div class="flex"><div class="w-32">DESA</div><div>: <span id="mutasi-title-desa"></span></div></div>
+                            <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="mutasi-bulan" class="uppercase"></span> <span id="mutasi-tahun"></span></div></div>
+                        </div>
+                        <table class="w-full border-collapse laporan-pend-table text-[10px]" id="mutasi-table">
+                            <thead class="bg-[#e9d5ff] text-black text-center">
+                                <tr>
+                                    <th rowspan="2" class="w-8 align-middle border border-black py-2">NO</th>
+                                    <th rowspan="2" class="w-24 align-middle border border-black py-2">NO. KK</th>
+                                    <th rowspan="2" class="align-middle border border-black py-2">NAMA LENGKAP</th>
+                                    <th rowspan="2" class="w-16 align-middle border border-black py-2">J. KELAMIN</th>
+                                    <th rowspan="2" class="align-middle border border-black py-2">TEMPAT, TGL LAHIR</th>
+                                    <th rowspan="2" class="w-12 align-middle border border-black py-2">WN</th>
+                                    <th rowspan="2" class="align-middle border border-black py-2">ALAMAT (RT/RW)</th>
+                                    <th colspan="2" class="align-middle border border-black py-1">PENAMBAHAN</th>
+                                    <th colspan="3" class="align-middle border border-black py-1">PENGURANGAN</th>
+                                </tr>
+                                <tr>
+                                    <th class="w-24 align-middle border border-black py-1">DATANG DARI</th>
+                                    <th class="w-20 align-middle border border-black py-1">TANGGAL</th>
+                                    <th class="w-24 align-middle border border-black py-1">PINDAH KE</th>
+                                    <th class="w-20 align-middle border border-black py-1">TANGGAL</th>
+                                    <th class="w-20 align-middle border border-black py-1">MENINGGAL (TGL)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mutasi-tbody" class="bg-white text-[11px]"></tbody>
+                            <tfoot id="mutasi-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                        </table>
+                        <div class="flex justify-between mt-12 text-[11px] px-10">
+                            <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="mutasi-ttd-kasi">SUPRIYANTO</p></div>
+                            <div class="text-center"><p><span id="mutasi-ttd-desa">FAJAR ASRI</span>, <span id="mutasi-tanggal-ttd"></span><br>SEKRETARIS DESA</p><br><br><br><br><p class="font-bold underline" id="mutasi-ttd-sekdes">ROHMAN NUDIN</p></div>
                         </div>
                     </div>
                 </div>
@@ -1511,7 +1598,7 @@
             loginView.classList.add('hidden'); appWrapper.classList.remove('hidden'); appWrapper.classList.add('flex');
             document.getElementById('current-username-display').innerText = currentUser.username;
             
-            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-charts'];
+            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-charts'];
             const rBadge = document.getElementById('role-badge');
             
             if (currentUser.role === 'superadmin') {
@@ -1520,11 +1607,11 @@
                 if (document.getElementById('superadmin-theme-card')) document.getElementById('superadmin-theme-card').classList.replace('hidden', 'flex');
             } else if (currentUser.role === 'admin') {
                 ['tab-users', 'tab-settings', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
-                ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'].forEach(t => document.getElementById(t).classList.remove('hidden'));
+                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-rose-300 bg-rose-500/20 border border-rose-500/30"; rBadge.innerText = 'ADMIN';
             } else {
                 ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
-                ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
+                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
             }
@@ -1703,10 +1790,10 @@
         }
 
         function switchView(viewId) {
-            const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'settings-view', 'users-view'];
+            const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'mutasi-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'settings-view', 'users-view'];
             views.forEach(v => { let e = document.getElementById(v); if(e){ e.classList.add('hidden'); e.classList.remove('flex'); } });
             
-            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'charts-view':'tab-charts', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
+            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'charts-view':'tab-charts', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'mutasi-view':'tab-mutasi', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
             
             // Map Ikon untuk masing-masing menu agar berubah secara dinamis
             const viewIcons = {
@@ -1715,6 +1802,7 @@
                 'charts-view': 'fa-chart-pie',
                 'inactive-view': 'fa-box-archive',
                 'rekap-view': 'fa-table-list',
+                'mutasi-view': 'fa-right-left',
                 'pendidikan-view': 'fa-graduation-cap',
                 'rt-view': 'fa-map-location-dot',
                 'agama-view': 'fa-mosque',
@@ -1731,6 +1819,7 @@
                 'charts-view': ['from-teal-500/40', 'border-l-teal-400'],
                 'inactive-view': ['from-slate-500/40', 'border-l-slate-400'],
                 'rekap-view': ['from-fuchsia-500/40', 'border-l-fuchsia-400'],
+                'mutasi-view': ['from-purple-500/40', 'border-l-purple-400'],
                 'pendidikan-view': ['from-cyan-500/40', 'border-l-cyan-400'],
                 'rt-view': ['from-orange-500/40', 'border-l-orange-400'],
                 'agama-view': ['from-emerald-500/40', 'border-l-emerald-400'],
@@ -1747,6 +1836,7 @@
                 'charts-view': ['from-teal-500', 'to-teal-700'],
                 'inactive-view': ['from-slate-500', 'to-slate-700'],
                 'rekap-view': ['from-fuchsia-500', 'to-fuchsia-700'],
+                'mutasi-view': ['from-purple-500', 'to-purple-700'],
                 'pendidikan-view': ['from-cyan-500', 'to-cyan-700'],
                 'rt-view': ['from-orange-500', 'to-orange-700'],
                 'agama-view': ['from-emerald-500', 'to-emerald-700'],
@@ -1800,7 +1890,7 @@
                 aTab.classList.add('bg-gradient-to-r', 'to-transparent', 'border-l-4', 'pl-6', ...tabColors[viewId]); 
             }
 
-            floatingScrollBtns.classList.toggle('hidden', !['rekap-view','pendidikan-view','dashboard-view','charts-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
+            floatingScrollBtns.classList.toggle('hidden', !['rekap-view','mutasi-view','pendidikan-view','dashboard-view','charts-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
 
             // TUGAS BARU: Gunakan setTimeout (Async) agar perpindahan menu (UI) dieksekusi instan tanpa menunggu proses render data berat (Anti-Lag/Delay)
             setTimeout(() => {
@@ -1809,6 +1899,7 @@
                 if(viewId === 'users-view') renderUsersTable();
                 if(viewId === 'settings-view') loadSettingsUI();
                 if(viewId === 'rekap-view') renderRekapTable();
+                if(viewId === 'mutasi-view') renderMutasiTable();
                 if(viewId === 'pendidikan-view') renderPendidikanTable();
                 if(viewId === 'rt-view') renderRtTable();
                 if(viewId === 'agama-view') renderAgamaTable();
@@ -1907,6 +1998,11 @@
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.no_kitap||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ayah||'-'}"></td>
                 <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.nama_ibu||'-'}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.datang_dari||'-'}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_datang)}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${a.pindah_ke||'-'}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_pindah)}"></td>
+                <td><input type="text" class="w-full bg-transparent px-2 py-1 outline-none font-semibold text-slate-700" value="${formatDateID(a.tanggal_meninggal)}"></td>
                 </tr>`;
             });
             ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
@@ -1943,7 +2039,7 @@
                 
                 // TUGAS BARU: Mengosongkan SEMUA format form data jika terdeteksi duplikat
                 document.querySelectorAll('#right-panel input').forEach(i => i.value = '');
-                document.getElementById('table-body').innerHTML = '<tr><td colspan="18" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="23" class="text-center py-10 text-slate-400 font-bold">Data Dikosongkan karena KK Duplikat</td></tr>';
                 ['btn-save', 'btn-edit', 'btn-add-row', 'btn-clear', 'btn-print', 'btn-pdf'].forEach(id => {
                     let el = document.getElementById(id);
                     if (el) el.classList.add('hidden');
@@ -1991,6 +2087,10 @@
                 <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
                 <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
                 <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
+                <td><input type="text" class="w-full ${bgClass} px-2 py-1 outline-none font-semibold text-slate-700" value="-" ${readonlyAttr}></td>
             </tr>`;
             tb.insertAdjacentHTML('beforeend', newRow);
             
@@ -2004,7 +2104,7 @@
             let bE = document.getElementById('btn-edit'); if(isEditMode) { bE.innerHTML='<i class="fas fa-lock"></i> Kunci Edit'; bE.className="w-full py-3 bg-indigo-500 text-white rounded-xl font-bold"; } else { bE.innerHTML='<i class="fas fa-pen-to-square"></i> Mode Edit Data'; bE.className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold"; }
         }
 
-        function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { currentEditingKK = null; document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="18" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); document.getElementById('status-badge').innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input'; document.getElementById('status-badge').className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border"; let btnSave = document.getElementById('btn-save'); if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); } }); }
+        function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { currentEditingKK = null; document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="23" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); document.getElementById('status-badge').innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input'; document.getElementById('status-badge').className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border"; let btnSave = document.getElementById('btn-save'); if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); } }); }
 
         function autoDetectKodePos() {
             let desa = document.getElementById('hk_desa').value.toUpperCase().trim();
@@ -2040,7 +2140,7 @@
         function collectFormData() {
             let rt = document.getElementById('hk_rt').value, rk = document.getElementById('hk_rk').value;
             let d = { header:{ no_kk:document.getElementById('hk_nokk').value, nama_kepala_keluarga:document.getElementById('hk_kepala').value, alamat:document.getElementById('hk_alamat').value, rt_rw:`${rt}/${rk}`, kode_pos:document.getElementById('hk_kodepos').value, desa_kelurahan:document.getElementById('hk_desa').value, kecamatan:document.getElementById('hk_kecamatan').value, kabupaten_kota:document.getElementById('hk_kabupaten').value, provinsi:document.getElementById('hk_provinsi').value }, anggota_keluarga:[] };
-            document.querySelectorAll('#table-body tr').forEach(r => { let i = r.querySelectorAll('input'); if(i.length>16) d.anggota_keluarga.push({nama_lengkap:i[0].value, nik:i[1].value, jenis_kelamin:i[2].value, tempat_lahir:i[3].value, tanggal_lahir:i[4].value, agama:i[5].value, pendidikan:i[6].value, jenis_pekerjaan:i[7].value, golongan_darah:i[8].value, status_perkawinan:i[9].value, tanggal_perkawinan:i[10].value, status_hubungan_keluarga:i[11].value, kewarganegaraan:i[12].value, no_paspor:i[13].value, no_kitap:i[14].value, nama_ayah:i[15].value, nama_ibu:i[16].value}); });
+            document.querySelectorAll('#table-body tr').forEach(r => { let i = r.querySelectorAll('input'); if(i.length>21) d.anggota_keluarga.push({nama_lengkap:i[0].value, nik:i[1].value, jenis_kelamin:i[2].value, tempat_lahir:i[3].value, tanggal_lahir:i[4].value, agama:i[5].value, pendidikan:i[6].value, jenis_pekerjaan:i[7].value, golongan_darah:i[8].value, status_perkawinan:i[9].value, tanggal_perkawinan:i[10].value, status_hubungan_keluarga:i[11].value, kewarganegaraan:i[12].value, no_paspor:i[13].value, no_kitap:i[14].value, nama_ayah:i[15].value, nama_ibu:i[16].value, datang_dari:i[17].value, tanggal_datang:i[18].value, pindah_ke:i[19].value, tanggal_pindah:i[20].value, tanggal_meninggal:i[21].value}); });
             return d;
         }
 
@@ -2158,21 +2258,106 @@
             }
         }
 
+        let pendingMutasi = null;
+
         function updatePendudukStatus(noKk, pIdx, st) {
+            if (st === 'AKTIF' || st === 'INVALID') {
+                executeMutasiStatus(noKk, pIdx, st, '', '');
+                return;
+            }
+            
+            pendingMutasi = { noKk, pIdx, st };
+            
+            document.getElementById('mutasi-modal-title').innerText = `Input Detail Mutasi: ${st}`;
+            document.getElementById('mutasi-modal-date').value = new Date().toISOString().split('T')[0]; 
+            
+            let placeContainer = document.getElementById('mutasi-modal-place-container');
+            let placeLabel = document.getElementById('mutasi-modal-place-label');
+            let placeInput = document.getElementById('mutasi-modal-place');
+            
+            if (st === 'PENDATANG' || st === 'DOMISILI') {
+                placeContainer.classList.remove('hidden');
+                placeLabel.innerText = "Datang Dari (Daerah/Alamat Asal)";
+                placeInput.value = "";
+                placeInput.required = true;
+            } else if (st === 'PINDAH' || st === 'MERANTAU' || st === 'TKI' || st === 'TKW') {
+                placeContainer.classList.remove('hidden');
+                placeLabel.innerText = "Pindah/Pergi Ke (Tujuan)";
+                placeInput.value = "";
+                placeInput.required = true;
+            } else {
+                placeContainer.classList.add('hidden');
+                placeInput.value = "-";
+                placeInput.required = false;
+            }
+            
+            let modal = document.getElementById('mutasi-date-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeMutasiDateModal() {
+            let modal = document.getElementById('mutasi-date-modal');
+            modal.classList.add('opacity-0'); 
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function submitMutasiDate(e) {
+            e.preventDefault();
+            if (!pendingMutasi) return;
+            let dateVal = document.getElementById('mutasi-modal-date').value;
+            let placeVal = document.getElementById('mutasi-modal-place').value;
+            executeMutasiStatus(pendingMutasi.noKk, pendingMutasi.pIdx, pendingMutasi.st, dateVal, placeVal);
+            closeMutasiDateModal();
+        }
+
+        function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
             let s = JSON.parse(localStorage.getItem('kk_data')||'[]'), k = s.findIndex(x=>x.header.no_kk===noKk);
             if(k>-1 && s[k].anggota_keluarga[pIdx]) { 
                 s[k].anggota_keluarga[pIdx].status_penduduk = st; 
                 if (st === 'TKI' || st === 'TKW') {
                     s[k].anggota_keluarga[pIdx].jenis_pekerjaan = st;
                 }
+                
+                if (dateVal) {
+                    let fDate = formatDateID(dateVal);
+                    if (st === 'LAHIR') {
+                        s[k].anggota_keluarga[pIdx].tanggal_lahir = fDate;
+                    } else if (st === 'PENDATANG' || st === 'DOMISILI') {
+                        s[k].anggota_keluarga[pIdx].tanggal_datang = fDate;
+                        if(placeVal) s[k].anggota_keluarga[pIdx].datang_dari = placeVal.toUpperCase();
+                    } else if (st === 'PINDAH') {
+                        s[k].anggota_keluarga[pIdx].tanggal_pindah = fDate;
+                        if(placeVal) s[k].anggota_keluarga[pIdx].pindah_ke = placeVal.toUpperCase();
+                    } else if (st === 'MENINGGAL') {
+                        s[k].anggota_keluarga[pIdx].tanggal_meninggal = fDate;
+                    } else if (st === 'MERANTAU' || st === 'TKI' || st === 'TKW') {
+                        s[k].anggota_keluarga[pIdx].tanggal_pindah = fDate; 
+                        if(placeVal) s[k].anggota_keluarga[pIdx].pindah_ke = placeVal.toUpperCase();
+                    }
+                }
+                
                 localStorage.setItem('kk_data',JSON.stringify(s)); 
-                loadDashboardData(); 
+                
+                // TUGAS BARU: Sinkronisasi realtime pembaruan status ke semua view (laporan) yang sedang terbuka
+                if(!document.getElementById('dashboard-view').classList.contains('hidden')) loadDashboardData(); 
+                if(!document.getElementById('inactive-view').classList.contains('hidden')) renderInactiveTable();
+                if(!document.getElementById('mutasi-view').classList.contains('hidden')) renderMutasiTable();
+                if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
+                
                 showToast(`Status jadi ${st}`,"success"); 
                 
                 // Sync status ke cloud multi-url
                 let d = s[k]; d.action = "save";
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                
+                // TUGAS BARU: Jika user biasa punya URL database sendiri, simpan kesana saja
+                if (currentUser.role === 'user' && currentUser.custom_url && currentUser.custom_url.startsWith('http')) {
+                    allUrlsToPush = [currentUser.custom_url];
+                }
+
                 allUrlsToPush.forEach(url => {
                     fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}).catch(e=>{});
                 });
@@ -2183,7 +2368,7 @@
             if (st !== 'PINDAH' && st !== 'MENINGGAL') {
                 return showToast("Hanya berfungsi untuk masyarakat berstatus PINDAH atau MENINGGAL 👻", "warning");
             }
-            showConfirmModal("Sembunyikan dari Laporan", "Masyarakat ini tidak akan muncul lagi di semua laporan dan dashboard. Lanjutkan?", () => {
+            showConfirmModal("Sembunyikan dari Laporan", "Masyarakat ini tidak akan muncul lagi di Laporan Mutasi, Rekap, dan Dashboard. (Statusnya menjadi 'DISEMBUNYIKAN'). Lanjutkan?", () => {
                 updatePendudukStatus(noKk, pIdx, 'INVALID');
             });
         }
@@ -2202,7 +2387,12 @@
                         else if(st === 'PINDAH') stBadge = '<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">PINDAH</span>';
                         else if(st === 'INVALID') stBadge = '<span class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-[10px] font-bold">DISEMBUNYIKAN</span>';
                         
-                        let actBtn = `<button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF'); setTimeout(()=>renderInactiveTable(), 300)" class="text-[9px] px-3 py-1.5 rounded font-bold transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200 shadow-sm"><i class="fas fa-undo mr-1"></i> Pulihkan ke Aktif</button>`;
+                        let actBtn = `<button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-3 py-1.5 rounded font-bold transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200 shadow-sm"><i class="fas fa-undo mr-1"></i> Pulihkan ke Aktif</button>`;
+
+                        // TUGAS BARU: Tambahan tombol 'Sembunyikan' di tabel Tidak Aktif agar mudah disembunyikan dari Mutasi
+                        if (st === 'MENINGGAL' || st === 'PINDAH') {
+                            actBtn += ` <button onclick="hideResident('${kk.header.no_kk}',${idx},'${st}')" class="text-[9px] px-3 py-1.5 rounded font-bold transition-colors bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-sm ml-2"><i class="fas fa-ghost mr-1"></i> Hapus dr Mutasi</button>`;
+                        }
 
                         tb.innerHTML += `<tr>
                             <td class="px-5 py-3 sticky left-0 bg-slate-50">${no++}</td>
@@ -2432,7 +2622,7 @@
 
         function exportDashboardExcel() {
             let sD = getFilteredKKData(), flat = [];
-            sD.forEach(k => { (k.anggota_keluarga||[]).forEach(a => { flat.push({ "No KK":k.header.no_kk, "Nama KK":k.header.nama_kepala_keluarga, "Alamat":k.header.alamat, "RT/RW":k.header.rt_rw, "Nama":a.nama_lengkap, "NIK":a.nik, "J.Kelamin":a.jenis_kelamin, "Tmp Lahir":a.tempat_lahir, "Tgl Lahir":formatDateID(a.tanggal_lahir), "Umur":calculateAge(a.tanggal_lahir), "Agama":a.agama, "Pendidikan":a.pendidikan, "Pekerjaan":a.jenis_pekerjaan, "Status Kawin":a.status_perkawinan, "Hubungan":a.status_hubungan_keluarga }); }); });
+            sD.forEach(k => { (k.anggota_keluarga||[]).forEach(a => { flat.push({ "No KK":k.header.no_kk, "Nama KK":k.header.nama_kepala_keluarga, "Alamat":k.header.alamat, "RT/RW":k.header.rt_rw, "Nama":a.nama_lengkap, "NIK":a.nik, "J.Kelamin":a.jenis_kelamin, "Tmp Lahir":a.tempat_lahir, "Tgl Lahir":formatDateID(a.tanggal_lahir), "Umur":calculateAge(a.tanggal_lahir), "Agama":a.agama, "Pendidikan":a.pendidikan, "Pekerjaan":a.jenis_pekerjaan, "Status Kawin":a.status_perkawinan, "Hubungan":a.status_hubungan_keluarga, "Datang Dari": a.datang_dari || '-', "Tgl Datang": formatDateID(a.tanggal_datang), "Pindah Ke": a.pindah_ke || '-', "Tgl Pindah": formatDateID(a.tanggal_pindah), "Tgl Meninggal": formatDateID(a.tanggal_meninggal) }); }); });
             let ws = XLSX.utils.json_to_sheet(flat), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Data_Dasbor.xlsx"); showToast("Export OK", "success");
         }
 
@@ -2533,6 +2723,80 @@
             let fHt=`<tr><td colspan="2" class="border border-black text-center">JUMLAH</td><td class="border border-black">${gKk}</td>`, gl=0,gp=0;
             keys.forEach(k=>{ let l=gT[k].l, p=gT[k].p; gl+=l; gp+=p; fHt+=`<td class="border border-black">${l||'-'}</td><td class="border border-black">${p||'-'}</td><td class="border border-black bg-[#fff2cc]/50">${(l+p)||'-'}</td>`; });
             tf.innerHTML = fHt+`<td class="border border-black">${gl||'-'}</td><td class="border border-black">${gp||'-'}</td><td class="border border-black bg-[#fff2cc]">${(gl+gp)||'-'}</td></tr>`;
+        }
+
+        function renderMutasiTable() {
+            let sD = getFilteredKKData();
+            let tb = document.getElementById('mutasi-tbody'), tf = document.getElementById('mutasi-tfoot'); 
+            tb.innerHTML=''; tf.innerHTML='';
+            
+            let no = 1;
+            let tLahir = 0, tDatang = 0, tMati = 0, tPindah = 0;
+            
+            sD.forEach(kk => {
+                (kk.anggota_keluarga || []).forEach(a => {
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    // Hanya memproses status mutasi: LAHIR, PENDATANG/DOMISILI, MENINGGAL, PINDAH
+                    if (['LAHIR', 'PENDATANG', 'DOMISILI', 'MENINGGAL', 'PINDAH'].includes(st)) {
+                        
+                        let colDatangDari = '-';
+                        let colDatangTgl = '-';
+                        let colPindahKe = '-';
+                        let colPindahTgl = '-';
+                        let colMeninggalTgl = '-';
+
+                        // Logika pemisahan kolom berdasarkan jenis mutasi
+                        if (st === 'LAHIR') {
+                            tLahir++;
+                            colDatangDari = 'KELAHIRAN';
+                            colDatangTgl = formatDateID(a.tanggal_lahir);
+                        } else if (st === 'PENDATANG' || st === 'DOMISILI') {
+                            tDatang++;
+                            colDatangDari = a.datang_dari && a.datang_dari !== '-' ? a.datang_dari : '-';
+                            colDatangTgl = formatDateID(a.tanggal_datang) !== '-' ? formatDateID(a.tanggal_datang) : '-';
+                        } else if (st === 'PINDAH') {
+                            tPindah++;
+                            colPindahKe = a.pindah_ke && a.pindah_ke !== '-' ? a.pindah_ke : '-';
+                            colPindahTgl = formatDateID(a.tanggal_pindah) !== '-' ? formatDateID(a.tanggal_pindah) : '-';
+                        } else if (st === 'MENINGGAL') {
+                            tMati++;
+                            colMeninggalTgl = formatDateID(a.tanggal_meninggal) !== '-' ? formatDateID(a.tanggal_meninggal) : '-';
+                        }
+
+                        let ttl = `${a.tempat_lahir || '-'}, ${formatDateID(a.tanggal_lahir)}`;
+                        let alamatStr = `${kk.header.alamat || '-'} (RT/RW: ${kk.header.rt_rw || '-'})`;
+                        
+                        let bgClass = '';
+                        if(st === 'MENINGGAL' || st === 'PINDAH') bgClass = 'bg-rose-50/50';
+                        if(st === 'LAHIR' || st === 'PENDATANG' || st === 'DOMISILI') bgClass = 'bg-blue-50/50 text-blue-900';
+
+                        tb.innerHTML += `<tr class="${bgClass}">
+                            <td class="border border-black p-1.5 text-center">${no++}</td>
+                            <td class="border border-black p-1.5 text-center">${kk.header.no_kk}</td>
+                            <td class="border border-black p-1.5 font-bold">${a.nama_lengkap}</td>
+                            <td class="border border-black p-1.5 text-center">${a.jenis_kelamin}</td>
+                            <td class="border border-black p-1.5">${ttl}</td>
+                            <td class="border border-black p-1.5 text-center">${a.kewarganegaraan}</td>
+                            <td class="border border-black p-1.5">${alamatStr}</td>
+                            <td class="border border-black p-1.5 text-center">${colDatangDari}</td>
+                            <td class="border border-black p-1.5 text-center">${colDatangTgl}</td>
+                            <td class="border border-black p-1.5 text-center">${colPindahKe}</td>
+                            <td class="border border-black p-1.5 text-center">${colPindahTgl}</td>
+                            <td class="border border-black p-1.5 text-center font-bold text-rose-700">${colMeninggalTgl}</td>
+                        </tr>`;
+                    }
+                });
+            });
+
+            if(no === 1) {
+                tb.innerHTML = '<tr><td colspan="12" class="border border-black p-6 text-center text-slate-500 font-bold"><i class="fas fa-folder-open text-2xl mb-2 opacity-50 block"></i>Belum ada data mutasi penduduk (Lahir/Datang/Meninggal/Pindah)</td></tr>';
+            }
+
+            tf.innerHTML = `<tr>
+                <td colspan="12" class="border border-black p-2 font-bold bg-[#e9d5ff]/50 text-center tracking-wide">
+                    REKAPITULASI MUTASI : LAHIR (${tLahir} Jiwa) &nbsp;|&nbsp; DATANG (${tDatang} Jiwa) &nbsp;|&nbsp; MENINGGAL (${tMati} Jiwa) &nbsp;|&nbsp; PINDAH (${tPindah} Jiwa)
+                </td>
+            </tr>`;
         }
 
         function renderRtTable() {
@@ -2840,6 +3104,11 @@
                         no_kitap: row['No KITAP'] || '-',
                         nama_ayah: row['Nama Ayah'] || '-',
                         nama_ibu: row['Nama Ibu'] || '-',
+                        datang_dari: row['Datang Dari'] || '-',
+                        tanggal_datang: row['Tgl Datang'] || row['Tanggal Datang'] || '-',
+                        pindah_ke: row['Pindah Ke'] || '-',
+                        tanggal_pindah: row['Tgl Pindah'] || row['Tanggal Pindah'] || '-',
+                        tanggal_meninggal: row['Tgl Meninggal'] || row['Tanggal Meninggal'] || '-',
                         status_penduduk: 'AKTIF'
                     });
                 });
@@ -2926,6 +3195,7 @@
         }
 
         function printPendidikanFormat() { document.body.classList.add('printing-pendidikan'); window.print(); document.body.classList.remove('printing-pendidikan'); }
+        function printMutasiFormat() { document.body.classList.add('printing-mutasi'); window.print(); document.body.classList.remove('printing-mutasi'); }
         function printRtFormat() { document.body.classList.add('printing-rt'); window.print(); document.body.classList.remove('printing-rt'); }
         function printAgamaFormat() { document.body.classList.add('printing-agama'); window.print(); document.body.classList.remove('printing-agama'); }
         function printPengangguranFormat() { document.body.classList.add('printing-pengangguran'); window.print(); document.body.classList.remove('printing-pengangguran'); }
@@ -3085,7 +3355,7 @@
             if(el = document.getElementById('rekap-ttd-sekdes')) el.innerText = sekdes;
 
             // Pend
-            ['pend', 'rt', 'agama', 'pengangguran', 'matapilih'].forEach(p => {
+            ['pend', 'mutasi', 'rt', 'agama', 'pengangguran', 'matapilih'].forEach(p => {
                 if(el = document.getElementById(`${p}-title-kab`)) el.innerText = kab;
                 if(el = document.getElementById(`${p}-title-kec`)) el.innerText = kec;
                 if(el = document.getElementById(`${p}-title-desa`)) el.innerText = desa;
