@@ -34,14 +34,80 @@
         body { background-color: #f8fafc; overflow-x: hidden; }
 
         .glass-panel {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+            /* Optimalisasi: Dibuat lebih ringan, elegan, dan profesional */
+            background: rgba(30, 41, 59, 0.75) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+            cursor: grab;
+        }
+        
+        .glass-panel:active {
+            cursor: grabbing;
+        }
+
+        /* --- PENAMBAHAN EFEK KACA (GLASSMORPHISM) SESUAI REQUEST --- */
+        
+        /* Modifikasi Teks dan Input Khusus di Halaman Login agar kontras dengan efek kaca */
+        #login-view h1, #login-view p, #login-view label, #login-view a, #login-view span, #login-view i {
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        #login-view input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.9) !important;
-            border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
-            box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.4), inset -1px -1px 2px rgba(255, 255, 255, 0.1), 0 15px 35px rgba(0, 0, 0, 0.3) !important;
-            cursor: grab;
+            box-shadow: none !important;
+            transition: all 0.2s ease !important;
+        }
+        /* Efek gelap glossy saat kolom input diklik/ketik (focus) agar teks putih/gelap terlihat jelas */
+        #login-view input:focus {
+            background: rgba(15, 23, 42, 0.9) !important;
+            color: #f8fafc !important;
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important; /* Diringankan dari efek glow yang berat */
+        }
+        #login-view input::placeholder { color: rgba(255, 255, 255, 0.6) !important; }
+        #login-view input:focus::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+        #login-view .text-slate-400 { color: rgba(255, 255, 255, 0.8) !important; }
+
+        /* Optimalisasi Tombol: Tampilan Profesional Enterprise yang Ringan (Lightweight) */
+        button {
+            --tw-bg-opacity: 0.95 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+            transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out, opacity 0.15s ease-in-out !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            will-change: transform; /* Hint untuk GPU agar render lebih ringan saat discroll */
+        }
+        
+        button:hover {
+            --tw-bg-opacity: 1 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0px) !important;
+            box-shadow: none !important;
+        }
+
+        /* Penyesuaian khusus untuk tombol dengan gradient agar efek kaca tembus pandang */
+        button.bg-gradient-to-r, button.bg-gradient-to-br {
+            background-image: none !important;
+        }
+        button.from-brand-600 { background-color: rgba(79, 70, 229, 0.9) !important; }
+        button.from-emerald-500 { background-color: rgba(16, 185, 129, 0.9) !important; }
+        /* --- END OF GLASSMORPHISM --- */
+        
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: none; /* Dihilangkan blur dari navbar agar scroll tabel sangat lancar */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .glass-panel:active {
@@ -100,6 +166,23 @@
         }
         button.from-brand-600 { background-color: rgba(79, 70, 229, 0.6) !important; }
         button.from-emerald-500 { background-color: rgba(16, 185, 129, 0.6) !important; }
+        
+        /* --- OPTIMASI EKSTREM UNTUK TABEL DASBOR (Mencegah Lag/Berat) --- */
+        /* Mematikan efek glass, shadow, & animasi berat pada ratusan tombol di dalam tabel */
+        table button {
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            transition: opacity 0.1s ease, background-color 0.1s ease !important;
+            transform: none !important;
+            will-change: auto !important; /* Menghemat penggunaan memori RAM/VRAM browser */
+        }
+        table button:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            opacity: 0.75 !important;
+        }
         /* --- END OF GLASSMORPHISM --- */
         
         .glass-dark {
@@ -232,14 +315,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .animated-bg {
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #312e81, #1e1b4b);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            /* Performa Tinggi: Animasi dinonaktifkan, diganti gradien gelap solid elegan khas Corporate */
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
         }
 
         body.theme-rose nav, body.theme-rose #app-sidebar, body.theme-rose #login-view .glass-panel, body.theme-rose .bg-gradient-to-r, body.theme-rose .bg-gradient-to-br, body.theme-rose .text-brand-600, body.theme-rose .bg-brand-600, body.theme-rose .bg-brand-50, body.theme-rose .text-brand-500 { filter: hue-rotate(130deg); }
@@ -563,7 +640,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-6">
                                 <div class="col-span-1 md:col-span-2 xl:col-span-3 pb-4 border-b border-dashed bg-slate-50/50 p-4 rounded-2xl">
                                     <label class="block text-xs font-bold text-brand-600 uppercase mb-2">No. Kartu Keluarga</label>
-                                    <input type="text" id="hk_nokk" readonly class="w-full px-2 py-1 bg-transparent font-black text-3xl text-slate-800 outline-none" placeholder="0000000000000000">
+                                    <input type="text" id="hk_nokk" oninput="checkDuplicateKK()" readonly class="w-full px-2 py-1 bg-transparent font-black text-3xl text-slate-800 outline-none" placeholder="0000000000000000">
                                 </div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Nama Kepala Keluarga</label><input type="text" id="hk_kepala" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="md:col-span-2 xl:col-span-2"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Alamat Lengkap</label><input type="text" id="hk_alamat" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
@@ -636,35 +713,35 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div id="card-filter-kk" onclick="setDashFilter(null)" class="dash-filter-card bg-gradient-to-br from-slate-700 to-slate-900 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group ring-4 ring-offset-4 ring-brand-500 scale-105 z-10">
-                        <div class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity duration-300"><i class="fas fa-file-invoice text-7xl text-white"></i></div>
-                        <p class="text-slate-300 text-[10px] font-bold uppercase mb-2 relative z-10">Total KK</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kk">0</h3>
+                    <div id="card-filter-kk" onclick="setDashFilter(null)" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group ring-2 ring-offset-4 ring-slate-400 scale-105 z-10">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-file-invoice text-7xl text-slate-800"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Total KK</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-kk">0</h3>
                     </div>
-                    <div id="card-filter-kepala" onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="dash-filter-card bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-user-tie text-7xl text-white"></i></div>
-                        <p class="text-amber-100 text-[10px] font-bold uppercase mb-2 relative z-10">Kepala Keluarga</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-kepala">0</h3>
+                    <div id="card-filter-kepala" onclick="setDashFilter('kepala_keluarga', true, 'Kepala Keluarga')" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-user-tie text-7xl text-amber-500"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Kepala Keluarga</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-kepala">0</h3>
                     </div>
-                    <div id="card-filter-penduduk" onclick="setDashFilter('aktif', true, 'Penduduk Aktif')" class="dash-filter-card bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-users text-7xl text-white"></i></div>
-                        <p class="text-emerald-100 text-[10px] font-bold uppercase mb-2 relative z-10">Penduduk Aktif</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-penduduk">0</h3>
+                    <div id="card-filter-penduduk" onclick="setDashFilter('aktif', true, 'Penduduk Aktif')" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-users text-7xl text-emerald-500"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Penduduk Aktif</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-penduduk">0</h3>
                     </div>
-                    <div id="card-filter-pemilih" onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="dash-filter-card bg-gradient-to-br from-indigo-600 to-brand-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-check-to-slot text-7xl text-white"></i></div>
-                        <p class="text-indigo-100 text-[10px] font-bold uppercase mb-2 relative z-10">Mata Pilih</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-pemilih">0</h3>
+                    <div id="card-filter-pemilih" onclick="setDashFilter('pemilih', true, 'Mata Pilih (≥ 17 Thn / Kawin)')" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-check-to-slot text-7xl text-indigo-500"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Mata Pilih</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-pemilih">0</h3>
                     </div>
-                    <div id="card-filter-l" onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="dash-filter-card bg-gradient-to-br from-sky-500 to-blue-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-male text-7xl text-white"></i></div>
-                        <p class="text-sky-100 text-[10px] font-bold uppercase mb-2 relative z-10">Laki-Laki</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-l">0</h3>
+                    <div id="card-filter-l" onclick="setDashFilter('gender', 'LAKI-LAKI', 'Laki-Laki')" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-male text-7xl text-sky-500"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Laki-Laki</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-l">0</h3>
                     </div>
-                    <div id="card-filter-p" onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="dash-filter-card bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 opacity-20 group-hover:opacity-30 transition-opacity duration-300"><i class="fas fa-female text-7xl text-white"></i></div>
-                        <p class="text-rose-100 text-[10px] font-bold uppercase mb-2 relative z-10">Perempuan</p>
-                        <h3 class="text-3xl font-black text-white relative z-10" id="dash-total-p">0</h3>
+                    <div id="card-filter-p" onclick="setDashFilter('gender', 'PEREMPUAN', 'Perempuan')" class="dash-filter-card bg-white border border-slate-200 p-5 rounded-3xl shadow-sm cursor-pointer transform hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300"><i class="fas fa-female text-7xl text-rose-400"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-2 relative z-10">Perempuan</p>
+                        <h3 class="text-3xl font-black text-slate-800 relative z-10" id="dash-total-p">0</h3>
                     </div>
                 </div>
 
@@ -1280,6 +1357,7 @@
         let currentUser = null, currentDashFilter = null, uploadedFileType = '', uploadedBase64 = '';
         let activeRkFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
         let syncInterval = null; // Menangani interval realtime sync
+        let currentEditingKK = null; // Menyimpan No KK yang sedang diedit agar tidak terdeteksi sebagai duplikat
 
         const loginView = document.getElementById('login-view'), appWrapper = document.getElementById('app-wrapper'), modal = document.getElementById('custom-modal'), floatingScrollBtns = document.getElementById('floating-scroll-btns');
 
@@ -1454,7 +1532,8 @@
             // Tampilkan tombol navigasi vertikal setelah masuk (login)
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
 
-            switchView('dashboard-view'); loadDashboardData();
+            switchView('ocr-view'); 
+            // OPTIMASI: loadDashboardData(); DIHAPUS DARI SINI agar loading masuk aplikasi super cepat (tidak render tabel ribuan baris di background)
             startRealtimeSync();
             
             // Sembunyikan API Key form kecuali login sebagai superakun (Master)
@@ -1737,7 +1816,7 @@
                 if(viewId === 'matapilih-view') renderMataPilihTable();
             }, 10);
             
-            if(viewId === 'ocr-view') { setTimeout(()=>{ if(!isUsingCamera && document.getElementById('image-preview').classList.contains('hidden')) startCamera(); }, 500); } else stopCamera();
+            if(viewId !== 'ocr-view') stopCamera();
         }
 
         // --- MEDIA & OCR ---
@@ -1794,12 +1873,15 @@
             
             if(!success) {
                 showToast("Gagal ekstrak AI! Pastikan API Key valid atau tidak terkena Limit.", "error"); 
+            } else {
+                currentEditingKK = null; // Pastikan data baru tidak dianggap sedang di-edit
+                setTimeout(checkDuplicateKK, 500); // Cek duplikat saat selesai render
             }
             
             btnC.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Ekstrak AI'; btnC.disabled=false; document.getElementById('media-container').classList.remove('scanning'); stopCamera();
         }
 
-        function enableManualInput() { renderDataToUI({header:{}, anggota_keluarga:[{jenis_kelamin:"LAKI-LAKI", status_perkawinan:"BELUM KAWIN", status_hubungan_keluarga:"KEPALA KELUARGA", kewarganegaraan:"WNI"}]}); toggleEdit(true); showToast("Mode Manual Aktif", "info"); }
+        function enableManualInput() { currentEditingKK = null; renderDataToUI({header:{}, anggota_keluarga:[{jenis_kelamin:"LAKI-LAKI", status_perkawinan:"BELUM KAWIN", status_hubungan_keluarga:"KEPALA KELUARGA", kewarganegaraan:"WNI"}]}); toggleEdit(true); showToast("Mode Manual Aktif", "info"); }
 
         function renderDataToUI(d) {
             let h = d.header||{};
@@ -1834,6 +1916,45 @@
             document.getElementById('status-badge').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Ekstraksi Sukses'; document.getElementById('status-badge').className = "px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200 shadow-sm flex items-center";
             
             autoDetectKodePos(); // Deteksi kodepos otomatis setelah render data AI
+            checkDuplicateKK(); // Cek duplikat secara instan saat form dirender
+        }
+
+        function checkDuplicateKK() {
+            let nokkInput = document.getElementById('hk_nokk');
+            let no_kk = nokkInput.value.trim();
+            let statusBadge = document.getElementById('status-badge');
+            let btnSave = document.getElementById('btn-save');
+            
+            if (!no_kk || no_kk === '-' || no_kk === '0000000000000000') {
+                if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                return;
+            }
+
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            let exists = sD.find(x => x.header.no_kk === no_kk);
+
+            // Jika KK ada dan KK yang sedang dicek bukan KK yang sengaja sedang kita Edit
+            if (exists && currentEditingKK !== no_kk) {
+                showToast("Duplikat! Nomor KK sudah ada di sistem.", "error");
+                statusBadge.innerHTML = '<i class="fas fa-triangle-exclamation mr-2"></i> Duplikat / KK Sudah Ada';
+                statusBadge.className = "px-4 py-2 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200 shadow-sm flex items-center";
+                
+                nokkInput.value = ''; // KK dikosongkan secara otomatis
+                
+                if (btnSave) { 
+                    btnSave.disabled = true; 
+                    btnSave.classList.add('opacity-50', 'cursor-not-allowed'); 
+                }
+            } else {
+                if (btnSave) { 
+                    btnSave.disabled = false; 
+                    btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); 
+                }
+                if (statusBadge.innerText.includes('Duplikat')) {
+                    statusBadge.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Ekstraksi Valid'; 
+                    statusBadge.className = "px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200 shadow-sm flex items-center";
+                }
+            }
         }
 
         function addFamilyMemberRow() {
@@ -1875,7 +1996,7 @@
             let bE = document.getElementById('btn-edit'); if(isEditMode) { bE.innerHTML='<i class="fas fa-lock"></i> Kunci Edit'; bE.className="w-full py-3 bg-indigo-500 text-white rounded-xl font-bold"; } else { bE.innerHTML='<i class="fas fa-pen-to-square"></i> Mode Edit Data'; bE.className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold"; }
         }
 
-        function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="18" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); }); }
+        function confirmClearForm() { showConfirmModal("Kosongkan Form", "Yakin?", () => { currentEditingKK = null; document.querySelectorAll('#right-panel input').forEach(i=>i.value=''); document.getElementById('table-body').innerHTML='<tr><td colspan="18" class="text-center py-10">Area Data Kosong</td></tr>'; ['btn-save','btn-edit','btn-add-row','btn-clear','btn-print','btn-pdf'].forEach(i=>{ let el = document.getElementById(i); if(el) el.classList.add('hidden'); }); resetMedia(); document.getElementById('status-badge').innerHTML = '<i class="fas fa-circle-dot mr-2"></i> Menunggu Input'; document.getElementById('status-badge').className = "px-4 py-2 bg-white text-slate-500 rounded-full text-xs font-bold border"; let btnSave = document.getElementById('btn-save'); if (btnSave) { btnSave.disabled = false; btnSave.classList.remove('opacity-50', 'cursor-not-allowed'); } }); }
 
         function autoDetectKodePos() {
             let desa = document.getElementById('hk_desa').value.toUpperCase().trim();
@@ -1955,7 +2076,11 @@
             }
             
             document.getElementById('btn-save').innerHTML='<i class="fas fa-cloud-arrow-up"></i> Simpan (Lokal/Cloud)'; 
-            loadDashboardData();
+            
+            // OPTIMASI: Hanya reload render tabel jika user sedang berada di halaman dashboard (Agar halaman Ekstraksi tetap ringan)
+            if(!document.getElementById('dashboard-view').classList.contains('hidden')) {
+                loadDashboardData();
+            }
         }
 
         // --- DASHBOARD & ANALISIS ---
@@ -2008,7 +2133,7 @@
 
             // Logika UI Penanda (Highlight) Kartu Aktif
             document.querySelectorAll('.dash-filter-card').forEach(c => {
-                c.classList.remove('ring-4', 'ring-offset-4', 'ring-brand-500', 'scale-105', 'z-10');
+                c.classList.remove('ring-2', 'ring-offset-4', 'ring-slate-400', 'scale-105', 'z-10');
             });
 
             let activeId = 'card-filter-kk'; // Default aktif di kartu pertama jika tidak ada filter
@@ -2021,7 +2146,7 @@
             
             if (activeId) {
                 let card = document.getElementById(activeId);
-                if (card) card.classList.add('ring-4', 'ring-offset-4', 'ring-brand-500', 'scale-105', 'z-10');
+                if (card) card.classList.add('ring-2', 'ring-offset-4', 'ring-slate-400', 'scale-105', 'z-10');
             }
         }
 
@@ -2177,6 +2302,9 @@
             let tb = document.getElementById('dash-table-body'); tb.innerHTML='';
             let tK=0, tKep=0, tP=0, tPem=0, tL=0, tPr=0, no=1, pT={}, agT={}, pkT={}, umT={"0-4":0,"5-14":0,"15-24":0,"25-54":0,"55+":0};
             
+            let htmlBuffer = ''; // OPTIMASI: Buffer string HTML agar proses render jauh lebih cepat
+            let renderLimit = (activeRkFilter === 'all' && activeUserFilter === 'all' && !currentDashFilter) ? 50 : 999999; // OPTIMASI: Batasi 50 baris jika filter "Semua Wilayah" agar tidak berat
+            
             filteredSD.forEach(kk => {
                 let aktifKk = false; (kk.anggota_keluarga||[]).forEach(a=>{ if(!['INVALID','PINDAH','MENINGGAL'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aktifKk = true; }); if(aktifKk) tK++;
                 (kk.anggota_keluarga||[]).forEach((a, idx) => {
@@ -2206,51 +2334,63 @@
                         if(!ok) return;
                     }
                     
-                    let deleteBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
-                        `<button onclick="deleteDataKK('${kk.header.no_kk}')" class="p-1 bg-rose-100 text-rose-600 rounded" title="Hapus Data KK"><i class="fas fa-trash"></i></button>` : '';
+                    if (no <= renderLimit) {
+                        let deleteBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
+                            `<button onclick="deleteDataKK('${kk.header.no_kk}')" class="p-1 bg-rose-100 text-rose-600 rounded" title="Hapus Data KK"><i class="fas fa-trash"></i></button>` : '';
 
-                    let hideBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
-                        `<button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors" title="Sembunyikan dari Laporan"><i class="fas fa-ghost"></i></button>` : '';
+                        let hideBtnHTML = (currentUser.role === 'superadmin' || currentUser.role === 'admin') ? 
+                            `<button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors" title="Sembunyikan dari Laporan"><i class="fas fa-ghost"></i></button>` : '';
 
-                    let clsAktif = st==='AKTIF' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200';
-                    let clsLahir = st==='LAHIR' ? 'bg-sky-500 text-white shadow-sm' : 'bg-sky-100 text-sky-700 hover:bg-sky-200';
-                    let clsDatang = st==='PENDATANG' ? 'bg-indigo-500 text-white shadow-sm' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
-                    let clsDom = st==='DOMISILI' ? 'bg-teal-500 text-white shadow-sm' : 'bg-teal-100 text-teal-700 hover:bg-teal-200';
-                    let clsMati = st==='MENINGGAL' ? 'bg-slate-600 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300';
-                    let clsPindah = st==='PINDAH' ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 text-blue-700 hover:bg-blue-200';
-                    let clsMerantau = st==='MERANTAU' ? 'bg-orange-500 text-white shadow-sm' : 'bg-orange-100 text-orange-700 hover:bg-orange-200';
-                    let clsTKI = st==='TKI' ? 'bg-fuchsia-500 text-white shadow-sm' : 'bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200';
-                    let clsTKW = st==='TKW' ? 'bg-pink-500 text-white shadow-sm' : 'bg-pink-100 text-pink-700 hover:bg-pink-200';
+                        let clsAktif = st==='AKTIF' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200';
+                        let clsLahir = st==='LAHIR' ? 'bg-sky-500 text-white shadow-sm' : 'bg-sky-100 text-sky-700 hover:bg-sky-200';
+                        let clsDatang = st==='PENDATANG' ? 'bg-indigo-500 text-white shadow-sm' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
+                        let clsDom = st==='DOMISILI' ? 'bg-teal-500 text-white shadow-sm' : 'bg-teal-100 text-teal-700 hover:bg-teal-200';
+                        let clsMati = st==='MENINGGAL' ? 'bg-slate-600 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300';
+                        let clsPindah = st==='PINDAH' ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 text-blue-700 hover:bg-blue-200';
+                        let clsMerantau = st==='MERANTAU' ? 'bg-orange-500 text-white shadow-sm' : 'bg-orange-100 text-orange-700 hover:bg-orange-200';
+                        let clsTKI = st==='TKI' ? 'bg-fuchsia-500 text-white shadow-sm' : 'bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200';
+                        let clsTKW = st==='TKW' ? 'bg-pink-500 text-white shadow-sm' : 'bg-pink-100 text-pink-700 hover:bg-pink-200';
 
-                    let actBtn = `<div class="flex gap-1 mb-1">
-                        <button onclick="editDataKK('${kk.header.no_kk}')" class="p-1 bg-amber-100 text-amber-600 rounded" title="Edit Data KK"><i class="fas fa-edit"></i></button>
-                        <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
-                        <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
-                        ${deleteBtnHTML}
-                        ${hideBtnHTML}
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
-                        </div><div class="flex flex-wrap gap-1 text-[8px] font-bold mt-1">
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'LAHIR')" class="px-1.5 py-1 rounded transition-colors ${clsLahir}">LAHIR</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'PENDATANG')" class="px-1.5 py-1 rounded transition-colors ${clsDatang}">DATANG</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'DOMISILI')" class="px-1.5 py-1 rounded transition-colors ${clsDom}">DOMISILI</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'MENINGGAL')" class="px-1.5 py-1 rounded transition-colors ${clsMati}">MENINGGAL</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'PINDAH')" class="px-1.5 py-1 rounded transition-colors ${clsPindah}">PINDAH</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'MERANTAU')" class="px-1.5 py-1 rounded transition-colors ${clsMerantau}">MERANTAU</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKI')" class="px-1.5 py-1 rounded transition-colors ${clsTKI}">TKI</button>
-                        <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKW')" class="px-1.5 py-1 rounded transition-colors ${clsTKW}">TKW</button>
-                        </div>`;
-                    
-                    tb.innerHTML += `<tr class="${!isAktif?'opacity-60 bg-slate-50':''}">
-                        <td class="px-5 py-3 sticky left-0 ${!isAktif?'bg-slate-50':'bg-white'}">${no++}</td><td>${kk.header.no_kk}</td>
-                        <td class="text-center">${isPem?'<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">YA</span>':'<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[10px] font-bold">TIDAK</span>'}</td>
-                        <td class="font-bold">${a.nama_lengkap} ${!isAktif?`<span class="ml-1 text-[8px] bg-rose-200 px-1 rounded">${st}</span>`:''}</td>
-                        <td>${a.nik}</td><td>${jk}</td><td>${a.tempat_lahir}</td><td>${formatDateID(a.tanggal_lahir)}</td><td class="font-bold text-brand-600 text-center">${um}</td>
-                        <td>${a.agama}</td><td>${a.pendidikan}</td><td class="truncate max-w-[120px]" title="${a.jenis_pekerjaan}">${a.jenis_pekerjaan}</td>
-                        <td>${a.golongan_darah}</td><td>${a.status_perkawinan}</td><td>${formatDateID(a.tanggal_perkawinan)}</td><td>${a.status_hubungan_keluarga}</td><td>${a.kewarganegaraan}</td>
-                        <td class="${!isAktif?'bg-slate-50':'bg-white'} p-2">${actBtn}</td>
-                    </tr>`;
+                        let actBtn = `<div class="flex gap-1 mb-1">
+                            <button onclick="editDataKK('${kk.header.no_kk}')" class="p-1 bg-amber-100 text-amber-600 rounded" title="Edit Data KK"><i class="fas fa-edit"></i></button>
+                            <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
+                            <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
+                            ${deleteBtnHTML}
+                            ${hideBtnHTML}
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
+                            </div><div class="flex flex-wrap gap-1 text-[8px] font-bold mt-1">
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'LAHIR')" class="px-1.5 py-1 rounded transition-colors ${clsLahir}">LAHIR</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'PENDATANG')" class="px-1.5 py-1 rounded transition-colors ${clsDatang}">DATANG</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'DOMISILI')" class="px-1.5 py-1 rounded transition-colors ${clsDom}">DOMISILI</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'MENINGGAL')" class="px-1.5 py-1 rounded transition-colors ${clsMati}">MENINGGAL</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'PINDAH')" class="px-1.5 py-1 rounded transition-colors ${clsPindah}">PINDAH</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'MERANTAU')" class="px-1.5 py-1 rounded transition-colors ${clsMerantau}">MERANTAU</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKI')" class="px-1.5 py-1 rounded transition-colors ${clsTKI}">TKI</button>
+                            <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKW')" class="px-1.5 py-1 rounded transition-colors ${clsTKW}">TKW</button>
+                            </div>`;
+                        
+                        htmlBuffer += `<tr class="${!isAktif?'opacity-60 bg-slate-50':''}">
+                            <td class="px-5 py-3 sticky left-0 ${!isAktif?'bg-slate-50':'bg-white'}">${no}</td><td>${kk.header.no_kk}</td>
+                            <td class="text-center">${isPem?'<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">YA</span>':'<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[10px] font-bold">TIDAK</span>'}</td>
+                            <td class="font-bold">${a.nama_lengkap} ${!isAktif?`<span class="ml-1 text-[8px] bg-rose-200 px-1 rounded">${st}</span>`:''}</td>
+                            <td>${a.nik}</td><td>${jk}</td><td>${a.tempat_lahir}</td><td>${formatDateID(a.tanggal_lahir)}</td><td class="font-bold text-brand-600 text-center">${um}</td>
+                            <td>${a.agama}</td><td>${a.pendidikan}</td><td class="truncate max-w-[120px]" title="${a.jenis_pekerjaan}">${a.jenis_pekerjaan}</td>
+                            <td>${a.golongan_darah}</td><td>${a.status_perkawinan}</td><td>${formatDateID(a.tanggal_perkawinan)}</td><td>${a.status_hubungan_keluarga}</td><td>${a.kewarganegaraan}</td>
+                            <td class="${!isAktif?'bg-slate-50':'bg-white'} p-2">${actBtn}</td>
+                        </tr>`;
+                    }
+                    no++;
                 });
             });
+            
+            if (no > renderLimit) {
+                htmlBuffer += `<tr><td colspan="18" class="text-center py-6 bg-amber-50/80 border-t border-amber-200"><div class="flex flex-col items-center justify-center"><i class="fas fa-bolt text-2xl text-amber-500 mb-2"></i><p class="text-amber-800 font-bold text-sm uppercase tracking-wider">Menampilkan ${renderLimit} Baris Pertama</p><p class="text-amber-700 text-xs mt-1 font-medium">Gunakan tombol <strong>Filter Wilayah (RK)</strong> di atas untuk melihat data spesifik agar aplikasi tetap cepat & ringan.</p></div></td></tr>`;
+            } else if (no === 1) {
+                htmlBuffer = `<tr><td colspan="18" class="text-center py-10 text-slate-400 font-bold"><i class="fas fa-folder-open text-3xl mb-3 block opacity-50"></i> Tidak ada data untuk filter ini.</td></tr>`;
+            }
+
+            tb.innerHTML = htmlBuffer;
+            
             document.getElementById('dash-total-kk').innerText = tK; 
             document.getElementById('dash-total-kepala').innerText = tKep;
             document.getElementById('dash-total-penduduk').innerText = tP;
@@ -2270,7 +2410,7 @@
             chartUmurInstance = new Chart(document.getElementById('chart-umur'), { type:'bar', data:{labels:Object.keys(umT), datasets:[{data:Object.values(umT), backgroundColor:['#34d399','#3b82f6','#f59e0b','#ef4444','#8b5cf6'], borderRadius:6}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, onClick:(e,el)=>{if(el.length)setDashFilter('umur',Object.keys(umT)[el[0].index],'Umur');}} });
         }
 
-        function editDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data')||'[]').find(x=>x.header.no_kk===no); if(kk){ renderDataToUI(kk); switchView('ocr-view'); toggleEdit(true); } }
+        function editDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data')||'[]').find(x=>x.header.no_kk===no); if(kk){ currentEditingKK = no; renderDataToUI(kk); switchView('ocr-view'); toggleEdit(true); } }
         function printDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data')||'[]').find(x=>x.header.no_kk===no); if(kk){ renderDataToUI(kk); switchView('ocr-view'); toggleEdit(false); setTimeout(()=>printDukcapilFormat(), 500); } }
         function deleteDataKK(no) { showConfirmModal("Hapus KK","Yakin hapus KK "+no+"?",()=>{ let d = JSON.parse(localStorage.getItem('kk_data')||'[]').filter(x=>x.header.no_kk!==no); localStorage.setItem('kk_data',JSON.stringify(d)); loadDashboardData(); 
             let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
