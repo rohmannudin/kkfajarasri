@@ -456,6 +456,17 @@
                     <p id="app-subtitle-login" class="text-sm font-medium text-brand-600 uppercase tracking-widest mt-1">Realtime Edition</p>
                 </div>
 
+                <!-- Rekapitulasi per RK (Tampilan Ringkas di Halaman Login) -->
+                <div id="login-rk-summary" class="mb-5 p-3 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-sm hidden">
+                    <div class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-200 mb-2 flex items-center justify-between">
+                        <span><i class="fas fa-layer-group text-amber-300 mr-1.5"></i> Rekapitulasi per RK</span>
+                        <span id="login-rk-total-badge" class="text-[9px] bg-white/20 px-2.5 py-0.5 rounded-full font-bold text-white shadow-xs">0 KK</span>
+                    </div>
+                    <div id="login-rk-summary-container" class="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Dimuat secara dinamis oleh JavaScript -->
+                    </div>
+                </div>
+
                 <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1 ml-1">Email / Username Akun</label>
@@ -581,6 +592,9 @@
                     </button>
                     <button onclick="switchView('matapilih-view'); closeSidebarMobile()" id="tab-matapilih" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent text-indigo-300 w-full text-left">
                         <i class="fas fa-check-to-slot w-6 text-center text-lg"></i> Lap. Mata Pilih
+                    </button>
+                    <button onclick="switchView('archive-view'); closeSidebarMobile()" id="tab-archive" class="hidden px-4 py-3.5 bg-transparent hover:bg-white/10 rounded-xl text-sm font-bold flex items-center gap-3 border border-transparent text-amber-300 w-full text-left">
+                        <i class="fas fa-box-archive w-6 text-center text-lg"></i> Menu Arsip Laporan
                     </button>
                     
                     <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-6 mb-2 px-2">Sistem & Akses</div>
@@ -863,6 +877,7 @@
                         <div><h2 class="text-2xl font-bold">Rekapitulasi & Manajemen Data</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Export / Import Excel</p></div>
                     </div>
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Rekap Penduduk')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="importExcel(event)">
                         <button onclick="triggerImportExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-import"></i> Import Excel</button>
                         <button onclick="exportExcel()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-export"></i> Export Excel</button>
@@ -943,40 +958,39 @@
                         <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-right-left"></i></div>
                         <div><h2 class="text-2xl font-bold">Laporan Mutasi Penduduk</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Lahir, Datang, Mati, Pindah</p></div>
                     </div>
-                    <button onclick="printMutasiFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Mutasi Penduduk')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printMutasiFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="mutasi-print-wrapper">
-                    <div class="min-w-[1100px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN MUTASI KEPENDUDUKAN BULANAN</h2></div>
+                    <div class="min-w-[1000px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN MUTASI PENDUDUK (LAHIR, DATANG, PINDAH, MENINGGAL)</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
                             <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="mutasi-title-kab"></span></div></div>
                             <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="mutasi-title-kec"></span></div></div>
                             <div class="flex"><div class="w-32">DESA</div><div>: <span id="mutasi-title-desa"></span></div></div>
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="mutasi-bulan" class="uppercase"></span> <span id="mutasi-tahun"></span></div></div>
                         </div>
-                        <table class="w-full border-collapse laporan-pend-table text-[10px]" id="mutasi-table">
-                            <thead class="bg-[#e9d5ff] text-black text-center">
+                        <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="mutasi-table">
+                            <thead class="bg-[#e9d5ff] text-black font-bold">
                                 <tr>
-                                    <th rowspan="2" class="w-8 align-middle border border-black py-2">NO</th>
-                                    <th rowspan="2" class="w-24 align-middle border border-black py-2">NO. KK</th>
-                                    <th rowspan="2" class="align-middle border border-black py-2">NAMA LENGKAP</th>
-                                    <th rowspan="2" class="w-16 align-middle border border-black py-2">J. KELAMIN</th>
-                                    <th rowspan="2" class="align-middle border border-black py-2">TEMPAT, TGL LAHIR</th>
-                                    <th rowspan="2" class="w-12 align-middle border border-black py-2">WN</th>
-                                    <th rowspan="2" class="align-middle border border-black py-2">ALAMAT (RT/RW)</th>
-                                    <th colspan="2" class="align-middle border border-black py-1">PENAMBAHAN</th>
-                                    <th colspan="3" class="align-middle border border-black py-1">PENGURANGAN</th>
-                                </tr>
-                                <tr>
-                                    <th class="w-24 align-middle border border-black py-1">DATANG DARI</th>
-                                    <th class="w-20 align-middle border border-black py-1">TANGGAL</th>
-                                    <th class="w-24 align-middle border border-black py-1">PINDAH KE</th>
-                                    <th class="w-20 align-middle border border-black py-1">TANGGAL</th>
-                                    <th class="w-20 align-middle border border-black py-1">MENINGGAL (TGL)</th>
+                                    <th class="w-8 border border-black">NO</th>
+                                    <th class="w-28 border border-black">NO KK</th>
+                                    <th class="w-36 border border-black">NAMA LENGKAP</th>
+                                    <th class="w-16 border border-black">JK</th>
+                                    <th class="w-36 border border-black">TEMPAT, TGL LAHIR</th>
+                                    <th class="w-12 border border-black">WN</th>
+                                    <th class="w-48 border border-black">ALAMAT / RT-RW</th>
+                                    <th class="w-28 border border-black">DATANG DARI</th>
+                                    <th class="w-20 border border-black">TGL DATANG</th>
+                                    <th class="w-28 border border-black">PINDAH KE</th>
+                                    <th class="w-20 border border-black">TGL PINDAH</th>
+                                    <th class="w-20 border border-black text-rose-700">TGL MENINGGAL</th>
                                 </tr>
                             </thead>
-                            <tbody id="mutasi-tbody" class="bg-white text-[11px]"></tbody>
-                            <tfoot id="mutasi-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                            <tbody id="mutasi-tbody" class="bg-white text-[10px]"></tbody>
+                            <tfoot id="mutasi-tfoot" class="bg-white font-bold text-[10px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="mutasi-ttd-kasi">SUPRIYANTO</p></div>
@@ -993,37 +1007,52 @@
                         <div class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-graduation-cap"></i></div>
                         <div><h2 class="text-2xl font-bold">Laporan Pendidikan</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Sesuai Format SKPD/Desa</p></div>
                     </div>
-                    <button onclick="printPendidikanFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Laporan Pendidikan')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printPendidikanFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="pendidikan-print-wrapper">
-                    <div class="min-w-[1100px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN KEPENDUDUKAN MENURUT KELOMPOK PENDIDIKAN</h2></div>
+                    <div class="min-w-[1200px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA TINGKAT PENDIDIKAN PENDUDUK</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
-                            <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="pend-title-kab">MESUJI</span></div></div>
-                            <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="pend-title-kec">PANCA JAYA</span></div></div>
-                            <div class="flex"><div class="w-32">DESA</div><div>: <span id="pend-title-desa">FAJAR ASRI</span></div></div>
+                            <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="pend-title-kab"></span></div></div>
+                            <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="pend-title-kec"></span></div></div>
+                            <div class="flex"><div class="w-32">DESA</div><div>: <span id="pend-title-desa"></span></div></div>
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="pend-bulan" class="uppercase"></span> <span id="pend-tahun"></span></div></div>
                         </div>
-                        <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="pendidikan-table">
-                            <thead class="bg-[#fff2cc]">
+                        <table class="w-full border-collapse laporan-pend-table text-[9px] text-center" id="pendidikan-table">
+                            <thead class="bg-[#fff2cc] text-black font-bold">
                                 <tr>
-                                    <th rowspan="2" class="w-10"><div class="vertical-text-container">RW</div></th><th rowspan="2" class="w-10"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-12"><div class="vertical-text-container">KEPALA KELUARGA</div></th>
-                                    <th colspan="3">BELUM</th><th colspan="3">BELUM TAMAT SD</th><th colspan="3">SD</th><th colspan="3">SLTP</th><th colspan="3">SLTA</th><th colspan="3">SMK</th><th colspan="3">DII</th><th colspan="3">DIII</th><th colspan="3">S1</th><th colspan="3">JUMLAH</th>
+                                    <th rowspan="2" class="w-8 border border-black">RW</th>
+                                    <th rowspan="2" class="w-8 border border-black">RT</th>
+                                    <th rowspan="2" class="w-10 border border-black">KK</th>
+                                    <th colspan="3" class="border border-black">TDK/BLM SEKOALH</th>
+                                    <th colspan="3" class="border border-black">BLM TAMAT SD</th>
+                                    <th colspan="3" class="border border-black">SD / SEDERAJAT</th>
+                                    <th colspan="3" class="border border-black">SLTP / SMP</th>
+                                    <th colspan="3" class="border border-black">SLTA / SMA</th>
+                                    <th colspan="3" class="border border-black">SMK</th>
+                                    <th colspan="3" class="border border-black">DIPLOMA I/II</th>
+                                    <th colspan="3" class="border border-black">AKADEMI/D3</th>
+                                    <th colspan="3" class="border border-black">S1 / S2 / S3</th>
+                                    <th colspan="3" class="border border-black bg-[#fff2cc]">JUMLAH</th>
                                 </tr>
                                 <tr>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
-                                    <th class="w-8"><div class="vertical-text-container">LAKI-LAKI</div></th><th class="w-8"><div class="vertical-text-container">PEREMPUAN</div></th><th class="w-8"><div class="vertical-text-container">L+P</div></th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
                                 </tr>
                             </thead>
-                            <tbody id="pendidikan-tbody" class="bg-white text-[11px]"></tbody><tfoot id="pendidikan-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                            <tbody id="pendidikan-tbody" class="bg-white text-[10px]"></tbody>
+                            <tfoot id="pendidikan-tfoot" class="bg-white font-bold text-[10px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="pend-ttd-kasi">SUPRIYANTO</p></div>
@@ -1040,19 +1069,24 @@
                         <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-map-location-dot"></i></div>
                         <div><h2 class="text-2xl font-bold">Laporan Kependudukan Kelompok RT</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Format Rukun Tetangga (Umur 0 - 80+)</p></div>
                     </div>
-                    <button onclick="printRtFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Laporan Kelompok RT')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printRtFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="rt-print-wrapper">
-                    <div class="min-w-[1100px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN KEPENDUDUKAN MENURUT KELOMPOK RUKUN TETANGGA</h2></div>
+                    <div class="min-w-[1200px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA KEPENDUDUKAN PER KELOMPOK RT / UMUR</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
                             <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="rt-title-kab"></span></div></div>
                             <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="rt-title-kec"></span></div></div>
                             <div class="flex"><div class="w-32">DESA</div><div>: <span id="rt-title-desa"></span></div></div>
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="rt-bulan" class="uppercase"></span> <span id="rt-tahun"></span></div></div>
                         </div>
-                        <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="rt-table">
-                            <thead class="bg-[#e2e8f0]" id="rt-thead"></thead><tbody id="rt-tbody" class="bg-white text-[11px]"></tbody><tfoot id="rt-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                        <table class="w-full border-collapse laporan-pend-table text-[9px] text-center" id="rt-table">
+                            <thead id="rt-thead" class="bg-[#e2e8f0] text-black font-bold"></thead>
+                            <tbody id="rt-tbody" class="bg-white text-[10px]"></tbody>
+                            <tfoot id="rt-tfoot" class="bg-white font-bold text-[10px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="rt-ttd-kasi">SUPRIYANTO</p></div>
@@ -1069,11 +1103,14 @@
                         <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-mosque"></i></div>
                         <div><h2 class="text-2xl font-bold">Laporan Kelompok Agama</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Sesuai Format Laporan Kependudukan</p></div>
                     </div>
-                    <button onclick="printAgamaFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Laporan Agama')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printAgamaFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="agama-print-wrapper">
-                    <div class="min-w-[1100px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN KEPENDUDUKAN MENURUT KELOMPOK AGAMA</h2></div>
+                    <div class="min-w-[1000px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA KEPENDUDUKAN DIBAGI PER KELOMPOK AGAMA</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
                             <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="agama-title-kab"></span></div></div>
                             <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="agama-title-kec"></span></div></div>
@@ -1081,51 +1118,31 @@
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="agama-bulan" class="uppercase"></span> <span id="agama-tahun"></span></div></div>
                         </div>
                         <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="agama-table">
-                            <thead class="bg-[#22c55e] text-black">
+                            <thead class="bg-[#22c55e] text-white font-bold">
                                 <tr>
-                                    <th rowspan="2" class="w-10 align-middle border border-black">RW</th>
-                                    <th rowspan="2" class="w-10 align-middle border border-black">RT</th>
-                                    <th rowspan="2" class="w-16 align-middle border border-black">KEPALA<br>KELUARGA</th>
-                                    <th colspan="3" class="border border-black bg-white/20">ISLAM</th>
+                                    <th rowspan="2" class="w-8 border border-black">RW</th>
+                                    <th rowspan="2" class="w-8 border border-black">RT</th>
+                                    <th rowspan="2" class="w-10 border border-black">KK</th>
+                                    <th colspan="3" class="border border-black">ISLAM</th>
                                     <th colspan="3" class="border border-black">KRISTEN</th>
-                                    <th colspan="3" class="border border-black bg-white/20">KATHOLIK</th>
+                                    <th colspan="3" class="border border-black">KATHOLIK</th>
                                     <th colspan="3" class="border border-black">HINDU</th>
-                                    <th colspan="3" class="border border-black bg-white/20">BUDHA</th>
+                                    <th colspan="3" class="border border-black">BUDHA</th>
                                     <th colspan="3" class="border border-black">KONGHUCHU</th>
-                                    <th colspan="3" class="border border-black bg-white/20">JUMLAH</th>
+                                    <th colspan="3" class="border border-black bg-emerald-700">JUMLAH</th>
                                 </tr>
                                 <tr>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black"><div class="vertical-text-container">L+P</div></th>
-                                    
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-blue-900">LAKI-LAKI</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container text-pink-900">PEREMPUAN</div></th>
-                                    <th class="w-8 border border-black bg-white/20"><div class="vertical-text-container">L+P</div></th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black bg-emerald-700">L</th><th class="border border-black bg-emerald-700">P</th><th class="border border-black bg-emerald-700">L+P</th>
                                 </tr>
                             </thead>
-                            <tbody id="agama-tbody" class="bg-white text-[11px]"></tbody>
-                            <tfoot id="agama-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                            <tbody id="agama-tbody" class="bg-white text-[10px]"></tbody>
+                            <tfoot id="agama-tfoot" class="bg-white font-bold text-[10px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="agama-ttd-kasi">SUPRIYANTO</p></div>
@@ -1142,11 +1159,14 @@
                         <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-user-xmark"></i></div>
                         <div><h2 class="text-2xl font-bold">Laporan Status Pekerjaan</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Data Pekerja & Pengangguran</p></div>
                     </div>
-                    <button onclick="printPengangguranFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Laporan Pekerjaan')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printPengangguranFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="pengangguran-print-wrapper">
-                    <div class="min-w-[1000px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN KEPENDUDUKAN MENURUT KELOMPOK PEKERJAAN</h2></div>
+                    <div class="min-w-[800px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA PEKERJAAN & PENGANGGURAN PENDUDUK</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
                             <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="pengangguran-title-kab"></span></div></div>
                             <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="pengangguran-title-kec"></span></div></div>
@@ -1154,19 +1174,17 @@
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="pengangguran-bulan" class="uppercase"></span> <span id="pengangguran-tahun"></span></div></div>
                         </div>
                         <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="pengangguran-table">
-                            <thead class="bg-[#f43f5e] text-black">
+                            <thead class="bg-[#f43f5e] text-white font-bold">
                                 <tr>
-                                    <th rowspan="2" class="w-10 align-middle border border-black">NO</th>
-                                    <th rowspan="2" class="align-middle border border-black text-left px-3">JENIS PEKERJAAN</th>
-                                    <th colspan="3" class="border border-black">JUMLAH PENDUDUK</th>
-                                </tr>
-                                <tr>
+                                    <th class="w-10 border border-black">NO</th>
+                                    <th class="border border-black">JENIS PEKERJAAN</th>
                                     <th class="w-24 border border-black">LAKI-LAKI</th>
                                     <th class="w-24 border border-black">PEREMPUAN</th>
-                                    <th class="w-24 border border-black">L + P</th>
+                                    <th class="w-24 border border-black bg-rose-700">TOTAL</th>
                                 </tr>
                             </thead>
-                            <tbody id="pengangguran-tbody" class="bg-white text-[11px]"></tbody><tfoot id="pengangguran-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                            <tbody id="pengangguran-tbody" class="bg-white text-[11px]"></tbody>
+                            <tfoot id="pengangguran-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="pengangguran-ttd-kasi">SUPRIYANTO</p></div>
@@ -1181,13 +1199,16 @@
                 <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border gap-4 print-hide">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border"><i class="fas fa-check-to-slot"></i></div>
-                        <div><h2 class="text-2xl font-bold">Laporan Pemilih (Mata Pilih)</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Usia ≥ 17 Tahun atau Sudah Kawin</p></div>
+                        <div><h2 class="text-2xl font-bold">Laporan Mata Pilih</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Data Hak Pilih Penduduk (≥ 17 Thn / Kawin)</p></div>
                     </div>
-                    <button onclick="printMataPilihFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="archiveCurrentReport('Laporan Mata Pilih')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
+                        <button onclick="printMataPilihFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                    </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="matapilih-print-wrapper">
-                    <div class="min-w-[900px] text-black font-sans mx-auto">
-                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA MATA PILIH / WAJIB KTP</h2></div>
+                    <div class="min-w-[1000px] text-black font-sans mx-auto">
+                        <div class="text-center mb-6"><h2 class="font-bold text-[13px] tracking-wide">LAPORAN DATA MATA PILIH PENDUDUK</h2></div>
                         <div class="mb-4 text-[11px] font-bold leading-relaxed flex flex-col gap-0.5">
                             <div class="flex"><div class="w-32">KABUPATEN</div><div>: <span id="matapilih-title-kab"></span></div></div>
                             <div class="flex"><div class="w-32">KECAMATAN</div><div>: <span id="matapilih-title-kec"></span></div></div>
@@ -1195,23 +1216,61 @@
                             <div class="flex"><div class="w-32">BULAN / TAHUN</div><div>: <span id="matapilih-bulan" class="uppercase"></span> <span id="matapilih-tahun"></span></div></div>
                         </div>
                         <table class="w-full border-collapse laporan-pend-table text-[10px] text-center" id="matapilih-table">
-                            <thead class="bg-[#6366f1] text-black">
+                            <thead class="bg-[#6366f1] text-white font-bold">
                                 <tr>
-                                    <th rowspan="2" class="w-10 align-middle border border-black">RW</th><th rowspan="2" class="w-10 align-middle border border-black">RT</th><th rowspan="2" class="w-20 align-middle border border-black">KEPALA<br>KELUARGA</th>
-                                    <th colspan="3" class="border border-black bg-white/20">MEMENUHI MATA PILIH<br><span style="font-size:8px;">(≥ 17 Thn / Kawin)</span></th><th colspan="3" class="border border-black">BELUM MATA PILIH</th><th colspan="3" class="border border-black bg-white/20">TOTAL PENDUDUK</th>
+                                    <th rowspan="2" class="w-8 border border-black">RK</th>
+                                    <th rowspan="2" class="w-8 border border-black">RT</th>
+                                    <th rowspan="2" class="w-10 border border-black">KK</th>
+                                    <th colspan="3" class="border border-black">PEMILIH (≥ 17 THN / KAWIN)</th>
+                                    <th colspan="3" class="border border-black">BELUM MEMILIH (&lt; 17 THN &amp; BELUM KAWIN)</th>
+                                    <th colspan="3" class="border border-black bg-indigo-700">TOTAL PENDUDUK</th>
                                 </tr>
                                 <tr>
-                                    <th class="w-16 border border-black bg-white/20">L</th><th class="w-16 border border-black bg-white/20">P</th><th class="w-16 border border-black bg-white/20">L+P</th>
-                                    <th class="w-16 border border-black">L</th><th class="w-16 border border-black">P</th><th class="w-16 border border-black">L+P</th>
-                                    <th class="w-16 border border-black bg-white/20">L</th><th class="w-16 border border-black bg-white/20">P</th><th class="w-16 border border-black bg-white/20">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>
+                                    <th class="border border-black bg-indigo-700">L</th><th class="border border-black bg-indigo-700">P</th><th class="border border-black bg-indigo-700">L+P</th>
                                 </tr>
                             </thead>
-                            <tbody id="matapilih-tbody" class="bg-white text-[11px]"></tbody><tfoot id="matapilih-tfoot" class="bg-white font-bold text-[11px]"></tfoot>
+                            <tbody id="matapilih-tbody" class="bg-white text-[10px]"></tbody>
+                            <tfoot id="matapilih-tfoot" class="bg-white font-bold text-[10px]"></tfoot>
                         </table>
                         <div class="flex justify-between mt-12 text-[11px] px-10">
                             <div class="text-center"><p>PELAKSANA TEKNIS<br>KASI PEMERINTAHAN</p><br><br><br><br><p class="font-bold underline" id="matapilih-ttd-kasi">SUPRIYANTO</p></div>
                             <div class="text-center"><p><span id="matapilih-ttd-desa">FAJAR ASRI</span>, <span id="matapilih-tanggal-ttd"></span><br>SEKRETARIS DESA</p><br><br><br><br><p class="font-bold underline" id="matapilih-ttd-sekdes">ROHMAN NUDIN</p></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: MENU ARSIP LAPORAN -->
+            <div id="archive-view" class="container mx-auto px-4 py-8 hidden flex-col gap-8 fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100"><i class="fas fa-box-archive"></i></div>
+                        <div><h2 class="text-2xl font-bold text-slate-800">Menu Arsip Laporan</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Kumpulan Snapshots Laporan Tersimpan</p></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="clearAllArchives()" class="px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2 text-sm hover:bg-rose-100 transition-all"><i class="fas fa-trash-alt"></i> Hapus Semua Arsip</button>
+                    </div>
+                </div>
+
+                <div id="archive-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Archive Cards -->
+                </div>
+            </div>
+
+            <!-- Modal Detail/Preview Arsip -->
+            <div id="archive-detail-modal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[110] backdrop-blur-md transition-opacity opacity-0 p-4">
+                <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+                    <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center print-hide">
+                        <h3 id="archive-modal-title" class="text-lg font-bold flex items-center gap-2"><i class="fas fa-file-contract text-amber-400"></i> Detail Arsip Laporan</h3>
+                        <div class="flex items-center gap-3">
+                            <button onclick="printArchivedReportContent()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all"><i class="fas fa-print"></i> Print Arsip Ini</button>
+                            <button onclick="closeArchiveDetailModal()" class="w-8 h-8 bg-white/10 hover:bg-rose-500 text-white rounded-full flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div id="archive-modal-body" class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
+                        <!-- Rendered Archived HTML -->
                     </div>
                 </div>
             </div>
@@ -1301,11 +1360,10 @@
                 <div id="api-integration-card" class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6 hidden">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-link text-brand-500"></i> Integrasi Sistem (Backend & AI)</h3>
                     
-                    <!-- INPUT URL DIKUNCI KARENA SUDAH HARDCODED -->
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Utama Google Apps Script (Web App)</label>
-                        <input type="text" id="set-sheets-url" readonly disabled class="w-full px-4 py-2 bg-slate-200 border rounded-xl font-semibold outline-none cursor-not-allowed text-slate-500">
-                        <p class="text-[10px] text-rose-500 font-bold mt-2"><i class="fas fa-lock"></i> URL Utama telah dikunci permanen di dalam source code aplikasi (Hardcoded).</p>
+                    <div id="master-url-container" class="mb-4 hidden">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Utama Google Apps Script (Hanya Master / superakun)</label>
+                        <input type="text" id="set-sheets-url" class="w-full px-4 py-2 bg-slate-50 border border-brand-300 rounded-xl font-semibold outline-none focus:border-brand-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
+                        <p class="text-[10px] text-brand-600 font-bold mt-2"><i class="fas fa-shield-alt"></i> URL Utama ini bersifat rahasia dan hanya dapat dilihat/diubah oleh akun superakun.</p>
                     </div>
 
                     <div class="mb-4">
@@ -1428,9 +1486,8 @@
         // KONFIGURASI SISTEM (SIAP UPLOAD KE GITHUB PAGES)
         // =====================================================================
         
-        // 1. URL GOOGLE SHEETS APPS SCRIPT (100% HARDCODED)
-        // SILAKAN GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA SEBELUM DI-UPLOAD KE GITHUB
-        const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbwUQ3KuWPDoOs7f34gCHOTfGEaQg3lLo8COX93vMxq2h1EMwePdP9iwBL4hq9w1jjqC/exec"; 
+        // 1. URL GOOGLE SHEETS APPS SCRIPT
+        let GOOGLE_SHEETS_API_URL = localStorage.getItem('app_google_sheets_url') || "https://script.google.com/macros/s/AKfycbwUQ3KuWPDoOs7f34gCHOTfGEaQg3lLo8COX93vMxq2h1EMwePdP9iwBL4hq9w1jjqC/exec"; 
 
         // 2. GEMINI API KEY (Tetap Dinamis dan bisa diatur dari aplikasi)
         const MODEL_NAME = "gemini-3-flash-preview"; 
@@ -1600,20 +1657,20 @@
             loginView.classList.add('hidden'); appWrapper.classList.remove('hidden'); appWrapper.classList.add('flex');
             document.getElementById('current-username-display').innerText = currentUser.username;
             
-            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-charts'];
+            const tabs = ['tab-users', 'tab-settings', 'tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-charts', 'tab-archive'];
             const rBadge = document.getElementById('role-badge');
             
             if (currentUser.role === 'superadmin') {
-                tabs.forEach(t => document.getElementById(t).classList.remove('hidden'));
+                tabs.forEach(t => { let el = document.getElementById(t); if(el) el.classList.remove('hidden'); });
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-amber-300 bg-amber-500/20 border border-amber-500/30"; rBadge.innerText = 'SUPERADMIN';
                 if (document.getElementById('superadmin-theme-card')) document.getElementById('superadmin-theme-card').classList.replace('hidden', 'flex');
             } else if (currentUser.role === 'admin') {
-                ['tab-users', 'tab-settings', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
-                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive'].forEach(t => document.getElementById(t).classList.remove('hidden'));
+                ['tab-users', 'tab-settings', 'tab-charts'].forEach(t => { let el = document.getElementById(t); if(el) el.classList.add('hidden'); });
+                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-inactive', 'tab-archive'].forEach(t => { let el = document.getElementById(t); if(el) el.classList.remove('hidden'); });
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-rose-300 bg-rose-500/20 border border-rose-500/30"; rBadge.innerText = 'ADMIN';
             } else {
-                ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts'].forEach(t => document.getElementById(t).classList.add('hidden'));
-                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih'].forEach(t => document.getElementById(t).classList.remove('hidden'));
+                ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts'].forEach(t => { let el = document.getElementById(t); if(el) el.classList.add('hidden'); });
+                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-archive'].forEach(t => { let el = document.getElementById(t); if(el) el.classList.remove('hidden'); });
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
             }
@@ -1622,10 +1679,8 @@
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
 
             switchView('ocr-view'); 
-            // OPTIMASI: loadDashboardData(); DIHAPUS DARI SINI agar loading masuk aplikasi super cepat (tidak render tabel ribuan baris di background)
             startRealtimeSync();
             
-            // Sembunyikan API Key form kecuali login sebagai superakun (Master)
             let apiCard = document.getElementById('api-integration-card');
             if (apiCard) {
                 if (currentUser.is_master || currentUser.username === 'superakun') {
@@ -1635,15 +1690,19 @@
                 }
             }
             
-            // Tambahkan baris ini untuk memuat judul laporan secara otomatis di awal
             loadSettingsUI();
         }
 
         // --- SISTEM REALTIME BACKGROUND SYNC ---
         function startRealtimeSync() {
             if(syncInterval) clearInterval(syncInterval);
-            // Fitur auto-refresh (setInterval) telah dinonaktifkan sesuai permintaan.
-            // Sinkronisasi kini hanya berjalan secara manual melalui tombol-tombol yang tersedia.
+            // Mengaktifkan kembali fitur auto-refresh (setInterval) untuk Realtime Sync Mutasi & Dasbor di semua perangkat
+            syncInterval = setInterval(() => {
+                // Hanya lakukan sync otomatis jika user tidak sedang mengetik/mengedit form agar data ketikan aman
+                if(!isEditMode && !currentEditingKK && document.activeElement.tagName !== 'INPUT') {
+                    syncFromCloudBackground();
+                }
+            }, 15000); // Sinkronisasi otomatis setiap 15 detik
         }
 
         async function syncFromCloudBackground() {
@@ -1665,7 +1724,7 @@
                                 let currentVal = localStorage.getItem(s.key) || '';
                                 let newVal = s.value || '';
                                 if (currentVal !== newVal) {
-                                    if (s.key === 'google_sheets_url') return; // Abaikan URL karena sudah hardcoded
+                                    if (s.key === 'google_sheets_url' || s.key === 'app_google_sheets_url') return; // Abaikan URL agar tidak bentrok
                                     
                                     if (s.value === '') { localStorage.removeItem(s.key); } 
                                     else { localStorage.setItem(s.key, s.value); }
@@ -1709,11 +1768,29 @@
                     if (document.getElementById('inactive-view') && !document.getElementById('inactive-view').classList.contains('hidden')) {
                         renderInactiveTable();
                     }
-                    if (document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
-                        renderUsersTable();
+                    if (document.getElementById('mutasi-view') && !document.getElementById('mutasi-view').classList.contains('hidden')) {
+                        renderMutasiTable();
                     }
                     if (document.getElementById('rekap-view') && !document.getElementById('rekap-view').classList.contains('hidden')) {
                         renderRekapTable();
+                    }
+                    if (document.getElementById('pendidikan-view') && !document.getElementById('pendidikan-view').classList.contains('hidden')) {
+                        renderPendidikanTable();
+                    }
+                    if (document.getElementById('rt-view') && !document.getElementById('rt-view').classList.contains('hidden')) {
+                        renderRtTable();
+                    }
+                    if (document.getElementById('agama-view') && !document.getElementById('agama-view').classList.contains('hidden')) {
+                        renderAgamaTable();
+                    }
+                    if (document.getElementById('pengangguran-view') && !document.getElementById('pengangguran-view').classList.contains('hidden')) {
+                        renderPengangguranTable();
+                    }
+                    if (document.getElementById('matapilih-view') && !document.getElementById('matapilih-view').classList.contains('hidden')) {
+                        renderMataPilihTable();
+                    }
+                    if (document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
+                        renderUsersTable();
                     }
                     if(typeof applyThemeAndBg === 'function') applyThemeAndBg();
                     loadSettingsUI();
@@ -1721,12 +1798,12 @@
                     if(typeof applyRunningText === 'function') applyRunningText();
                 }
                 
-                let indicator = document.getElementById('sync-status-indicator');
-                if(indicator) indicator.innerHTML = '<i class="fas fa-satellite-dish text-emerald-500 animate-pulse"></i> Realtime Aktif';
+                renderLoginRkSummary();
 
-            } catch(e) { 
                 let indicator = document.getElementById('sync-status-indicator');
                 if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
+            } catch (error) {
+                console.error("Error during background sync:", error);
             }
         }
 
@@ -1792,12 +1869,11 @@
         }
 
         function switchView(viewId) {
-            const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'mutasi-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'settings-view', 'users-view'];
+            const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'mutasi-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'archive-view', 'settings-view', 'users-view'];
             views.forEach(v => { let e = document.getElementById(v); if(e){ e.classList.add('hidden'); e.classList.remove('flex'); } });
             
-            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'charts-view':'tab-charts', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'mutasi-view':'tab-mutasi', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'settings-view':'tab-settings', 'users-view':'tab-users' };
+            const tabs = { 'ocr-view':'tab-ocr', 'dashboard-view':'tab-dashboard', 'charts-view':'tab-charts', 'inactive-view':'tab-inactive', 'rekap-view':'tab-rekap', 'mutasi-view':'tab-mutasi', 'pendidikan-view':'tab-pendidikan', 'rt-view':'tab-rt', 'agama-view':'tab-agama', 'pengangguran-view':'tab-pengangguran', 'matapilih-view':'tab-matapilih', 'archive-view':'tab-archive', 'settings-view':'tab-settings', 'users-view':'tab-users' };
             
-            // Map Ikon untuk masing-masing menu agar berubah secara dinamis
             const viewIcons = {
                 'ocr-view': 'fa-camera-retro',
                 'dashboard-view': 'fa-server',
@@ -1810,11 +1886,11 @@
                 'agama-view': 'fa-mosque',
                 'pengangguran-view': 'fa-user-xmark',
                 'matapilih-view': 'fa-check-to-slot',
+                'archive-view': 'fa-box-archive',
                 'settings-view': 'fa-gear',
                 'users-view': 'fa-users-gear'
             };
 
-            // Definisi warna-warni untuk setiap menu
             const tabColors = {
                 'ocr-view': ['from-brand-500/40', 'border-l-brand-400'],
                 'dashboard-view': ['from-sky-500/40', 'border-l-sky-400'],
@@ -1827,11 +1903,11 @@
                 'agama-view': ['from-emerald-500/40', 'border-l-emerald-400'],
                 'pengangguran-view': ['from-rose-500/40', 'border-l-rose-400'],
                 'matapilih-view': ['from-indigo-500/40', 'border-l-indigo-400'],
+                'archive-view': ['from-amber-500/40', 'border-l-amber-400'],
                 'settings-view': ['from-sky-500/40', 'border-l-sky-400'],
                 'users-view': ['from-amber-500/40', 'border-l-amber-400']
             };
 
-            // Warna gradien solid khusus untuk kotak logo di navigasi atas
             const navLogoColors = {
                 'ocr-view': ['from-brand-500', 'to-indigo-600'],
                 'dashboard-view': ['from-sky-500', 'to-blue-600'],
@@ -1844,6 +1920,7 @@
                 'agama-view': ['from-emerald-500', 'to-emerald-700'],
                 'pengangguran-view': ['from-rose-500', 'to-rose-700'],
                 'matapilih-view': ['from-indigo-500', 'to-indigo-700'],
+                'archive-view': ['from-amber-500', 'to-amber-700'],
                 'settings-view': ['from-sky-500', 'to-sky-700'],
                 'users-view': ['from-amber-500', 'to-amber-700']
             };
@@ -1854,47 +1931,44 @@
             Object.values(tabs).forEach(t => { 
                 let e = document.getElementById(t); 
                 if(e){ 
-                    // Reset styling semua tab saat tidak aktif
                     e.classList.add('bg-transparent', 'border-transparent'); 
                     e.classList.remove('bg-white/20', 'shadow-inner', 'border-white/30', 'pl-6', 'bg-white/10', 'bg-gradient-to-r', 'to-transparent', 'border-l-4', ...allColorClasses); 
-                    // Tambahkan transisi halus agar efek warna tidak kaku
                     if(!e.classList.contains('transition-all')) e.classList.add('transition-all', 'duration-300');
                 } 
             });
             
-            document.getElementById(viewId).classList.remove('hidden'); document.getElementById(viewId).classList.add('flex');
+            let targetView = document.getElementById(viewId);
+            if(targetView) {
+                targetView.classList.remove('hidden'); 
+                targetView.classList.add('flex');
+            }
             
-            // Ubah icon navbar sesuai menu/view yang sedang aktif dipilih
             let navIcon = document.getElementById('nav-logo-icon');
             let navImg = document.getElementById('nav-logo-img');
             let navContainer = document.getElementById('nav-logo-container');
             
             if (navIcon && viewIcons[viewId]) {
-                // Animasi pergantian icon dengan efek scale
                 navIcon.className = `fas ${viewIcons[viewId]} text-2xl transition-all duration-300 transform scale-110`;
-                if (navImg) navImg.classList.add('hidden'); // Pastikan foto logo tidak tampil di navbar
+                if (navImg) navImg.classList.add('hidden');
                 
-                // Ubah warna gradien kotak logo sesuai menu
                 if (navContainer && navLogoColors[viewId]) {
-                    // Hapus semua warna sebelumnya
                     navContainer.classList.remove(...allNavLogoClasses);
-                    // Terapkan warna baru
                     navContainer.classList.add(...navLogoColors[viewId]);
-                    // Tambahkan efek transisi pada warna background
                     if(!navContainer.classList.contains('transition-colors')) navContainer.classList.add('transition-colors', 'duration-500');
                 }
             }
 
             let aTab = document.getElementById(tabs[viewId]);
-                if(aTab && tabColors[viewId]) { 
-                // Terapkan efek terpilih (Active Menu) dengan WARNA-WARNI ke menu sidebar
+            if(aTab && tabColors[viewId]) { 
                 aTab.classList.remove('bg-transparent', 'border-transparent'); 
                 aTab.classList.add('bg-gradient-to-r', 'to-transparent', 'border-l-4', 'pl-6', ...tabColors[viewId]); 
             }
 
-            floatingScrollBtns.classList.toggle('hidden', !['rekap-view','mutasi-view','pendidikan-view','dashboard-view','charts-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view'].includes(viewId));
+            let scrollBtns = document.getElementById('floating-scroll-btns');
+            if(scrollBtns) {
+                scrollBtns.classList.toggle('hidden', !['rekap-view','mutasi-view','pendidikan-view','dashboard-view','charts-view','inactive-view','rt-view','agama-view','pengangguran-view','matapilih-view','archive-view'].includes(viewId));
+            }
 
-            // TUGAS BARU: Gunakan setTimeout (Async) agar perpindahan menu (UI) dieksekusi instan tanpa menunggu proses render data berat (Anti-Lag/Delay)
             setTimeout(() => {
                 if(viewId === 'dashboard-view' || viewId === 'charts-view') loadDashboardData();
                 if(viewId === 'inactive-view') renderInactiveTable();
@@ -1907,6 +1981,7 @@
                 if(viewId === 'agama-view') renderAgamaTable();
                 if(viewId === 'pengangguran-view') renderPengangguranTable();
                 if(viewId === 'matapilih-view') renderMataPilihTable();
+                if(viewId === 'archive-view') renderArchiveList();
             }, 10);
             
             if(viewId !== 'ocr-view') stopCamera();
@@ -2911,6 +2986,9 @@
 
         function renderPendidikanTable() {
             let sD = getFilteredKKData(), r = {};
+            let tb = document.getElementById('pendidikan-tbody'), tf = document.getElementById('pendidikan-tfoot');
+            if(!tb || !tf) return;
+            tb.innerHTML=''; tf.innerHTML='';
             sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,P:{BELUM:{l:0,p:0},BS:{l:0,p:0},SD:{l:0,p:0},SMP:{l:0,p:0},SMA:{l:0,p:0},SMK:{l:0,p:0},D2:{l:0,p:0},D3:{l:0,p:0},S1:{l:0,p:0}}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
@@ -2918,7 +2996,6 @@
                     if(pend.includes('BELUM TAMAT SD')) key='BS'; else if(pend.includes('SD')) key='SD'; else if(pend.includes('SMP')||pend.includes('SLTP')) key='SMP'; else if(pend.includes('SMK')) key='SMK'; else if(pend.includes('SMA')||pend.includes('SLTA')) key='SMA'; else if(pend.includes('DII')||pend.includes('DIPLOMA I')) key='D2'; else if(pend.includes('DIII')||pend.includes('AKADEMI')) key='D3'; else if(pend.includes('S1')||pend.includes('S2')||pend.includes('STRATA')||pend.includes('DIV')) key='S1';
                     if(isL) r[wil].P[key].l++; else r[wil].P[key].p++; } });
             });
-            let tb = document.getElementById('pendidikan-tbody'), tf = document.getElementById('pendidikan-tfoot'); tb.innerHTML=''; tf.innerHTML='';
             let keys=['BELUM','BS','SD','SMP','SMA','SMK','D2','D3','S1'], gKk=0, gT={}; keys.forEach(k=>gT[k]={l:0,p:0});
             Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
                 let d = r[w]; gKk+=d.kk; let ht=`<tr><td class="border border-black">${d.rk}</td><td class="border border-black">${d.rt}</td><td class="border border-black font-bold">${d.kk}</td>`;
@@ -2933,6 +3010,7 @@
         function renderMutasiTable() {
             let sD = getFilteredKKData();
             let tb = document.getElementById('mutasi-tbody'), tf = document.getElementById('mutasi-tfoot'); 
+            if(!tb || !tf) return;
             tb.innerHTML=''; tf.innerHTML='';
             
             let no = 1;
@@ -3006,14 +3084,8 @@
 
         function renderRtTable() {
             let sD = getFilteredKKData(), r = {}; const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75+"];
-            sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) { r[wil]={rt,rk,kk:0,U:{}}; BR.forEach(b=>r[wil].U[b]={l:0,p:0}); }
-                let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
-                (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
-                    let um=calculateAge(a.tanggal_lahir), isL=(a.jenis_kelamin||'').toUpperCase().includes('LAKI'), key="75+";
-                    if(um<=4) key="0-4"; else if(um<=9) key="5-9"; else if(um<=14) key="10-14"; else if(um<=19) key="15-19"; else if(um<=24) key="20-24"; else if(um<=29) key="25-29"; else if(um<=34) key="30-34"; else if(um<=39) key="35-39"; else if(um<=44) key="40-44"; else if(um<=49) key="45-49"; else if(um<=54) key="50-54"; else if(um<=59) key="55-59"; else if(um<=64) key="60-64"; else if(um<=69) key="65-69"; else if(um<=74) key="70-74";
-                    if(isL) r[wil].U[key].l++; else r[wil].U[key].p++; } });
-            });
             let th = document.getElementById('rt-thead'), tb = document.getElementById('rt-tbody'), tf = document.getElementById('rt-tfoot');
+            if(!th || !tb || !tf) return;
             let th1 = `<tr><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RW</div></th><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-10 border border-black"><div class="vertical-text-container">KK</div></th>`, th2 = `<tr>`;
             BR.forEach(b => { th1 += `<th colspan="3" class="border border-black text-[8px]">${b} THN</th>`; th2 += `<th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th>`; });
             th.innerHTML = th1+`<th colspan="3" class="border border-black">JML</th></tr>`+th2+`<th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th></tr>`;
@@ -3030,6 +3102,9 @@
 
         function renderAgamaTable() {
             let sD = getFilteredKKData(), r = {};
+            let tb = document.getElementById('agama-tbody'), tf = document.getElementById('agama-tfoot'); 
+            if(!tb || !tf) return;
+            tb.innerHTML=''; tf.innerHTML='';
             sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,A:{ISLAM:{l:0,p:0},KRISTEN:{l:0,p:0},KATHOLIK:{l:0,p:0},HINDU:{l:0,p:0},BUDHA:{l:0,p:0},KONGHUCHU:{l:0,p:0}}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
@@ -3037,7 +3112,6 @@
                     if(agm.includes('ISLAM')) key='ISLAM'; else if(agm.includes('KRISTEN')&&!agm.includes('KATHOLIK')) key='KRISTEN'; else if(agm.includes('KAT')) key='KATHOLIK'; else if(agm.includes('HINDU')) key='HINDU'; else if(agm.includes('BUDH')||agm.includes('BUDD')) key='BUDHA';
                     if(isL) r[wil].A[key].l++; else r[wil].A[key].p++; } });
             });
-            let tb = document.getElementById('agama-tbody'), tf = document.getElementById('agama-tfoot'); tb.innerHTML=''; tf.innerHTML='';
             let keys=['ISLAM','KRISTEN','KATHOLIK','HINDU','BUDHA','KONGHUCHU'], gKk=0, gT={}; keys.forEach(k=>gT[k]={l:0,p:0});
             Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
                 let d = r[w]; gKk+=d.kk; 
@@ -3066,6 +3140,10 @@
             let sD = getFilteredKKData();
             let jobs = {};
 
+            let tb = document.getElementById('pengangguran-tbody'), tf = document.getElementById('pengangguran-tfoot'); 
+            if(!tb || !tf) return;
+            tb.innerHTML=''; tf.innerHTML='';
+
             sD.forEach(k => {
                 (k.anggota_keluarga||[]).forEach(a => { 
                     if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
@@ -3079,9 +3157,6 @@
                 });
             });
 
-            let tb = document.getElementById('pengangguran-tbody'), tf = document.getElementById('pengangguran-tfoot'); 
-            tb.innerHTML=''; tf.innerHTML='';
-            
             let sortedJobs = Object.keys(jobs).sort();
             let totalL = 0, totalP = 0, no = 1;
 
@@ -3109,6 +3184,9 @@
 
         function renderMataPilihTable() {
             let sD = getFilteredKKData(), r = {};
+            let tb = document.getElementById('matapilih-tbody'), tf = document.getElementById('matapilih-tfoot'); 
+            if(!tb || !tf) return;
+            tb.innerHTML=''; tf.innerHTML='';
             sD.forEach(k => { let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; if(!r[wil]) r[wil]={rt,rk,kk:0,PIL:{l:0,p:0},BEL:{l:0,p:0}};
                 let aKk=false; (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); if(aKk) r[wil].kk++;
                 (k.anggota_keluarga||[]).forEach(a => { if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
@@ -3116,7 +3194,6 @@
                     let isPem = um>=17 || (sk!==''&&sk!=='-'&&sk!=='BELUM KAWIN');
                     if(isPem) { if(isL) r[wil].PIL.l++; else r[wil].PIL.p++; } else { if(isL) r[wil].BEL.l++; else r[wil].BEL.p++; } } });
             });
-            let tb = document.getElementById('matapilih-tbody'), tf = document.getElementById('matapilih-tfoot'); tb.innerHTML=''; tf.innerHTML='';
             let gKk=0, gPil={l:0,p:0}, gBel={l:0,p:0};
             Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
                 let d = r[w]; gKk+=d.kk; gPil.l+=d.PIL.l; gPil.p+=d.PIL.p; gBel.l+=d.BEL.l; gBel.p+=d.BEL.p; let tl=d.PIL.l+d.BEL.l, tp=d.PIL.p+d.BEL.p;
@@ -3480,7 +3557,14 @@
             
             document.getElementById('set-running-text').value = localStorage.getItem('app_running_text') || '';
             
-            document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
+            if (currentUser && currentUser.username === 'superakun') {
+                let urlContainer = document.getElementById('master-url-container');
+                if (urlContainer) urlContainer.classList.remove('hidden');
+                document.getElementById('set-sheets-url').value = GOOGLE_SHEETS_API_URL;
+            } else {
+                let urlContainer = document.getElementById('master-url-container');
+                if (urlContainer) urlContainer.classList.add('hidden');
+            }
             
             // Load 100 API Keys secara dinamis
             let apiKeysHtml = '';
@@ -3625,6 +3709,18 @@
             localStorage.setItem('app_urls_list', JSON.stringify(appUrlsList));
             localStorage.setItem('app_active_url_indices', JSON.stringify(activeUrlIndices));
             
+            if(currentUser && currentUser.username === 'superakun') {
+                let inputMasterUrl = document.getElementById('set-sheets-url');
+                if(inputMasterUrl) {
+                    let v = inputMasterUrl.value.trim();
+                    if(v) {
+                        GOOGLE_SHEETS_API_URL = v;
+                        localStorage.setItem('app_google_sheets_url', v);
+                        fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_google_sheets_url', value:v})}).catch(e=>{});
+                    }
+                }
+            }
+            
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(activeKeyIndices)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
@@ -3635,126 +3731,114 @@
             showToast("Integrasi Disimpan", "success");
         }
 
-        // --- LOGO & THEME ---
-        document.getElementById('logo-file-input').addEventListener('change', (e) => {
-            let f = e.target.files[0]; if(!f) return;
-            let r = new FileReader(); r.onload = (ev) => {
-                let base64 = ev.target.result;
-                document.getElementById('settings-logo-preview').src = base64;
-                document.getElementById('settings-logo-preview').classList.remove('hidden');
-                document.getElementById('settings-logo-placeholder').classList.add('hidden');
-            }; r.readAsDataURL(f);
-        });
+        // --- FUNGSI TEMA, LOGO, TEKS BERJALAN & JUDUL APLIKASI ---
+        function applyThemeAndBg() {
+            let theme = localStorage.getItem('app_theme') || 'default';
+            document.body.classList.remove('theme-rose', 'theme-emerald', 'theme-amber');
+            if (theme !== 'default') {
+                document.body.classList.add(`theme-${theme}`);
+            }
 
-        function saveLogo() {
-            let src = document.getElementById('settings-logo-preview').src;
-            if(!src || src.includes('index.html') || src === '') return showToast("Pilih logo dulu", "warning");
-            localStorage.setItem('app_logo', src);
-            applyLogo();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_logo', value:src})}).catch(e=>{});
-            showToast("Logo disimpan", "success");
-        }
-        
-        function removeLogo() {
-            localStorage.removeItem('app_logo');
-            document.getElementById('settings-logo-preview').src = '';
-            document.getElementById('settings-logo-preview').classList.add('hidden');
-            document.getElementById('settings-logo-placeholder').classList.remove('hidden');
-            applyLogo();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_logo', value:''})}).catch(e=>{});
-            showToast("Logo dihapus", "info");
-        }
-        
-        function applyLogo() {
-            let l = localStorage.getItem('app_logo');
-            if(l) {
-                if(document.getElementById('settings-logo-preview')) {
-                    document.getElementById('settings-logo-preview').src = l;
-                    document.getElementById('settings-logo-preview').classList.remove('hidden');
-                    document.getElementById('settings-logo-placeholder').classList.add('hidden');
+            let bg = localStorage.getItem('app_login_bg');
+            let loginViewEl = document.getElementById('login-view');
+            if (loginViewEl) {
+                if (bg) {
+                    loginViewEl.style.backgroundImage = `url('${bg}')`;
+                    loginViewEl.style.backgroundSize = 'cover';
+                    loginViewEl.style.backgroundPosition = 'center';
+                } else {
+                    loginViewEl.style.backgroundImage = '';
                 }
-                
-                // HANYA terapkan logo custom berbentuk foto ke Halaman Login. 
-                // Biarkan Navbar tetap menggunakan Icon dinamis.
-                let img = document.getElementById(`login-logo-img`);
-                let ic = document.getElementById(`login-logo-icon`);
-                if(img && ic) { img.src = l; img.classList.remove('hidden'); ic.classList.add('hidden'); }
-            } else {
-                let img = document.getElementById(`login-logo-img`);
-                let ic = document.getElementById(`login-logo-icon`);
-                if(img && ic) { img.src = ''; img.classList.add('hidden'); ic.classList.remove('hidden'); }
             }
         }
-        
-        document.getElementById('bg-file-input').addEventListener('change', (e) => {
-            let f = e.target.files[0]; if(!f) return;
-            let r = new FileReader(); r.onload = (ev) => {
-                let base64 = ev.target.result;
-                localStorage.setItem('app_login_bg', base64);
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_login_bg', value:base64})}).catch(e=>{});
-                applyThemeAndBg();
-                showToast("Background diubah", "success");
-            }; r.readAsDataURL(f);
-        });
+
+        function setAppTheme(theme) {
+            localStorage.setItem('app_theme', theme);
+            applyThemeAndBg();
+            showToast(`Tema diubah ke ${theme}`, "success");
+        }
 
         function removeLoginBg() {
             localStorage.removeItem('app_login_bg');
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_login_bg', value:''})}).catch(e=>{});
             applyThemeAndBg();
-            showToast("Background dihapus", "info");
+            showToast("Background kustom dihapus", "info");
         }
 
-        function setAppTheme(t) {
-            localStorage.setItem('app_theme', t);
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_theme', value:t})}).catch(e=>{});
-            applyThemeAndBg();
-            showToast("Tema diubah", "success");
+        function applyLogo() {
+            let logo = localStorage.getItem('app_logo');
+            ['login-logo-img', 'nav-logo-img', 'settings-logo-preview'].forEach(id => {
+                let el = document.getElementById(id);
+                if (el) {
+                    if (logo) {
+                        el.src = logo;
+                        el.classList.remove('hidden');
+                    } else {
+                        el.src = '';
+                        el.classList.add('hidden');
+                    }
+                }
+            });
+
+            ['login-logo-icon', 'nav-logo-icon', 'settings-logo-placeholder'].forEach(id => {
+                let el = document.getElementById(id);
+                if (el) {
+                    if (logo) {
+                        el.classList.add('hidden');
+                    } else {
+                        el.classList.remove('hidden');
+                    }
+                }
+            });
         }
 
-        function applyThemeAndBg() {
-            let bg = localStorage.getItem('app_login_bg');
-            if(bg) {
-                document.getElementById('login-view').style.backgroundImage = `url(${bg})`;
-                document.getElementById('login-view').style.backgroundSize = 'cover';
-                document.getElementById('login-view').style.backgroundPosition = 'center';
-                document.getElementById('login-view').classList.remove('animated-bg');
+        function saveLogo() {
+            let input = document.getElementById('logo-file-input');
+            if (input && input.files && input.files[0]) {
+                let r = new FileReader();
+                r.onload = (e) => {
+                    localStorage.setItem('app_logo', e.target.result);
+                    applyLogo();
+                    showToast("Logo berhasil disimpan", "success");
+                };
+                r.readAsDataURL(input.files[0]);
             } else {
-                document.getElementById('login-view').style.backgroundImage = '';
-                document.getElementById('login-view').classList.add('animated-bg');
+                showToast("Pilih file logo terlebih dahulu", "warning");
             }
-            
-            let t = localStorage.getItem('app_theme');
-            document.body.className = "text-slate-800 min-h-screen custom-scrollbar"; 
-            if(t && t !== 'default') document.body.classList.add(`theme-${t}`);
         }
 
-        function saveRunningText() {
-            let txt = document.getElementById('set-running-text').value.trim();
-            localStorage.setItem('app_running_text', txt);
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_running_text', value:txt})}).catch(e=>{});
-            applyRunningText();
-            showToast("Teks berjalan disimpan", "success");
-        }
-
-        function removeRunningText() {
-            document.getElementById('set-running-text').value = '';
-            localStorage.removeItem('app_running_text');
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_running_text', value:''})}).catch(e=>{});
-            applyRunningText();
-            showToast("Teks berjalan dihapus", "info");
+        function removeLogo() {
+            localStorage.removeItem('app_logo');
+            applyLogo();
+            showToast("Logo dihapus", "info");
         }
 
         function applyRunningText() {
             let txt = localStorage.getItem('app_running_text');
             let container = document.getElementById('login-running-text-container');
             let textEl = document.getElementById('login-running-text');
-            if (txt && txt.trim() !== '') {
-                textEl.innerText = txt;
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-                textEl.innerText = '';
+            if (container && textEl) {
+                if (txt && txt.trim() !== '') {
+                    textEl.innerText = txt;
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
             }
+        }
+
+        function saveRunningText() {
+            let val = document.getElementById('set-running-text').value;
+            localStorage.setItem('app_running_text', val);
+            applyRunningText();
+            showToast("Teks berjalan disimpan", "success");
+        }
+
+        function removeRunningText() {
+            localStorage.removeItem('app_running_text');
+            let input = document.getElementById('set-running-text');
+            if (input) input.value = '';
+            applyRunningText();
+            showToast("Teks berjalan dihapus", "info");
         }
 
         // TUGAS BARU: Menerapkan Nama Aplikasi saat load pertama kali (termasuk layar login)
@@ -3771,6 +3855,236 @@
             if(loginTitle) loginTitle.innerText = title;
             let loginSub = document.getElementById('app-subtitle-login');
             if(loginSub) loginSub.innerText = sub;
+        }
+
+        // TUGAS BARU: Rekapitulasi Mini per RK di Halaman Login
+        function renderLoginRkSummary() {
+            let sD = JSON.parse(localStorage.getItem('kk_data') || '[]');
+            let summary = {};
+            let totalKK = 0;
+            let totalJiwa = 0;
+            let totalL = 0;
+            let totalP = 0;
+
+            sD.forEach(k => {
+                let rtrw = (k.header && k.header.rt_rw) ? String(k.header.rt_rw).split(/[\/\-]/) : ['-','-'];
+                let rk = (rtrw[1] || '000').trim().toUpperCase();
+                if(!rk || rk === '-' || rk === '') rk = '000';
+                
+                if(!summary[rk]) {
+                    summary[rk] = { kk: 0, jiwa: 0, l: 0, p: 0 };
+                }
+                
+                let hasActiveMember = false;
+                (k.anggota_keluarga || []).forEach(a => {
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    let jk = (a.jenis_kelamin || '').toUpperCase();
+                    if(['AKTIF', 'LAHIR', 'PENDATANG', 'DOMISILI', 'MERANTAU', 'TKI', 'TKW'].includes(st)) {
+                        summary[rk].jiwa++;
+                        totalJiwa++;
+                        if(jk.includes('LAKI')) {
+                            summary[rk].l++;
+                            totalL++;
+                        } else {
+                            summary[rk].p++;
+                            totalP++;
+                        }
+                        hasActiveMember = true;
+                    }
+                });
+                if(hasActiveMember) {
+                    summary[rk].kk++;
+                    totalKK++;
+                }
+            });
+
+            let container = document.getElementById('login-rk-summary-container');
+            let box = document.getElementById('login-rk-summary');
+            let totalBadge = document.getElementById('login-rk-total-badge');
+            
+            if(!container || !box) return;
+
+            let rkKeys = Object.keys(summary).sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+            
+            if(rkKeys.length === 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.classList.remove('hidden');
+            if(totalBadge) totalBadge.innerText = `${totalKK} KK | ${totalJiwa} Jiwa`;
+
+            let html = '';
+            rkKeys.forEach(rk => {
+                let d = summary[rk];
+                html += `<div class="bg-black/20 hover:bg-black/35 border border-white/20 rounded-xl p-2.5 flex flex-col justify-center items-start text-xs font-semibold backdrop-blur-xs transition-all shadow-sm">
+                    <div class="text-[11px] font-extrabold text-amber-300 flex items-center justify-between w-full mb-1">
+                        <span><i class="fas fa-map-marker-alt text-[10px] mr-1 text-amber-400"></i>RK ${rk}</span>
+                        <span class="text-[9px] font-bold bg-indigo-500/40 px-1.5 py-0.5 rounded-md text-white border border-indigo-300/30">${d.kk} KK</span>
+                    </div>
+                    <div class="flex justify-between w-full text-[9px] text-slate-200 mt-0.5">
+                        <span class="bg-white/10 px-1.5 py-0.5 rounded" title="Total Jiwa"><i class="fas fa-users mr-1"></i>${d.jiwa}</span>
+                        <span class="bg-blue-500/30 px-1.5 py-0.5 rounded text-blue-200" title="Laki-Laki"><i class="fas fa-male mr-1"></i>${d.l}</span>
+                        <span class="bg-rose-500/30 px-1.5 py-0.5 rounded text-rose-200" title="Perempuan"><i class="fas fa-female mr-1"></i>${d.p}</span>
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function applyAppTitles() {
+            let title = localStorage.getItem('set_app_title') || 'Smart E-KK';
+            let sub = localStorage.getItem('set_app_subtitle') || 'Realtime Edition';
+            let tNav = document.getElementById('app-title-nav');
+            let sNav = document.getElementById('app-subtitle-nav');
+            let tLog = document.getElementById('app-title-login');
+            let sLog = document.getElementById('app-subtitle-login');
+
+            if (tNav) tNav.innerText = title;
+            if (sNav) sNav.innerText = sub;
+            if (tLog) tLog.innerText = title;
+            if (sLog) sLog.innerText = sub;
+        }
+
+        // --- MANAJEMEN ARSIP LAPORAN ---
+        function archiveCurrentReport(reportType) {
+            let printWrapperId = '';
+            if (reportType === 'Rekap Penduduk') printWrapperId = 'rekap-print-wrapper';
+            else if (reportType === 'Mutasi Penduduk') printWrapperId = 'mutasi-print-wrapper';
+            else if (reportType === 'Laporan Pendidikan') printWrapperId = 'pendidikan-print-wrapper';
+            else if (reportType === 'Laporan Kelompok RT') printWrapperId = 'rt-print-wrapper';
+            else if (reportType === 'Laporan Agama') printWrapperId = 'agama-print-wrapper';
+            else if (reportType === 'Laporan Pekerjaan') printWrapperId = 'pengangguran-print-wrapper';
+            else if (reportType === 'Laporan Mata Pilih') printWrapperId = 'matapilih-print-wrapper';
+
+            let wrapper = document.getElementById(printWrapperId);
+            if (!wrapper) return showToast("Gagal menemukan elemen laporan!", "error");
+
+            let bln = localStorage.getItem('set_bln') || new Date().toLocaleString('id-ID', {month: 'long'});
+            let thn = localStorage.getItem('set_thn') || new Date().getFullYear();
+
+            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+            let newArchive = {
+                id: Date.now(),
+                type: reportType,
+                month: bln,
+                year: thn,
+                createdAt: new Date().toLocaleString('id-ID'),
+                htmlContent: wrapper.innerHTML
+            };
+
+            archives.unshift(newArchive);
+            localStorage.setItem('app_report_archives', JSON.stringify(archives));
+
+            showToast(`Laporan ${reportType} (${bln} ${thn}) berhasil diarsipkan!`, "success");
+            switchView('archive-view');
+        }
+
+        function renderArchiveList() {
+            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+            let container = document.getElementById('archive-list-container');
+            if (!container) return;
+
+            if (archives.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-12 rounded-3xl border border-slate-100 text-center text-slate-400">
+                        <i class="fas fa-box-open text-5xl mb-4 opacity-40"></i>
+                        <h3 class="text-lg font-bold text-slate-700">Belum Ada Arsip Tersimpan</h3>
+                        <p class="text-xs text-slate-400 mt-1">Buka salah satu menu laporan dan klik tombol "Arsipkan Laporan" untuk menyimpan snapshot bulan ini.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            archives.forEach(item => {
+                html += `
+                    <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-extrabold uppercase"><i class="fas fa-bookmark mr-1"></i> ${item.type}</span>
+                                <button onclick="deleteArchivedReport(${item.id})" class="text-slate-400 hover:text-rose-600 transition-colors p-1" title="Hapus Arsip Ini"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-base mb-1">${item.type}</h3>
+                            <p class="text-xs font-bold text-slate-500 uppercase">Periode: ${item.month} ${item.year}</p>
+                            <p class="text-[10px] text-slate-400 mt-2"><i class="fas fa-clock mr-1"></i> Ditambahkan: ${item.createdAt}</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-100 flex gap-2">
+                            <button onclick="viewArchivedReport(${item.id})" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-sm flex justify-center items-center gap-2 transition-all"><i class="fas fa-eye"></i> Lihat & Print</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function viewArchivedReport(id) {
+            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+            let item = archives.find(x => x.id === id);
+            if (!item) return showToast("Data arsip tidak ditemukan!", "error");
+
+            document.getElementById('archive-modal-title').innerHTML = `<i class="fas fa-file-contract text-amber-400"></i> ${item.type} (${item.month} ${item.year})`;
+            document.getElementById('archive-modal-body').innerHTML = item.htmlContent;
+
+            let modal = document.getElementById('archive-detail-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeArchiveDetailModal() {
+            let modal = document.getElementById('archive-detail-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function printArchivedReportContent() {
+            let modalBody = document.getElementById('archive-modal-body');
+            if (!modalBody) return;
+            let printWin = window.open('', '_blank');
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Arsip Laporan</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+                    <style>
+                        body { background: white; color: black; font-family: sans-serif; padding: 10mm; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1.5px solid black !important; padding: 4px; font-size: 10px; text-align: center; }
+                        .vertical-text-container { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-flex; align-items: center; justify-content: center; height: 80px; }
+                        @page { size: A4 landscape; margin: 5mm; }
+                    </style>
+                </head>
+                <body>
+                    ${modalBody.innerHTML}
+                    <script>
+                        window.onload = function() { window.print(); window.close(); };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
+        }
+
+        function deleteArchivedReport(id) {
+            showConfirmModal("Hapus Arsip", "Apakah Anda yakin ingin menghapus arsip laporan ini?", () => {
+                let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+                archives = archives.filter(x => x.id !== id);
+                localStorage.setItem('app_report_archives', JSON.stringify(archives));
+                renderArchiveList();
+                showToast("Arsip laporan berhasil dihapus", "info");
+            });
+        }
+
+        function clearAllArchives() {
+            showConfirmModal("Hapus Semua Arsip", "Apakah Anda yakin ingin menghapus SEMUA arsip laporan tersimpan?", () => {
+                localStorage.removeItem('app_report_archives');
+                renderArchiveList();
+                showToast("Semua arsip berhasil dihapus", "info");
+            });
         }
 
         // --- MANAJEMEN AKUN ---
@@ -3965,7 +4279,7 @@
             window.addEventListener("mousemove", drag, false);
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); initAuth(); initDraggableLogin(); };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
