@@ -760,6 +760,12 @@
                             <!-- Tombol-tombol RK akan dimuat secara dinamis di sini -->
                         </div>
                     </div>
+                    <div class="flex flex-wrap items-center gap-2 border-t border-slate-50 pt-2">
+                        <span class="text-xs font-bold text-slate-500 mr-2"><i class="fas fa-map-pin text-orange-500 mr-1"></i> Filter Wilayah (RT):</span>
+                        <div id="quick-rt-buttons-container" class="flex flex-wrap gap-2">
+                            <!-- Tombol-tombol RT akan dimuat secara dinamis di sini -->
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -1504,7 +1510,7 @@
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
         let currentUser = null, currentDashFilter = null, uploadedFileType = '', uploadedBase64 = '';
-        let activeRkFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
+        let activeRkFilter = 'all', activeRtFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
         let syncInterval = null; // Menangani interval realtime sync
         let currentEditingKK = null; // Menyimpan No KK yang sedang diedit agar tidak terdeteksi sebagai duplikat
 
@@ -2410,6 +2416,7 @@
 
             autoSaveData();
             activeRkFilter = 'all';
+            activeRtFilter = 'all';
             activeUserFilter = 'all';
             loadDashboardData();
         }
@@ -2731,15 +2738,20 @@
             let container = document.getElementById('dash-user-filters');
             let quickContainer = document.getElementById('quick-user-buttons-container');
             let quickRkContainer = document.getElementById('quick-rk-buttons-container');
+            let quickRtContainer = document.getElementById('quick-rt-buttons-container');
             let quickBar = document.getElementById('dashboard-user-buttons-bar');
             
             let users = [...new Set(sD.map(k => k.input_by || 'Unknown'))].sort();
             
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            // Perbaikan: Memastikan rk di-convert ke String sebelum di-split untuk mencegah error TypeError
+            // Perbaikan: Memastikan rk dan rt di-convert ke String sebelum di-split untuk mencegah error TypeError
             let rksFromUsers = uDb.map(u => u.rk).filter(rk => rk && String(rk) !== 'all').flatMap(rk => String(rk).split(',')).map(rk => rk.trim());
             let rksFromData = sD.map(k => (k.header.rt_rw||'').split(/[\/\-]/)[1]||'').map(rk => rk.trim()).filter(rk => rk !== '' && rk !== '-');
             let rks = [...new Set([...rksFromUsers, ...rksFromData])].sort();
+
+            let rtsFromUsers = uDb.map(u => u.rt).filter(rt => rt && String(rt) !== 'all').flatMap(rt => String(rt).split(',')).map(rt => rt.trim());
+            let rtsFromData = sD.map(k => (k.header.rt_rw||'').split(/[\/\-]/)[0]||'').map(rt => rt.trim()).filter(rt => rt !== '' && rt !== '-');
+            let rts = [...new Set([...rtsFromUsers, ...rtsFromData])].sort();
             
             // Cek role: tampilkan jika superadmin atau admin, sembunyikan jika user biasa
             if (currentUser.role === 'superadmin' || currentUser.role === 'admin') {
@@ -2766,12 +2778,22 @@
 
                 // Render tombol cepat per RK
                 if (quickRkContainer) {
-                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua Wilayah</button>`;
+                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua RK</button>`;
                     rks.forEach(rk => {
                         let isActive = activeRkFilter === rk;
                         rkHtml += `<button onclick="activeRkFilter='${rk}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 ${isActive?'bg-amber-500 text-white':'bg-amber-50 text-amber-700 hover:bg-amber-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> ${rk}</button>`;
                     });
                     quickRkContainer.innerHTML = rkHtml;
+                }
+
+                // Render tombol cepat per RT
+                if (quickRtContainer) {
+                    let rtHtml = `<button onclick="activeRtFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRtFilter==='all'?'bg-orange-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua RT</button>`;
+                    rts.forEach(rt => {
+                        let isActive = activeRtFilter === rt;
+                        rtHtml += `<button onclick="activeRtFilter='${rt}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-orange-200 ${isActive?'bg-orange-500 text-white':'bg-orange-50 text-orange-700 hover:bg-orange-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-pin mr-1"></i> ${rt}</button>`;
+                    });
+                    quickRtContainer.innerHTML = rtHtml;
                 }
 
                 // Render tombol kecil di atas tabel
@@ -2800,13 +2822,15 @@
         function loadDashboardData() {
             let sD = getFilteredKKData();
             
-            // PENTING: Filter data berdasarkan RK dan User yang sedang aktif sebelum menghitung Rekap Total
+            // PENTING: Filter data berdasarkan RK, RT, dan User yang sedang aktif sebelum menghitung Rekap Total
             let filteredSD = sD.filter(kk => {
                 let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
+                let k_rt = (rtrw[0]||'').trim();
                 let k_rk = (rtrw[1]||'').trim();
+                let matchRt = activeRtFilter === 'all' || k_rt === activeRtFilter;
                 let matchRk = activeRkFilter === 'all' || k_rk === activeRkFilter;
                 let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
-                return matchRk && matchUser;
+                return matchRt && matchRk && matchUser;
             });
 
             loadUserFilters(sD); // Load button filter berdasarkan data asli (agar daftarnya tetap lengkap)
