@@ -507,6 +507,14 @@
                     </button>
                     <p class="text-center text-sm text-slate-500 mt-4">Sudah punya akun? <a href="#" onclick="toggleAuthMode('login')" class="text-brand-600 font-semibold hover:underline">Masuk di sini</a></p>
                 </form>
+
+                <!-- Tautan Sosial Media Resmi -->
+                <div id="login-social-media" class="flex justify-center gap-4 mt-8 border-t border-white/10 pt-6 hidden">
+                    <a id="link-fb" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:scale-110 transition-all shadow-sm hidden" title="Facebook"><i class="fab fa-facebook-f text-lg"></i></a>
+                    <a id="link-ig" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-pink-600 hover:scale-110 transition-all shadow-sm hidden" title="Instagram"><i class="fab fa-instagram text-lg"></i></a>
+                    <a id="link-tiktok" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-black hover:scale-110 transition-all shadow-sm hidden" title="TikTok"><i class="fab fa-tiktok text-lg"></i></a>
+                    <a id="link-twitter" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-sky-500 hover:scale-110 transition-all shadow-sm hidden" title="Twitter / X"><i class="fab fa-twitter text-lg"></i></a>
+                </div>
             </div>
         </div>
         
@@ -1360,6 +1368,18 @@
                     <button onclick="savePrintSettings()" class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Cetak</button>
                 </div>
 
+                <div class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-share-nodes text-brand-500"></i> Tautan Media Sosial Instansi</h3>
+                    <p class="text-xs text-slate-500 mb-4">Tautan ini akan ditampilkan di halaman depan (Login) agar warga mudah mengakses akun resmi.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-facebook text-blue-600"></i> URL Facebook</label><input type="text" id="set-fb" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://facebook.com/..."></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-instagram text-pink-600"></i> URL Instagram</label><input type="text" id="set-ig" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://instagram.com/..."></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-tiktok text-slate-800"></i> URL TikTok</label><input type="text" id="set-tiktok" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://tiktok.com/@..."></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-twitter text-sky-500"></i> URL Twitter / X</label><input type="text" id="set-twitter" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://twitter.com/..."></div>
+                    </div>
+                    <button onclick="saveSocialMedia()" class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold text-sm"><i class="fas fa-save mr-1"></i> Simpan Tautan Sosial Media</button>
+                </div>
+
                 <div id="api-integration-card" class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6 hidden">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-link text-brand-500"></i> Integrasi Sistem (Backend & AI)</h3>
                     
@@ -1367,6 +1387,12 @@
                         <label class="block text-xs font-bold text-slate-500 mb-1">URL Utama Google Apps Script (Hanya Master / superakun)</label>
                         <input type="text" id="set-sheets-url" class="w-full px-4 py-2 bg-slate-50 border border-brand-300 rounded-xl font-semibold outline-none focus:border-brand-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
                         <p class="text-[10px] text-brand-600 font-bold mt-2"><i class="fas fa-shield-alt"></i> URL Utama ini bersifat rahasia dan hanya dapat dilihat/diubah oleh akun superakun.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Spreadsheet Khusus Mutasi (Opsional)</label>
+                        <input type="text" id="set-mutasi-url" class="w-full px-4 py-2 bg-slate-50 border border-purple-300 rounded-xl font-semibold outline-none focus:border-purple-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
+                        <p class="text-[10px] text-purple-600 font-bold mt-2"><i class="fas fa-code-branch"></i> Jika diisi, setiap aksi Mutasi (Lahir/Mati/Pindah/Datang) akan dikirim juga ke URL ini dengan perintah <strong>action="save_mutasi"</strong>.</p>
                     </div>
 
                     <div class="mb-4">
@@ -1416,7 +1442,7 @@
                     <div class="mt-6 border-t border-slate-100 pt-6">
                         <label class="block text-xs font-bold text-slate-500 mb-2">Teks Berjalan (Halaman Login)</label>
                         <div class="flex gap-2">
-                            <input type="text" id="set-running-text" class="flex-1 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-sm" placeholder="Contoh: Selamat Datang di Sistem Informasi Smart E-KK...">
+                            <input type="text" id="set-running-text" oninput="updateRunningTextRealtime()" class="flex-1 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-sm" placeholder="Contoh: Selamat Datang di Sistem Informasi Smart E-KK...">
                             <button onclick="saveRunningText()" class="px-4 py-2 bg-brand-600 text-white rounded-xl font-bold shadow-sm text-xs hover:bg-brand-700 transition-colors"><i class="fas fa-save mr-1"></i> Simpan</button>
                             <button onclick="removeRunningText()" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm text-xs hover:bg-rose-100 transition-colors" title="Hapus Teks"><i class="fas fa-trash-alt"></i></button>
                         </div>
@@ -1757,17 +1783,34 @@
                 }
                 
                 if(allFetchedData.length > 0) {
+                    let oldData = JSON.parse(localStorage.getItem('kk_data') || '[]');
+                    let oldDataMap = {};
+                    oldData.forEach(d => { oldDataMap[d.header.no_kk] = d; });
+
                     // Gabungkan data dan hilangkan duplikasi berdasarkan No. KK
                     let uniqueDataMap = {};
                     allFetchedData.forEach(d => {
-                        uniqueDataMap[d.header.no_kk] = d;
+                        let localD = oldDataMap[d.header.no_kk];
+                        // ANTI-REVERT GUARD: Diperpanjang menjadi 30 menit (1800000 ms) agar data ketikan tidak hilang saat sync gagal/lambat
+                        if (localD && localD.local_updated && (Date.now() - localD.local_updated < 1800000)) {
+                            uniqueDataMap[d.header.no_kk] = localD;
+                        } else {
+                            uniqueDataMap[d.header.no_kk] = d;
+                        }
                     });
+                    
+                    // Pertahankan data lokal yang sama sekali belum ada di cloud (baru dibuat offline belum tersinkron)
+                    oldData.forEach(d => {
+                        if (!uniqueDataMap[d.header.no_kk] && d.local_updated && (Date.now() - d.local_updated < 1800000)) {
+                            uniqueDataMap[d.header.no_kk] = d;
+                        }
+                    });
+
                     let uniqueData = Object.values(uniqueDataMap);
                     
-                    let oldData = localStorage.getItem('kk_data') || '[]';
-                    let newData = JSON.stringify(uniqueData);
-                    if(oldData !== newData) {
-                        localStorage.setItem('kk_data', newData);
+                    let newDataStr = JSON.stringify(uniqueData);
+                    if(JSON.stringify(oldData) !== newDataStr) {
+                        localStorage.setItem('kk_data', newDataStr);
                         isUpdated = true;
                     }
                 }
@@ -1808,6 +1851,7 @@
                     loadSettingsUI();
                     applyLogo();
                     if(typeof applyRunningText === 'function') applyRunningText();
+                    if(typeof applySocialMedia === 'function') applySocialMedia();
                 }
                 
                 renderLoginRkSummary();
@@ -2200,7 +2244,7 @@
                 }
 
                 allUrlsToPush.forEach(url => {
-                    fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) }).catch(() => {});
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) }).catch(() => {});
                 });
             } catch (e) {}
         }
@@ -2448,12 +2492,14 @@
                     }
                 });
                 d.input_by = s[idx].input_by || (currentUser ? currentUser.username : 'admin');
+                d.local_updated = Date.now(); // ANTI-REVERT GUARD
                 s[idx] = d;
             } else {
                 (d.anggota_keluarga || []).forEach(a => {
                     a.status_penduduk = a.status_penduduk || 'AKTIF';
                 });
                 d.input_by = currentUser ? currentUser.username : 'admin';
+                d.local_updated = Date.now(); // ANTI-REVERT GUARD
                 s.unshift(d);
             }
             localStorage.setItem('kk_data', JSON.stringify(s));
@@ -2473,9 +2519,11 @@
             if(idx>-1){ 
                 (d.anggota_keluarga||[]).forEach((a,i)=>{ if(s[idx].anggota_keluarga[i]&&s[idx].anggota_keluarga[i].status_penduduk) a.status_penduduk=s[idx].anggota_keluarga[i].status_penduduk; }); 
                 d.input_by = s[idx].input_by || currentUser.username;
+                d.local_updated = Date.now(); // ANTI-REVERT GUARD
                 s[idx]=d; 
             } else {
                 d.input_by = currentUser.username;
+                d.local_updated = Date.now(); // ANTI-REVERT GUARD
                 s.unshift(d); 
             }
             localStorage.setItem('kk_data', JSON.stringify(s)); showToast("Tersimpan lokal", "success");
@@ -2489,7 +2537,7 @@
                 let successCount = 0;
                 for (let url of allUrlsToPush) {
                     try {
-                        await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}); 
+                        await fetch(url,{method:'POST', headers: { 'Content-Type': 'text/plain' }, body:JSON.stringify(d)}); 
                         successCount++;
                     } catch(e) {}
                 }
@@ -2632,7 +2680,7 @@
             closeMutasiDateModal();
         }
 
-        function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
+        async function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
             let s = JSON.parse(localStorage.getItem('kk_data')||'[]'), k = s.findIndex(x=>x.header.no_kk===noKk);
             if(k>-1 && s[k].anggota_keluarga[pIdx]) { 
                 s[k].anggota_keluarga[pIdx].status_penduduk = st; 
@@ -2658,6 +2706,7 @@
                     }
                 }
                 
+                s[k].local_updated = Date.now(); // ANTI-REVERT GUARD
                 localStorage.setItem('kk_data',JSON.stringify(s)); 
                 
                 // TUGAS BARU: Sinkronisasi realtime pembaruan status ke semua view (laporan) yang sedang terbuka
@@ -2666,7 +2715,7 @@
                 if(!document.getElementById('mutasi-view').classList.contains('hidden')) renderMutasiTable();
                 if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
                 
-                showToast(`Status jadi ${st}`,"success"); 
+                showToast(`Status jadi ${st}. Menyinkronkan...`,"info"); 
                 
                 // Sync status ke cloud multi-url
                 let d = s[k]; d.action = "save";
@@ -2678,9 +2727,25 @@
                     allUrlsToPush = [currentUser.custom_url];
                 }
 
-                allUrlsToPush.forEach(url => {
-                    fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}).catch(e=>{});
-                });
+                let success = false;
+                for (let url of allUrlsToPush) {
+                    try {
+                        let res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) });
+                        if(res.ok) success = true;
+                    } catch(e) {}
+                }
+                
+                // TUGAS BARU: Kirim ke URL Mutasi Khusus jika diatur
+                let mutasiUrl = localStorage.getItem('app_mutasi_url');
+                if (mutasiUrl && mutasiUrl.startsWith('http')) {
+                    let mutPayload = JSON.parse(JSON.stringify(d)); 
+                    mutPayload.action = "save_mutasi"; // Action khusus mutasi
+                    mutPayload.mutasi_info = { status: st, tanggal: dateVal, tempat: placeVal, index_anggota: pIdx };
+                    fetch(mutasiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(mutPayload) }).catch(e=>{});
+                }
+                
+                if(success) showToast(`Data Mutasi paten tersimpan ke Cloud!`, "success");
+                else showToast(`Koneksi lambat, data Mutasi aman di perangkat.`, "warning");
             }
         }
 
@@ -2952,7 +3017,7 @@
             let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
             let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
             allUrlsToPush.forEach(url => {
-                fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'delete',no_kk:no})}).catch(e=>{}); 
+                fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({action:'delete',no_kk:no}) }).catch(e=>{}); 
             });
             showToast("Terhapus"); 
         }); }
@@ -3613,6 +3678,11 @@
             document.getElementById('set-paper').value = localStorage.getItem('set_paper') || 'A4';
             document.getElementById('set-margin').value = localStorage.getItem('set_margin') || '5';
             
+            document.getElementById('set-fb').value = localStorage.getItem('app_social_fb') || '';
+            document.getElementById('set-ig').value = localStorage.getItem('app_social_ig') || '';
+            document.getElementById('set-tiktok').value = localStorage.getItem('app_social_tiktok') || '';
+            document.getElementById('set-twitter').value = localStorage.getItem('app_social_twitter') || '';
+            
             document.getElementById('set-running-text').value = localStorage.getItem('app_running_text') || '';
             
             if (currentUser && currentUser.username === 'superakun') {
@@ -3623,6 +3693,9 @@
                 let urlContainer = document.getElementById('master-url-container');
                 if (urlContainer) urlContainer.classList.add('hidden');
             }
+            
+            let mutasiUrlEl = document.getElementById('set-mutasi-url');
+            if(mutasiUrlEl) mutasiUrlEl.value = localStorage.getItem('app_mutasi_url') || '';
             
             // Load 100 API Keys secara dinamis
             let apiKeysHtml = '';
@@ -3779,6 +3852,13 @@
                 }
             }
             
+            let inputMutasiUrl = document.getElementById('set-mutasi-url');
+            if(inputMutasiUrl) {
+                let v = inputMutasiUrl.value.trim();
+                localStorage.setItem('app_mutasi_url', v);
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_mutasi_url', value:v})}).catch(e=>{});
+            }
+            
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(activeKeyIndices)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
@@ -3884,11 +3964,18 @@
             }
         }
 
+        function updateRunningTextRealtime() {
+            let txt = document.getElementById('set-running-text').value;
+            localStorage.setItem('app_running_text', txt);
+            applyRunningText();
+        }
+
         function saveRunningText() {
             let val = document.getElementById('set-running-text').value;
             localStorage.setItem('app_running_text', val);
             applyRunningText();
-            showToast("Teks berjalan disimpan", "success");
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'save_setting', key:'app_running_text', value:val})}).catch(e=>{});
+            showToast("Teks berjalan disimpan & tersinkron ke Cloud", "success");
         }
 
         function removeRunningText() {
@@ -3896,7 +3983,58 @@
             let input = document.getElementById('set-running-text');
             if (input) input.value = '';
             applyRunningText();
+            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'save_setting', key:'app_running_text', value:''})}).catch(e=>{});
             showToast("Teks berjalan dihapus", "info");
+        }
+
+        // Fitur Media Sosial
+        function applySocialMedia() {
+            let fb = localStorage.getItem('app_social_fb');
+            let ig = localStorage.getItem('app_social_ig');
+            let tiktok = localStorage.getItem('app_social_tiktok');
+            let twitter = localStorage.getItem('app_social_twitter');
+
+            let container = document.getElementById('login-social-media');
+            let linkFb = document.getElementById('link-fb');
+            let linkIg = document.getElementById('link-ig');
+            let linkTiktok = document.getElementById('link-tiktok');
+            let linkTwitter = document.getElementById('link-twitter');
+
+            let hasAny = false;
+
+            if (linkFb) { if (fb) { linkFb.href = fb; linkFb.classList.remove('hidden'); hasAny = true; } else { linkFb.classList.add('hidden'); } }
+            if (linkIg) { if (ig) { linkIg.href = ig; linkIg.classList.remove('hidden'); hasAny = true; } else { linkIg.classList.add('hidden'); } }
+            if (linkTiktok) { if (tiktok) { linkTiktok.href = tiktok; linkTiktok.classList.remove('hidden'); hasAny = true; } else { linkTiktok.classList.add('hidden'); } }
+            if (linkTwitter) { if (twitter) { linkTwitter.href = twitter; linkTwitter.classList.remove('hidden'); hasAny = true; } else { linkTwitter.classList.add('hidden'); } }
+
+            if (container) {
+                if (hasAny) container.classList.remove('hidden');
+                else container.classList.add('hidden');
+            }
+        }
+
+        function saveSocialMedia() {
+            let fb = document.getElementById('set-fb').value.trim();
+            let ig = document.getElementById('set-ig').value.trim();
+            let tiktok = document.getElementById('set-tiktok').value.trim();
+            let twitter = document.getElementById('set-twitter').value.trim();
+
+            localStorage.setItem('app_social_fb', fb);
+            localStorage.setItem('app_social_ig', ig);
+            localStorage.setItem('app_social_tiktok', tiktok);
+            localStorage.setItem('app_social_twitter', twitter);
+
+            let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...(activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http')))])];
+            
+            allUrlsToPush.forEach(url => {
+                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_fb', value:fb})}).catch(e=>{});
+                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_ig', value:ig})}).catch(e=>{});
+                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_tiktok', value:tiktok})}).catch(e=>{});
+                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_twitter', value:twitter})}).catch(e=>{});
+            });
+
+            applySocialMedia();
+            showToast("Tautan Sosial Media berhasil disimpan", "success");
         }
 
         // TUGAS BARU: Menerapkan Nama Aplikasi saat load pertama kali (termasuk layar login)
@@ -4287,7 +4425,7 @@
             return;
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); applySocialMedia(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
