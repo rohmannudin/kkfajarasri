@@ -395,23 +395,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1">RK</label>
-                        <select id="edit-rk" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700">
-                            <option value="all">All (Semua)</option>
-                            <option value="001">001</option><option value="002">002</option><option value="003">003</option><option value="004">004</option><option value="005">005</option>
-                            <option value="006">006</option><option value="007">007</option><option value="008">008</option><option value="009">009</option><option value="010">010</option>
-                            <option value="011">011</option><option value="012">012</option><option value="013">013</option><option value="014">014</option><option value="015">015</option>
-                            <option value="016">016</option><option value="017">017</option><option value="018">018</option><option value="019">019</option><option value="020">020</option>
-                        </select>
+                        <input type="text" id="edit-rk" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RK, cth: 001 atau all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1">RT</label>
-                        <select id="edit-rt" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700">
-                            <option value="all">All (Semua)</option>
-                            <option value="001">001</option><option value="002">002</option><option value="003">003</option><option value="004">004</option><option value="005">005</option>
-                            <option value="006">006</option><option value="007">007</option><option value="008">008</option><option value="009">009</option><option value="010">010</option>
-                            <option value="011">011</option><option value="012">012</option><option value="013">013</option><option value="014">014</option><option value="015">015</option>
-                            <option value="016">016</option><option value="017">017</option><option value="018">018</option><option value="019">019</option><option value="020">020</option>
-                        </select>
+                        <input type="text" id="edit-rt" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RT, cth: 002 atau all">
                     </div>
                 </div>
                 <div class="flex justify-center gap-4 mt-6">
@@ -1468,23 +1456,11 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 mb-1">RK</label>
-                                    <select id="new-rk" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700">
-                                        <option value="all">All (Semua)</option>
-                                        <option value="001">001</option><option value="002">002</option><option value="003">003</option><option value="004">004</option><option value="005">005</option>
-                                        <option value="006">006</option><option value="007">007</option><option value="008">008</option><option value="009">009</option><option value="010">010</option>
-                                        <option value="011">011</option><option value="012">012</option><option value="013">013</option><option value="014">014</option><option value="015">015</option>
-                                        <option value="016">016</option><option value="017">017</option><option value="018">018</option><option value="019">019</option><option value="020">020</option>
-                                    </select>
+                                    <input type="text" id="new-rk" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RK, cth: 001 atau all">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 mb-1">RT</label>
-                                    <select id="new-rt" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700">
-                                        <option value="all">All (Semua)</option>
-                                        <option value="001">001</option><option value="002">002</option><option value="003">003</option><option value="004">004</option><option value="005">005</option>
-                                        <option value="006">006</option><option value="007">007</option><option value="008">008</option><option value="009">009</option><option value="010">010</option>
-                                        <option value="011">011</option><option value="012">012</option><option value="013">013</option><option value="014">014</option><option value="015">015</option>
-                                        <option value="016">016</option><option value="017">017</option><option value="018">018</option><option value="019">019</option><option value="020">020</option>
-                                    </select>
+                                    <input type="text" id="new-rt" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RT, cth: 002 atau all">
                                 </div>
                             </div>
                             <button type="submit" class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-user-plus"></i> Simpan Akun</button>
@@ -1727,12 +1703,12 @@
             syncInterval = setInterval(() => {
                 // Hanya lakukan sync otomatis jika user tidak sedang mengetik/mengedit form agar data ketikan aman
                 if(!isEditMode && !currentEditingKK && document.activeElement.tagName !== 'INPUT') {
-                    syncFromCloudBackground();
+                    syncFromCloudBackground(true);
                 }
-            }, 15000); // Sinkronisasi otomatis setiap 15 detik
+            }, 10000); // Sinkronisasi otomatis setiap 10 detik
         }
 
-        async function syncFromCloudBackground() {
+        async function syncFromCloudBackground(isAuto = false) {
             try {
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToFetch = [GOOGLE_SHEETS_API_URL, ...activeUrls];
@@ -1752,6 +1728,9 @@
                                 let newVal = s.value || '';
                                 if (currentVal !== newVal) {
                                     if (s.key === 'google_sheets_url' || s.key === 'app_google_sheets_url') return; // Abaikan URL agar tidak bentrok
+                                    
+                                    // Mencegah auto-sync latar belakang mengganggu data Manajemen Akun
+                                    if (isAuto && s.key === 'app_users_db') return;
                                     
                                     if (s.value === '') { localStorage.removeItem(s.key); } 
                                     else { localStorage.setItem(s.key, s.value); }
@@ -1816,7 +1795,7 @@
                     if (document.getElementById('matapilih-view') && !document.getElementById('matapilih-view').classList.contains('hidden')) {
                         renderMataPilihTable();
                     }
-                    if (document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
+                    if (!isAuto && document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
                         renderUsersTable();
                     }
                     if(typeof applyThemeAndBg === 'function') applyThemeAndBg();
@@ -2230,7 +2209,16 @@
             } else {
                 el.value = '-';
             }
-            autoSaveData();
+            if (typeof autoSaveData === 'function') autoSaveData();
+        }
+
+        // Fungsi khusus form User (membolehkan teks "all")
+        function padUserRtRk(el) {
+            let val = el.value.trim().toLowerCase();
+            if(val === 'all' || val === '') { el.value = 'all'; return; }
+            let num = val.replace(/\D/g, '');
+            if(num) el.value = num.padStart(3, '0');
+            else el.value = 'all';
         }
 
         function autoDetectKodePos() {
