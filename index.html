@@ -703,8 +703,8 @@
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Nama Kepala Keluarga</label><input type="text" id="hk_kepala" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="md:col-span-2 xl:col-span-2"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Alamat Lengkap</label><input type="text" id="hk_alamat" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" onblur="padRtRk(this)" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" onblur="padRtRk(this)" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 </div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kode Pos</label><input type="text" id="hk_kodepos" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" onkeyup="autoDetectKodePos()" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
@@ -2222,6 +2222,17 @@
 
         function enableManualInput() { currentEditingKK = null; renderDataToUI({header:{}, anggota_keluarga:[{jenis_kelamin:"LAKI-LAKI", status_perkawinan:"BELUM KAWIN", status_hubungan_keluarga:"KEPALA KELUARGA", kewarganegaraan:"WNI"}]}); toggleEdit(true); showToast("Mode Manual Aktif", "info"); }
 
+        // Fungsi baru untuk memformat input angka RT/RK menjadi selalu 3 digit (contoh: 5 jadi 005)
+        function padRtRk(el) {
+            let val = el.value.replace(/\D/g, ''); 
+            if (val) {
+                el.value = val.padStart(3, '0');
+            } else {
+                el.value = '-';
+            }
+            autoSaveData();
+        }
+
         function autoDetectKodePos() {
             let desaEl = document.getElementById('hk_desa');
             let kecEl = document.getElementById('hk_kecamatan');
@@ -2254,7 +2265,14 @@
         function renderDataToUI(d) {
             let h = d.header||{};
             ['hk_nokk','hk_kepala','hk_alamat','hk_kodepos','hk_desa','hk_kecamatan','hk_kabupaten','hk_provinsi'].forEach(id => { let k=id==='hk_nokk'?'no_kk':id==='hk_kepala'?'nama_kepala_keluarga':id==='hk_desa'?'desa_kelurahan':id==='hk_kabupaten'?'kabupaten_kota':id==='hk_kodepos'?'kode_pos':id.replace('hk_',''); document.getElementById(id).value = h[k]||'-'; });
-            let rtrw = (h.rt_rw||'').split(/[\/\-]/); document.getElementById('hk_rt').value = rtrw[0]||'-'; document.getElementById('hk_rk').value = rtrw[1]||'-';
+            
+            // Format otomatis tampilan load RK & RT menjadi 3 digit (00X)
+            let rtrw = (h.rt_rw||'').split(/[\/\-]/); 
+            let rtVal = (rtrw[0]||'').replace(/\D/g, '');
+            let rkVal = (rtrw[1]||'').replace(/\D/g, '');
+            document.getElementById('hk_rt').value = rtVal ? rtVal.padStart(3, '0') : '-'; 
+            document.getElementById('hk_rk').value = rkVal ? rkVal.padStart(3, '0') : '-';
+            
             let tb = document.getElementById('table-body'); tb.innerHTML = '';
             (d.anggota_keluarga||[]).forEach((a,i) => {
                 tb.innerHTML += `<tr><td class="px-5 py-3 sticky left-0 bg-white font-bold">${i+1}</td>
@@ -4253,8 +4271,54 @@
 
         // TUGAS BARU: Fitur Drag (Geser) untuk Panel Login
         function initDraggableLogin() {
-            // Fitur geser dinonaktifkan sesuai permintaan
-            return;
+            const panel = document.getElementById('login-panel');
+            if (!panel) return;
+
+            let isDragging = false;
+            let startY, currentY = 0, initialY = 0;
+
+            // Beri penanda kursor tangan terbuka
+            panel.style.cursor = 'grab';
+
+            const dragStart = (e) => {
+                // Jangan geser jika yang diklik adalah input teks, tombol, atau link
+                if (e.target.closest('input, button, a')) return; 
+                
+                isDragging = true;
+                panel.style.cursor = 'grabbing';
+                panel.style.transition = 'none'; // Matikan animasi sementara agar tarikan instan/responsif
+                
+                let y = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                startY = y - initialY;
+            };
+
+            const dragMove = (e) => {
+                if (!isDragging) return;
+                
+                let y = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                currentY = y - startY;
+                
+                // Terapkan hanya pergeseran sumbu Y (atas/bawah)
+                panel.style.transform = `translateY(${currentY}px)`;
+            };
+
+            const dragEnd = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                initialY = currentY;
+                panel.style.cursor = 'grab';
+                panel.style.transition = 'transform 0.15s ease-in-out'; // Kembalikan animasi saat dilepas
+            };
+
+            // Event Listener untuk Mouse (Komputer)
+            panel.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+
+            // Event Listener untuk Sentuhan (HP/Tablet)
+            panel.addEventListener('touchstart', dragStart, {passive: true});
+            document.addEventListener('touchmove', dragMove, {passive: true});
+            document.addEventListener('touchend', dragEnd);
         }
 
         window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
