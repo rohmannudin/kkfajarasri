@@ -509,11 +509,14 @@
                 </form>
 
                 <!-- Tautan Sosial Media Resmi -->
-                <div id="login-social-media" class="flex justify-center gap-4 mt-8 border-t border-white/10 pt-6 hidden">
-                    <a id="link-fb" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:scale-110 transition-all shadow-sm hidden" title="Facebook"><i class="fab fa-facebook-f text-lg"></i></a>
-                    <a id="link-ig" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-pink-600 hover:scale-110 transition-all shadow-sm hidden" title="Instagram"><i class="fab fa-instagram text-lg"></i></a>
-                    <a id="link-tiktok" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-black hover:scale-110 transition-all shadow-sm hidden" title="TikTok"><i class="fab fa-tiktok text-lg"></i></a>
-                    <a id="link-twitter" href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-sky-500 hover:scale-110 transition-all shadow-sm hidden" title="Twitter / X"><i class="fab fa-twitter text-lg"></i></a>
+                <div id="login-social-media" class="flex justify-center flex-wrap gap-3 mt-8 border-t border-white/10 pt-6 hidden">
+                    <a id="link-fb" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:scale-105 transition-all shadow-sm hidden" title="Facebook"><i class="fab fa-facebook-f text-lg"></i><span id="text-fb" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-ig" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-pink-600 hover:scale-105 transition-all shadow-sm hidden" title="Instagram"><i class="fab fa-instagram text-lg"></i><span id="text-ig" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-tiktok" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-black hover:scale-105 transition-all shadow-sm hidden" title="TikTok"><i class="fab fa-tiktok text-lg"></i><span id="text-tiktok" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-twitter" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-sky-500 hover:scale-105 transition-all shadow-sm hidden" title="Twitter / X"><i class="fab fa-twitter text-lg"></i><span id="text-twitter" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-wa1" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 1"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa1" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-wa2" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 2"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa2" class="ml-2 text-xs font-bold hidden"></span></a>
+                    <a id="link-wa3" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 3"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa3" class="ml-2 text-xs font-bold hidden"></span></a>
                 </div>
             </div>
         </div>
@@ -749,8 +752,9 @@
                     <div class="flex flex-wrap gap-2 justify-end">
                         <button onclick="quickAddMemberDashboard()" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-bold shadow-sm flex items-center gap-2 hover:bg-brand-700 transition-all"><i class="fas fa-user-plus"></i> Tambah Anggota / KK Baru</button>
                         <button onclick="exportDashboardExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-excel"></i> Export Filter</button>
+                        <button onclick="exportDashboardPDF()" class="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-pdf"></i> Export PDF</button>
                         <button onclick="syncFromCloud()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2" title="Tarik data terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
-                        <button onclick="clearDashboardData()" class="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-trash-alt"></i> Reset Dasbor</button>
+                        <button id="btn-reset-dashboard" onclick="clearDashboardData()" class="px-5 py-2.5 bg-slate-50 text-slate-600 rounded-xl font-bold shadow-sm flex items-center gap-2 hidden"><i class="fas fa-trash-alt"></i> Reset Dasbor</button>
                     </div>
                 </div>
 
@@ -1372,10 +1376,34 @@
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-share-nodes text-brand-500"></i> Tautan Media Sosial Instansi</h3>
                     <p class="text-xs text-slate-500 mb-4">Tautan ini akan ditampilkan di halaman depan (Login) agar warga mudah mengakses akun resmi.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-facebook text-blue-600"></i> URL Facebook</label><input type="text" id="set-fb" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://facebook.com/..."></div>
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-instagram text-pink-600"></i> URL Instagram</label><input type="text" id="set-ig" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://instagram.com/..."></div>
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-tiktok text-slate-800"></i> URL TikTok</label><input type="text" id="set-tiktok" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://tiktok.com/@..."></div>
-                        <div><label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-twitter text-sky-500"></i> URL Twitter / X</label><input type="text" id="set-twitter" class="w-full px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500" placeholder="https://twitter.com/..."></div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-facebook text-blue-600"></i> Facebook</label>
+                            <div class="flex gap-2"><input type="text" id="set-fb-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-fb" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-instagram text-pink-600"></i> Instagram</label>
+                            <div class="flex gap-2"><input type="text" id="set-ig-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-ig" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-tiktok text-slate-800"></i> TikTok</label>
+                            <div class="flex gap-2"><input type="text" id="set-tiktok-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-tiktok" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-twitter text-sky-500"></i> Twitter / X</label>
+                            <div class="flex gap-2"><input type="text" id="set-twitter-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-twitter" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 1</label>
+                            <div class="flex gap-2"><input type="text" id="set-wa1-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa1" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 2</label>
+                            <div class="flex gap-2"><input type="text" id="set-wa2-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa2" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 3</label>
+                            <div class="flex gap-2"><input type="text" id="set-wa3-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa3" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
+                        </div>
                     </div>
                     <button onclick="saveSocialMedia()" class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold text-sm"><i class="fas fa-save mr-1"></i> Simpan Tautan Sosial Media</button>
                 </div>
@@ -1712,6 +1740,13 @@
             
             // Tampilkan tombol navigasi vertikal setelah masuk (login)
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
+
+            // Menyembunyikan tombol reset dari dashboard jika bukan akun super master
+            let btnResetDash = document.getElementById('btn-reset-dashboard');
+            if (btnResetDash) {
+                if (currentUser.username === 'superakun' || currentUser.is_master) btnResetDash.classList.remove('hidden');
+                else btnResetDash.classList.add('hidden');
+            }
 
             switchView('ocr-view'); 
             startRealtimeSync();
@@ -3029,6 +3064,87 @@
             let ws = XLSX.utils.json_to_sheet(flat), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Data_Dasbor.xlsx"); showToast("Export OK", "success");
         }
 
+        function exportDashboardPDF() {
+            showToast("Menyiapkan PDF Dasbor, mohon tunggu...", "info");
+            let element = document.createElement('div');
+            element.innerHTML = `
+                <div style="padding: 10px; font-family: sans-serif;">
+                    <h2 style="text-align: center; margin-bottom: 15px; font-weight: bold; text-transform: uppercase;">DATA MASTER PENDUDUK (DASHBOARD)</h2>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: left; color: black;">
+                        <thead>
+                            <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">No</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">No KK</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Nama Lengkap</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">NIK</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">J. Kelamin</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">Umur</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">RT/RW</th>
+                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            let sD = getFilteredKKData();
+            let filteredSD = sD.filter(kk => {
+                let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
+                let matchRt = activeRtFilter === 'all' || (rtrw[0]||'').trim() === activeRtFilter;
+                let matchRk = activeRkFilter === 'all' || (rtrw[1]||'').trim() === activeRkFilter;
+                let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
+                return matchRt && matchRk && matchUser;
+            });
+            let no = 1;
+            filteredSD.forEach(kk => {
+                (kk.anggota_keluarga||[]).forEach(a => {
+                    let st = a.status_penduduk||'AKTIF';
+                    if (st.toUpperCase() !== 'INVALID') {
+                        let ok = true;
+                        let jk = (a.jenis_kelamin||'').toUpperCase();
+                        let um = calculateAge(a.tanggal_lahir);
+                        if(currentDashFilter) {
+                            let kw = (a.status_perkawinan||'').toUpperCase();
+                            let isPem = um>=17 || (kw!==''&&kw!=='-'&&kw!=='BELUM KAWIN');
+                            let isAktif = ['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st);
+                            ok = false;
+                            if(currentDashFilter.type==='aktif' && isAktif) ok=true;
+                            if(currentDashFilter.type==='pemilih' && isPem) ok=true;
+                            if(currentDashFilter.type==='kepala_keluarga' && (a.status_hubungan_keluarga||'').toUpperCase() === 'KEPALA KELUARGA') ok=true;
+                            if(currentDashFilter.type==='gender' && jk===currentDashFilter.val.toUpperCase()) ok=true;
+                            if(currentDashFilter.type==='pendidikan' && a.pendidikan===currentDashFilter.val) ok=true;
+                            if(currentDashFilter.type==='agama' && a.agama===currentDashFilter.val) ok=true;
+                            if(currentDashFilter.type==='pekerjaan' && a.jenis_pekerjaan===currentDashFilter.val) ok=true;
+                            if(currentDashFilter.type==='nama' && a.nama_lengkap.toUpperCase().includes(currentDashFilter.val.toUpperCase())) ok=true;
+                            if(currentDashFilter.type==='umur') { if(currentDashFilter.val==="0-4"&&um<=4) ok=true; else if(currentDashFilter.val==="5-14"&&um>4&&um<=14) ok=true; else if(currentDashFilter.val==="15-24"&&um>14&&um<=24) ok=true; else if(currentDashFilter.val==="25-54"&&um>24&&um<=54) ok=true; else if(currentDashFilter.val==="55+"&&um>=55) ok=true; }
+                        }
+                        if(ok) {
+                            element.innerHTML += `<tr>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${no++}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${kk.header.no_kk}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0; font-weight: bold;">${a.nama_lengkap}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${a.nik}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${jk}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${um}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${kk.header.rt_rw || '-'}</td>
+                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${st}</td>
+                            </tr>`;
+                        }
+                    }
+                });
+            });
+            element.innerHTML += `</tbody></table></div>`;
+            
+            html2pdf().set({
+                margin: 10,
+                filename: 'Data_Dashboard_Kependudukan.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            }).from(element).save().then(() => {
+                showToast("PDF Dasbor Berhasil Diunduh", "success");
+            });
+        }
+
         function scrollActiveTable(a) { document.querySelectorAll('.overflow-x-auto').forEach(e => e.scrollBy({left:a, behavior:'smooth'})); }
 
         // TUGAS BARU: Fungsi untuk mengontrol scroll vertikal pada area main dengan animasi kustom (Sangat Smooth)
@@ -3679,9 +3795,19 @@
             document.getElementById('set-margin').value = localStorage.getItem('set_margin') || '5';
             
             document.getElementById('set-fb').value = localStorage.getItem('app_social_fb') || '';
+            document.getElementById('set-fb-name').value = localStorage.getItem('app_social_fb_name') || '';
             document.getElementById('set-ig').value = localStorage.getItem('app_social_ig') || '';
+            document.getElementById('set-ig-name').value = localStorage.getItem('app_social_ig_name') || '';
             document.getElementById('set-tiktok').value = localStorage.getItem('app_social_tiktok') || '';
+            document.getElementById('set-tiktok-name').value = localStorage.getItem('app_social_tiktok_name') || '';
             document.getElementById('set-twitter').value = localStorage.getItem('app_social_twitter') || '';
+            document.getElementById('set-twitter-name').value = localStorage.getItem('app_social_twitter_name') || '';
+            document.getElementById('set-wa1').value = localStorage.getItem('app_social_wa1') || '';
+            document.getElementById('set-wa1-name').value = localStorage.getItem('app_social_wa1_name') || '';
+            document.getElementById('set-wa2').value = localStorage.getItem('app_social_wa2') || '';
+            document.getElementById('set-wa2-name').value = localStorage.getItem('app_social_wa2_name') || '';
+            document.getElementById('set-wa3').value = localStorage.getItem('app_social_wa3') || '';
+            document.getElementById('set-wa3-name').value = localStorage.getItem('app_social_wa3_name') || '';
             
             document.getElementById('set-running-text').value = localStorage.getItem('app_running_text') || '';
             
@@ -3989,23 +4115,44 @@
 
         // Fitur Media Sosial
         function applySocialMedia() {
-            let fb = localStorage.getItem('app_social_fb');
-            let ig = localStorage.getItem('app_social_ig');
-            let tiktok = localStorage.getItem('app_social_tiktok');
-            let twitter = localStorage.getItem('app_social_twitter');
+            let medsos = [
+                {id: 'fb', url: localStorage.getItem('app_social_fb'), name: localStorage.getItem('app_social_fb_name')},
+                {id: 'ig', url: localStorage.getItem('app_social_ig'), name: localStorage.getItem('app_social_ig_name')},
+                {id: 'tiktok', url: localStorage.getItem('app_social_tiktok'), name: localStorage.getItem('app_social_tiktok_name')},
+                {id: 'twitter', url: localStorage.getItem('app_social_twitter'), name: localStorage.getItem('app_social_twitter_name')},
+                {id: 'wa1', url: localStorage.getItem('app_social_wa1'), name: localStorage.getItem('app_social_wa1_name')},
+                {id: 'wa2', url: localStorage.getItem('app_social_wa2'), name: localStorage.getItem('app_social_wa2_name')},
+                {id: 'wa3', url: localStorage.getItem('app_social_wa3'), name: localStorage.getItem('app_social_wa3_name')}
+            ];
 
             let container = document.getElementById('login-social-media');
-            let linkFb = document.getElementById('link-fb');
-            let linkIg = document.getElementById('link-ig');
-            let linkTiktok = document.getElementById('link-tiktok');
-            let linkTwitter = document.getElementById('link-twitter');
-
             let hasAny = false;
 
-            if (linkFb) { if (fb) { linkFb.href = fb; linkFb.classList.remove('hidden'); hasAny = true; } else { linkFb.classList.add('hidden'); } }
-            if (linkIg) { if (ig) { linkIg.href = ig; linkIg.classList.remove('hidden'); hasAny = true; } else { linkIg.classList.add('hidden'); } }
-            if (linkTiktok) { if (tiktok) { linkTiktok.href = tiktok; linkTiktok.classList.remove('hidden'); hasAny = true; } else { linkTiktok.classList.add('hidden'); } }
-            if (linkTwitter) { if (twitter) { linkTwitter.href = twitter; linkTwitter.classList.remove('hidden'); hasAny = true; } else { linkTwitter.classList.add('hidden'); } }
+            medsos.forEach(m => {
+                let linkEl = document.getElementById(`link-${m.id}`);
+                let textEl = document.getElementById(`text-${m.id}`);
+                if (linkEl) {
+                    if (m.url) {
+                        linkEl.href = m.url;
+                        linkEl.classList.remove('hidden');
+                        hasAny = true;
+                        
+                        // Cek apakah ada label/nama
+                        if (m.name && textEl) {
+                            textEl.innerText = m.name;
+                            textEl.classList.remove('hidden');
+                            linkEl.classList.remove('w-10');
+                            linkEl.classList.add('px-4', 'w-auto'); // Melebarkan tombol agar teks muat
+                        } else if (textEl) {
+                            textEl.classList.add('hidden');
+                            linkEl.classList.remove('px-4', 'w-auto');
+                            linkEl.classList.add('w-10'); // Kembalikan ke bulat ikon saja
+                        }
+                    } else {
+                        linkEl.classList.add('hidden');
+                    }
+                }
+            });
 
             if (container) {
                 if (hasAny) container.classList.remove('hidden');
@@ -4014,27 +4161,24 @@
         }
 
         function saveSocialMedia() {
-            let fb = document.getElementById('set-fb').value.trim();
-            let ig = document.getElementById('set-ig').value.trim();
-            let tiktok = document.getElementById('set-tiktok').value.trim();
-            let twitter = document.getElementById('set-twitter').value.trim();
-
-            localStorage.setItem('app_social_fb', fb);
-            localStorage.setItem('app_social_ig', ig);
-            localStorage.setItem('app_social_tiktok', tiktok);
-            localStorage.setItem('app_social_twitter', twitter);
-
+            let fields = ['fb', 'ig', 'tiktok', 'twitter', 'wa1', 'wa2', 'wa3'];
             let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...(activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http')))])];
             
-            allUrlsToPush.forEach(url => {
-                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_fb', value:fb})}).catch(e=>{});
-                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_ig', value:ig})}).catch(e=>{});
-                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_tiktok', value:tiktok})}).catch(e=>{});
-                fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_social_twitter', value:twitter})}).catch(e=>{});
+            fields.forEach(f => {
+                let urlVal = document.getElementById(`set-${f}`).value.trim();
+                let nameVal = document.getElementById(`set-${f}-name`).value.trim();
+                
+                localStorage.setItem(`app_social_${f}`, urlVal);
+                localStorage.setItem(`app_social_${f}_name`, nameVal);
+                
+                allUrlsToPush.forEach(url => {
+                    fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:`app_social_${f}`, value:urlVal})}).catch(e=>{});
+                    fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:`app_social_${f}_name`, value:nameVal})}).catch(e=>{});
+                });
             });
 
             applySocialMedia();
-            showToast("Tautan Sosial Media berhasil disimpan", "success");
+            showToast("Tautan & Nama Sosial Media berhasil disimpan", "success");
         }
 
         // TUGAS BARU: Menerapkan Nama Aplikasi saat load pertama kali (termasuk layar login)
