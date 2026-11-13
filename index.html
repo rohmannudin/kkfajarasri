@@ -875,7 +875,7 @@
                             <thead class="sticky top-0 z-30">
                                 <tr class="bg-white text-slate-400 text-[10px] uppercase border-b-2">
                                     <th class="px-5 py-4 font-bold sticky left-0 bg-white z-40 shadow-[1px_0_0_#f1f5f9]">No</th>
-                                    <th class="px-5 py-4 font-bold bg-white">No. KK</th><th class="px-5 py-4 font-bold bg-white">Status Akhir</th><th class="px-5 py-4 font-bold bg-white">Nama Lengkap</th><th class="px-5 py-4 font-bold bg-white">NIK</th><th class="px-5 py-4 font-bold bg-white">J. Kelamin</th><th class="px-5 py-4 font-bold bg-white">Tempat Lahir</th><th class="px-5 py-4 font-bold bg-white">Tgl Lahir</th><th class="px-5 py-4 font-bold bg-white z-30 text-center min-w-[150px]">Aksi & Pulihkan</th>
+                                    <th class="px-5 py-4 font-bold bg-white">No. KK</th><th class="px-5 py-4 font-bold bg-white">Status Akhir</th><th class="px-5 py-4 font-bold bg-white">Nama Lengkap</th><th class="px-5 py-4 font-bold bg-white">NIK</th><th class="px-5 py-4 font-bold bg-white">J. Kelamin</th><th class="px-5 py-4 font-bold bg-white">Tempat Lahir</th><th class="px-5 py-4 font-bold bg-white">Tgl Lahir</th><th class="px-5 py-4 font-bold bg-white text-blue-600">Tgl Datang</th><th class="px-5 py-4 font-bold bg-white text-amber-600">Tgl Pindah</th><th class="px-5 py-4 font-bold bg-white text-rose-600">Tgl Meninggal</th><th class="px-5 py-4 font-bold bg-white z-30 text-center min-w-[150px]">Aksi & Pulihkan</th>
                                 </tr>
                             </thead>
                             <tbody id="inactive-table-body" class="divide-y text-slate-600"></tbody>
@@ -2871,6 +2871,10 @@
                             actBtn += ` <button onclick="hideResident('${kk.header.no_kk}',${idx},'${st}')" class="text-[9px] px-3 py-1.5 rounded font-bold transition-colors bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-sm ml-2"><i class="fas fa-ghost mr-1"></i> Hapus dr Mutasi</button>`;
                         }
 
+                        let tglDatang = formatDateID(a.tanggal_datang) !== '-' ? formatDateID(a.tanggal_datang) : '-';
+                        let tglPindah = formatDateID(a.tanggal_pindah) !== '-' ? formatDateID(a.tanggal_pindah) : '-';
+                        let tglMeninggal = formatDateID(a.tanggal_meninggal) !== '-' ? formatDateID(a.tanggal_meninggal) : '-';
+
                         tb.innerHTML += `<tr>
                             <td class="px-5 py-3 sticky left-0 bg-slate-50">${no++}</td>
                             <td>${kk.header.no_kk}</td>
@@ -2880,6 +2884,9 @@
                             <td class="opacity-70">${a.jenis_kelamin}</td>
                             <td class="opacity-70">${a.tempat_lahir}</td>
                             <td class="opacity-70">${formatDateID(a.tanggal_lahir)}</td>
+                            <td class="opacity-80 font-bold text-blue-600">${tglDatang}</td>
+                            <td class="opacity-80 font-bold text-amber-600">${tglPindah}</td>
+                            <td class="opacity-80 font-bold text-rose-600">${tglMeninggal}</td>
                             <td class="bg-slate-50 p-2 text-center">${actBtn}</td>
                         </tr>`;
                     }
@@ -2887,7 +2894,7 @@
             });
             
             if(no === 1) {
-                tb.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-slate-400 font-bold"><i class="fas fa-box-open text-3xl mb-3 block opacity-50"></i> Tidak ada data penduduk yang tidak aktif.</td></tr>';
+                tb.innerHTML = '<tr><td colspan="12" class="text-center py-10 text-slate-400 font-bold"><i class="fas fa-box-open text-3xl mb-3 block opacity-50"></i> Tidak ada data penduduk yang tidak aktif.</td></tr>';
             }
         }
 
