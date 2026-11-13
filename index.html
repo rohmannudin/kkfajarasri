@@ -3823,6 +3823,13 @@
             let mutasiUrlEl = document.getElementById('set-mutasi-url');
             if(mutasiUrlEl) mutasiUrlEl.value = localStorage.getItem('app_mutasi_url') || '';
             
+            // MIGRASI OTOMATIS: Tarik API Key lama jika daftar 100 kolom masih kosong
+            let legacyApiKey = localStorage.getItem('gemini_api_key');
+            if (legacyApiKey && (!apiKeysList || apiKeysList.length === 0 || (apiKeysList.length > 0 && apiKeysList[0] === ''))) {
+                apiKeysList[0] = legacyApiKey;
+                if (!activeKeyIndices.includes(0)) activeKeyIndices.push(0);
+            }
+            
             // Load 100 API Keys secara dinamis
             let apiKeysHtml = '';
             let urlsHtml = '';
