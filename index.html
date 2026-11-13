@@ -864,6 +864,9 @@
                         <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-slate-200"><i class="fas fa-box-archive"></i></div>
                         <div><h2 class="text-2xl font-bold text-slate-800">Data Tidak Aktif</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Meninggal, Pindah & Disembunyikan</p></div>
                     </div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="syncInactiveFromCloud()" id="btn-sync-inactive" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border flex flex-col relative">
@@ -2014,6 +2017,19 @@
             
             if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sinkronisasi API & URL'; }
             showToast("Sinkronisasi API Key & URL Selesai!", "success");
+        }
+
+        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Data Tidak Aktif
+        async function syncInactiveFromCloud() {
+            let btn = document.getElementById('btn-sync-inactive');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
+            showToast("Menarik data tidak aktif terbaru...", "info");
+            
+            // Panggil API background sync
+            await syncFromCloudBackground();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sync Manual'; }
+            showToast("Sinkronisasi Data Tidak Aktif Selesai!", "success");
         }
 
         function switchView(viewId) {
@@ -3427,21 +3443,67 @@
         }
 
         function renderRtTable() {
-            let sD = getFilteredKKData(), r = {}; const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75+"];
+            let sD = getFilteredKKData(), r = {}; 
+            const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80+"];
             let th = document.getElementById('rt-thead'), tb = document.getElementById('rt-tbody'), tf = document.getElementById('rt-tfoot');
             if(!th || !tb || !tf) return;
-            let th1 = `<tr><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RW</div></th><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-10 border border-black"><div class="vertical-text-container">KK</div></th>`, th2 = `<tr>`;
+            
+            let th1 = `<tr><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RK</div></th><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-10 border border-black"><div class="vertical-text-container">KK</div></th>`, th2 = `<tr>`;
             BR.forEach(b => { th1 += `<th colspan="3" class="border border-black text-[8px]">${b} THN</th>`; th2 += `<th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th>`; });
-            th.innerHTML = th1+`<th colspan="3" class="border border-black">JML</th></tr>`+th2+`<th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th></tr>`;
-            tb.innerHTML=''; tf.innerHTML=''; let gKk=0, gT={}; BR.forEach(k=>gT[k]={l:0,p:0});
-            Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
-                let d = r[w]; gKk+=d.kk; let ht=`<tr><td class="border border-black">${d.rk}</td><td class="border border-black">${d.rt}</td><td class="border border-black font-bold">${d.kk}</td>`;
-                let tl=0,tp=0; BR.forEach(k=>{ let l=d.U[k].l, p=d.U[k].p; gT[k].l+=l; gT[k].p+=p; tl+=l; tp+=p; ht+=`<td class="border border-black">${l||'-'}</td><td class="border border-black">${p||'-'}</td><td class="border border-black font-bold bg-[#e2e8f0]/50">${(l+p)||'-'}</td>`; });
-                tb.innerHTML += ht+`<td class="border border-black">${tl||'-'}</td><td class="border border-black">${tp||'-'}</td><td class="border border-black font-bold bg-[#e2e8f0]">${(tl+tp)||'-'}</td></tr>`;
+            th.innerHTML = th1+`<th colspan="3" class="border border-black">JML TOTAL</th></tr>`+th2+`<th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th></tr>`;
+            tb.innerHTML=''; tf.innerHTML=''; 
+            
+            // Pengelompokan Data per RK dan RT
+            sD.forEach(k => { 
+                let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; 
+                if(!r[wil]) {
+                    r[wil]={rt,rk,kk:0,U:{}};
+                    BR.forEach(b => r[wil].U[b] = {l:0, p:0});
+                }
+                
+                let aKk=false; 
+                (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); 
+                if(aKk) r[wil].kk++;
+                
+                (k.anggota_keluarga||[]).forEach(a => { 
+                    if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
+                        let um = calculateAge(a.tanggal_lahir);
+                        let b = "80+"; // Default kelompok
+                        
+                        if(um<=4) b="0-4"; else if(um<=9) b="5-9"; else if(um<=14) b="10-14"; else if(um<=19) b="15-19"; else if(um<=24) b="20-24"; else if(um<=29) b="25-29"; else if(um<=34) b="30-34"; else if(um<=39) b="35-39"; else if(um<=44) b="40-44"; else if(um<=49) b="45-49"; else if(um<=54) b="50-54"; else if(um<=59) b="55-59"; else if(um<=64) b="60-64"; else if(um<=69) b="65-69"; else if(um<=74) b="70-74"; else if(um<=79) b="75-79";
+                        
+                        let isL = (a.jenis_kelamin||'').toUpperCase().includes('LAKI');
+                        if(isL) r[wil].U[b].l++; else r[wil].U[b].p++;
+                    } 
+                });
             });
-            let fHt=`<tr><td colspan="2" class="border border-black text-center">JUMLAH</td><td class="border border-black">${gKk}</td>`, gl=0,gp=0;
-            BR.forEach(k=>{ let l=gT[k].l, p=gT[k].p; gl+=l; gp+=p; fHt+=`<td class="border border-black">${l||'-'}</td><td class="border border-black">${p||'-'}</td><td class="border border-black bg-[#e2e8f0]/50">${(l+p)||'-'}</td>`; });
-            tf.innerHTML = fHt+`<td class="border border-black">${gl||'-'}</td><td class="border border-black">${gp||'-'}</td><td class="border border-black bg-[#e2e8f0]">${(gl+gp)||'-'}</td></tr>`;
+
+            let gKk=0, gT={}; BR.forEach(k=>gT[k]={l:0,p:0});
+            
+            // Render Tabel berdasarkan urutan RK dan RT
+            Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
+                let d = r[w]; gKk+=d.kk; 
+                let ht=`<tr><td class="border border-black font-bold">${d.rk}</td><td class="border border-black font-bold">${d.rt}</td><td class="border border-black font-bold">${d.kk}</td>`;
+                let tl=0,tp=0; 
+                
+                BR.forEach((k, idx)=>{ 
+                    let l=d.U[k].l, p=d.U[k].p; gT[k].l+=l; gT[k].p+=p; tl+=l; tp+=p; 
+                    let bgClass = idx % 2 === 0 ? 'bg-[#e2e8f0]/40' : 'bg-transparent'; // Efek zebra coloring kolom umur
+                    ht+=`<td class="border border-black ${bgClass}">${l||'-'}</td><td class="border border-black ${bgClass}">${p||'-'}</td><td class="border border-black font-bold ${bgClass}">${(l+p)||'-'}</td>`; 
+                });
+                
+                tb.innerHTML += ht+`<td class="border border-black bg-slate-200">${tl||'-'}</td><td class="border border-black bg-slate-200">${tp||'-'}</td><td class="border border-black font-bold bg-slate-300">${(tl+tp)||'-'}</td></tr>`;
+            });
+            
+            let fHt=`<tr><td colspan="2" class="border border-black text-center font-bold uppercase tracking-wider">Total Jumlah</td><td class="border border-black font-bold">${gKk}</td>`, gl=0,gp=0;
+            
+            BR.forEach((k, idx)=>{ 
+                let l=gT[k].l, p=gT[k].p; gl+=l; gp+=p; 
+                let bgClass = idx % 2 === 0 ? 'bg-[#e2e8f0]/70' : 'bg-transparent';
+                fHt+=`<td class="border border-black font-bold text-blue-800 ${bgClass}">${l||'-'}</td><td class="border border-black font-bold text-rose-700 ${bgClass}">${p||'-'}</td><td class="border border-black font-bold ${bgClass}">${(l+p)||'-'}</td>`; 
+            });
+            
+            tf.innerHTML = fHt+`<td class="border border-black font-bold text-blue-800 bg-slate-200">${gl||'-'}</td><td class="border border-black font-bold text-rose-700 bg-slate-200">${gp||'-'}</td><td class="border border-black font-bold bg-slate-300 text-sm">${(gl+gp)||'-'}</td></tr>`;
         }
 
         function renderAgamaTable() {
