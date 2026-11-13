@@ -976,6 +976,7 @@
                     <div class="flex flex-wrap gap-2 justify-end">
                         <button onclick="archiveCurrentReport('Mutasi Penduduk')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
                         <button onclick="printMutasiFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
+                        <button onclick="syncMutasiFromCloud()" id="btn-sync-mutasi" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-md flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data mutasi terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
                     </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="mutasi-print-wrapper">
@@ -1424,6 +1425,12 @@
                     </div>
 
                     <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Spreadsheet Khusus Arsip (Opsional)</label>
+                        <input type="text" id="set-archive-url" class="w-full px-4 py-2 bg-slate-50 border border-amber-300 rounded-xl font-semibold outline-none focus:border-amber-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
+                        <p class="text-[10px] text-amber-600 font-bold mt-2"><i class="fas fa-box-archive"></i> Jika diisi, setiap aksi Arsip akan dikirim juga ke URL ini dengan perintah <strong>action="save_archive"</strong>. Memungkinkan 1 Spreadsheet khusus memantau arsip realtime.</p>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="block text-xs font-bold text-slate-500 mb-2">Daftar URL Custom / Tambahan (100 Kolom)</label>
                         <div id="urls-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                             <!-- URLs dimuat secara dinamis oleh JS untuk 100 kolom -->
@@ -1432,7 +1439,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar API Key Gemini AI (100 Kolom)</label>
+                        <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
+                            <label class="block text-xs font-bold text-slate-500">Daftar API Key Gemini AI (100 Kolom)</label>
+                            <button onclick="syncIntegrationFromCloud()" id="btn-sync-integration" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-bold shadow-sm flex items-center gap-2 text-[10px] transition-all hover:bg-emerald-100" title="Sinkronisasi Manual API Key & URL dari Cloud"><i class="fas fa-sync-alt"></i> Sinkronisasi API & URL</button>
+                        </div>
                         <div id="api-keys-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                             <!-- API Keys dimuat secara dinamis oleh JS untuk 100 kolom -->
                         </div>
@@ -1812,6 +1822,14 @@
                         if(json.data) {
                             allFetchedData = allFetchedData.concat(json.data);
                         }
+                        
+                        // Menarik data arsip dari Cloud
+                        if(json.archives && Array.isArray(json.archives)) {
+                            // Sortir arsip dari yang paling baru
+                            let sortedArchives = json.archives.sort((a,b) => b.id - a.id);
+                            localStorage.setItem('app_report_archives', JSON.stringify(sortedArchives));
+                            isUpdated = true;
+                        }
                     } catch(e) {
                         console.warn(`[Sync] Gagal menarik data dari URL: ${url}`);
                     }
@@ -1881,6 +1899,9 @@
                     }
                     if (!isAuto && document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
                         renderUsersTable();
+                    }
+                    if (document.getElementById('archive-view') && !document.getElementById('archive-view').classList.contains('hidden')) {
+                        renderArchiveList();
                     }
                     if(typeof applyThemeAndBg === 'function') applyThemeAndBg();
                     loadSettingsUI();
@@ -1957,6 +1978,42 @@
             
             if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sinkronisasi Manual'; }
             showToast("Sinkronisasi Logo Selesai!", "success");
+        }
+
+        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Laporan Mutasi
+        async function syncMutasiFromCloud() {
+            let btn = document.getElementById('btn-sync-mutasi');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
+            showToast("Menarik data mutasi terbaru...", "info");
+            
+            // Panggil API background sync
+            await syncFromCloudBackground();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sync Manual'; }
+            showToast("Sinkronisasi Mutasi Selesai!", "success");
+        }
+
+        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Integrasi API & URL
+        async function syncIntegrationFromCloud() {
+            let btn = document.getElementById('btn-sync-integration');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
+            showToast("Menarik data API & URL terbaru...", "info");
+            
+            // Panggil API background sync
+            await syncFromCloudBackground(false);
+            
+            // Perbarui variabel global dari Local Storage setelah sync
+            apiKeysList = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
+            activeKeyIndices = JSON.parse(localStorage.getItem('gemini_active_key_indices') || '[0]');
+            appUrlsList = JSON.parse(localStorage.getItem('app_urls_list') || '[]');
+            activeUrlIndices = JSON.parse(localStorage.getItem('app_active_url_indices') || '[]');
+            apiKey = localStorage.getItem('gemini_api_key') || "";
+            
+            // Memuat ulang kolom dengan data yang baru saja disingkronkan
+            loadSettingsUI();
+            
+            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sinkronisasi API & URL'; }
+            showToast("Sinkronisasi API Key & URL Selesai!", "success");
         }
 
         function switchView(viewId) {
@@ -2991,6 +3048,7 @@
                             <button onclick="editDataKK('${kk.header.no_kk}')" class="p-1 bg-amber-100 text-amber-600 rounded" title="Edit Data KK"><i class="fas fa-edit"></i></button>
                             <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
                             <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
+                            <button onclick="syncDataKK('${kk.header.no_kk}')" class="p-1 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 rounded transition-colors" title="Upload/Sync Ulang KK ini ke Spreadsheet"><i class="fas fa-cloud-arrow-up"></i></button>
                             ${deleteBtnHTML}
                             ${hideBtnHTML}
                             <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
@@ -3056,6 +3114,46 @@
             });
             showToast("Terhapus"); 
         }); }
+        
+        async function syncDataKK(noKk) {
+            let s = JSON.parse(localStorage.getItem('kk_data')||'[]');
+            let kk = s.find(x => x.header.no_kk === noKk);
+            if(!kk) return showToast("Data KK tidak ditemukan", "error");
+            
+            kk.action = "save";
+            kk.local_updated = Date.now(); // Segarkan timestamp Anti-Revert
+            localStorage.setItem('kk_data', JSON.stringify(s)); 
+            
+            showToast(`Mengupload Ulang KK ${noKk} ke Cloud...`, "info");
+            
+            try {
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                
+                if (currentUser && currentUser.role === 'user' && currentUser.custom_url && currentUser.custom_url.startsWith('http')) {
+                    allUrlsToPush = [currentUser.custom_url];
+                }
+
+                let successCount = 0;
+                for (let url of allUrlsToPush) {
+                    try {
+                        let res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(kk) });
+                        if (res.ok) successCount++;
+                    } catch(e) {}
+                }
+                
+                if (successCount > 0) {
+                    showToast("Sukses! Data terinput & realtime di semua perangkat.", "success");
+                    let indicator = document.getElementById('sync-status-indicator');
+                    if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
+                } else {
+                    showToast("Gagal mengupload ke Spreadsheet.", "error");
+                }
+            } catch(e) {
+                showToast("Error saat sinkronisasi.", "error");
+            }
+        }
+
         function clearDashboardData() { showConfirmModal("Reset Dasbor","Yakin hapus SEMUA data lokal?",()=>{ localStorage.removeItem('kk_data'); loadDashboardData(); showToast("Reset berhasil"); }); }
 
         function exportDashboardExcel() {
@@ -3823,6 +3921,9 @@
             let mutasiUrlEl = document.getElementById('set-mutasi-url');
             if(mutasiUrlEl) mutasiUrlEl.value = localStorage.getItem('app_mutasi_url') || '';
             
+            let archiveUrlEl = document.getElementById('set-archive-url');
+            if(archiveUrlEl) archiveUrlEl.value = localStorage.getItem('app_archive_url') || '';
+            
             // MIGRASI OTOMATIS: Tarik API Key lama jika daftar 100 kolom masih kosong
             let legacyApiKey = localStorage.getItem('gemini_api_key');
             if (legacyApiKey && (!apiKeysList || apiKeysList.length === 0 || (apiKeysList.length > 0 && apiKeysList[0] === ''))) {
@@ -3990,6 +4091,13 @@
                 let v = inputMutasiUrl.value.trim();
                 localStorage.setItem('app_mutasi_url', v);
                 fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_mutasi_url', value:v})}).catch(e=>{});
+            }
+
+            let inputArchiveUrl = document.getElementById('set-archive-url');
+            if(inputArchiveUrl) {
+                let v = inputArchiveUrl.value.trim();
+                localStorage.setItem('app_archive_url', v);
+                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_archive_url', value:v})}).catch(e=>{});
             }
             
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
@@ -4324,6 +4432,20 @@
             archives.unshift(newArchive);
             localStorage.setItem('app_report_archives', JSON.stringify(archives));
 
+            // Sync Arsip ke Cloud
+            let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+            let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+            
+            let customArchiveUrl = localStorage.getItem('app_archive_url');
+            if (customArchiveUrl && customArchiveUrl.startsWith('http')) {
+                allUrlsToPush.push(customArchiveUrl);
+            }
+            allUrlsToPush = [...new Set(allUrlsToPush)];
+
+            allUrlsToPush.forEach(url => {
+                fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'save_archive', archive: newArchive }) }).catch(e => {});
+            });
+
             showToast(`Laporan ${reportType} (${bln} ${thn}) berhasil diarsipkan!`, "success");
             switchView('archive-view');
         }
@@ -4423,6 +4545,17 @@
                 localStorage.setItem('app_report_archives', JSON.stringify(archives));
                 renderArchiveList();
                 showToast("Arsip laporan berhasil dihapus", "info");
+                
+                // Sync Hapus Arsip ke Cloud
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                let customArchiveUrl = localStorage.getItem('app_archive_url');
+                if (customArchiveUrl && customArchiveUrl.startsWith('http')) allUrlsToPush.push(customArchiveUrl);
+                allUrlsToPush = [...new Set(allUrlsToPush)];
+
+                allUrlsToPush.forEach(url => {
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'delete_archive', id: id }) }).catch(e => {});
+                });
             });
         }
 
@@ -4431,6 +4564,17 @@
                 localStorage.removeItem('app_report_archives');
                 renderArchiveList();
                 showToast("Semua arsip berhasil dihapus", "info");
+                
+                // Sync Kosongkan Semua Arsip ke Cloud
+                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
+                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
+                let customArchiveUrl = localStorage.getItem('app_archive_url');
+                if (customArchiveUrl && customArchiveUrl.startsWith('http')) allUrlsToPush.push(customArchiveUrl);
+                allUrlsToPush = [...new Set(allUrlsToPush)];
+
+                allUrlsToPush.forEach(url => {
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'clear_archives' }) }).catch(e => {});
+                });
             });
         }
 
