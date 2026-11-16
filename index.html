@@ -1847,17 +1847,17 @@
                     let uniqueDataMap = {};
                     allFetchedData.forEach(d => {
                         let localD = oldDataMap[d.header.no_kk];
-                        // ANTI-REVERT GUARD: Diperpanjang menjadi 30 menit (1800000 ms) agar data ketikan tidak hilang saat sync gagal/lambat
-                        if (localD && localD.local_updated && (Date.now() - localD.local_updated < 1800000)) {
+                        // ANTI-REVERT GUARD DIPERKUAT: Lindungi data lokal yang baru diinput/diubah (1 Jam / 3600000 ms) atau belum selesai sync
+                        if (localD && (localD.is_unsynced || (localD.local_updated && (Date.now() - localD.local_updated < 3600000)))) {
                             uniqueDataMap[d.header.no_kk] = localD;
                         } else {
                             uniqueDataMap[d.header.no_kk] = d;
                         }
                     });
                     
-                    // Pertahankan data lokal yang sama sekali belum ada di cloud (baru dibuat offline belum tersinkron)
+                    // Pertahankan semua data lokal yang belum masuk ke server Cloud agar tidak pernah hilang
                     oldData.forEach(d => {
-                        if (!uniqueDataMap[d.header.no_kk] && d.local_updated && (Date.now() - d.local_updated < 1800000)) {
+                        if (!uniqueDataMap[d.header.no_kk]) {
                             uniqueDataMap[d.header.no_kk] = d;
                         }
                     });
@@ -2195,7 +2195,7 @@
                     if(!res.ok) throw new Error(`API Error / Limit (Status: ${res.status})`); // Jika error/limit, langsung lempar ke catch untuk mencoba API Key selanjutnya
                     
                     let json = await res.json(), txt = json.candidates[0].content.parts[0].text.replace(/\`\`\`json/gi,'').replace(/\`\`\`/g,'');
-                    renderDataToUI(JSON.parse(txt)); toggleEdit(false); showToast("Sukses ekstrak AI", "success");
+                    renderDataToUI(JSON.parse(txt)); toggleEdit(false); showToast("Sukses ekstrak AI & otomatis tersimpan ke Dasbor/Cloud!", "success");
                     success = true;
                     break; // Berhenti mencari jika sukses
                 } catch(e) {
@@ -2207,7 +2207,13 @@
                 showToast("Gagal ekstrak AI! Pastikan API Key valid atau tidak terkena Limit.", "error"); 
             } else {
                 currentEditingKK = null; // Pastikan data baru tidak dianggap sedang di-edit
-                setTimeout(checkDuplicateKK, 500); // Cek duplikat saat selesai render
+                checkDuplicateKK(); // Cek duplikat saat selesai render
+                
+                // OTOMATIS SIMPAN KE DASBOR LOKAL & SPREADSHEET SETELAH SCAN AI BERHASIL
+                let nokkVal = document.getElementById('hk_nokk').value.trim();
+                if (nokkVal && nokkVal !== '-' && nokkVal !== '0000000000000000') {
+                    autoSaveData();
+                }
             }
             
             btnC.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Ekstrak AI'; btnC.disabled=false; document.getElementById('media-container').classList.remove('scanning'); stopCamera();
@@ -2352,7 +2358,18 @@
                 }
 
                 allUrlsToPush.forEach(url => {
-                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) }).catch(() => {});
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) })
+                    .then(res => {
+                        if(res.ok) {
+                            // Tandai bahwa data ini sudah sukses terkirim ke Cloud
+                            let sNow = JSON.parse(localStorage.getItem('kk_data') || '[]');
+                            let idxNow = sNow.findIndex(x => x.header.no_kk === d.header.no_kk);
+                            if (idxNow > -1) {
+                                sNow[idxNow].is_unsynced = false;
+                                localStorage.setItem('kk_data', JSON.stringify(sNow));
+                            }
+                        }
+                    }).catch(() => {});
                 });
             } catch (e) {}
         }
@@ -2567,6 +2584,7 @@
             showToast("Baris anggota ditambahkan & langsung tersimpan!", "success");
 
             autoSaveData();
+            saveToGoogleSheetsSilent(); // Langsung kirim instan ke Spreadsheet tanpa menunggu jeda ketik
             activeRkFilter = 'all';
             activeRtFilter = 'all';
             activeUserFilter = 'all';
@@ -2601,6 +2619,7 @@
                 });
                 d.input_by = s[idx].input_by || (currentUser ? currentUser.username : 'admin');
                 d.local_updated = Date.now(); // ANTI-REVERT GUARD
+                d.is_unsynced = true; // TANDAI BELUM SELESAI SYNC KE CLOUD
                 s[idx] = d;
             } else {
                 (d.anggota_keluarga || []).forEach(a => {
@@ -2608,6 +2627,7 @@
                 });
                 d.input_by = currentUser ? currentUser.username : 'admin';
                 d.local_updated = Date.now(); // ANTI-REVERT GUARD
+                d.is_unsynced = true; // TANDAI BELUM SELESAI SYNC KE CLOUD
                 s.unshift(d);
             }
             localStorage.setItem('kk_data', JSON.stringify(s));
@@ -2628,10 +2648,12 @@
                 (d.anggota_keluarga||[]).forEach((a,i)=>{ if(s[idx].anggota_keluarga[i]&&s[idx].anggota_keluarga[i].status_penduduk) a.status_penduduk=s[idx].anggota_keluarga[i].status_penduduk; }); 
                 d.input_by = s[idx].input_by || currentUser.username;
                 d.local_updated = Date.now(); // ANTI-REVERT GUARD
+                d.is_unsynced = true;
                 s[idx]=d; 
             } else {
                 d.input_by = currentUser.username;
                 d.local_updated = Date.now(); // ANTI-REVERT GUARD
+                d.is_unsynced = true;
                 s.unshift(d); 
             }
             localStorage.setItem('kk_data', JSON.stringify(s)); showToast("Tersimpan lokal", "success");
@@ -2645,12 +2667,18 @@
                 let successCount = 0;
                 for (let url of allUrlsToPush) {
                     try {
-                        await fetch(url,{method:'POST', headers: { 'Content-Type': 'text/plain' }, body:JSON.stringify(d)}); 
-                        successCount++;
+                        let res = await fetch(url,{method:'POST', headers: { 'Content-Type': 'text/plain' }, body:JSON.stringify(d)}); 
+                        if(res.ok) successCount++;
                     } catch(e) {}
                 }
                 
                 if (successCount > 0) {
+                    let sNow = JSON.parse(localStorage.getItem('kk_data') || '[]');
+                    let idxNow = sNow.findIndex(x => x.header.no_kk === d.header.no_kk);
+                    if (idxNow > -1) {
+                        sNow[idxNow].is_unsynced = false;
+                        localStorage.setItem('kk_data', JSON.stringify(sNow));
+                    }
                     showToast("Tersinkronisasi ke Cloud", "success"); 
                     document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
                 } else {
