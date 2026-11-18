@@ -40,6 +40,11 @@
             -webkit-backdrop-filter: blur(12px) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+            cursor: grab;
+        }
+        
+        .glass-panel:active {
+            cursor: grabbing;
         }
 
         /* --- PENAMBAHAN EFEK KACA (GLASSMORPHISM) SESUAI REQUEST --- */
@@ -103,6 +108,10 @@
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: none; /* Dihilangkan blur dari navbar agar scroll tabel sangat lancar */
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-panel:active {
+            cursor: grabbing;
         }
 
         /* --- PENAMBAHAN EFEK KACA (GLASSMORPHISM) SESUAI REQUEST --- */
@@ -393,14 +402,8 @@
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">RK</label>
-                        <input type="text" id="edit-rk" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RK, cth: 001 atau all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">RT</label>
-                        <input type="text" id="edit-rt" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RT, cth: 002 atau all">
-                    </div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">RK</label><input type="text" id="edit-rk" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">RT</label><input type="text" id="edit-rt" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold"></div>
                 </div>
                 <div class="flex justify-center gap-4 mt-6">
                     <button type="button" onclick="closeEditUserModal()" class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 w-full">Batal</button>
@@ -439,7 +442,7 @@
 
     <!-- Halaman Login -->
     <div id="login-view" class="fixed inset-0 z-50 animated-bg flex items-center justify-center p-4">
-        <div id="login-panel" class="glass-panel w-full max-w-md max-h-[95vh] rounded-3xl p-8 shadow-2xl relative overflow-y-auto custom-scrollbar transition-transform duration-75">
+        <div id="login-panel" class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-transform duration-75">
             <button onclick="syncBeforeLogin()" id="btn-login-sync" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-white/50 hover:bg-white text-slate-500 hover:text-brand-600 rounded-full shadow-sm transition-all z-20" title="Sinkronisasi Pengaturan & Logo">
                 <i class="fas fa-sync-alt"></i>
             </button>
@@ -507,17 +510,6 @@
                     </button>
                     <p class="text-center text-sm text-slate-500 mt-4">Sudah punya akun? <a href="#" onclick="toggleAuthMode('login')" class="text-brand-600 font-semibold hover:underline">Masuk di sini</a></p>
                 </form>
-
-                <!-- Tautan Sosial Media Resmi -->
-                <div id="login-social-media" class="flex justify-center flex-wrap gap-3 mt-8 border-t border-white/10 pt-6 hidden">
-                    <a id="link-fb" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:scale-105 transition-all shadow-sm hidden" title="Facebook"><i class="fab fa-facebook-f text-lg"></i><span id="text-fb" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-ig" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-pink-600 hover:scale-105 transition-all shadow-sm hidden" title="Instagram"><i class="fab fa-instagram text-lg"></i><span id="text-ig" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-tiktok" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-black hover:scale-105 transition-all shadow-sm hidden" title="TikTok"><i class="fab fa-tiktok text-lg"></i><span id="text-tiktok" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-twitter" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-sky-500 hover:scale-105 transition-all shadow-sm hidden" title="Twitter / X"><i class="fab fa-twitter text-lg"></i><span id="text-twitter" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-wa1" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 1"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa1" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-wa2" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 2"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa2" class="ml-2 text-xs font-bold hidden"></span></a>
-                    <a id="link-wa3" href="#" target="_blank" class="h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:scale-105 transition-all shadow-sm hidden" title="WhatsApp 3"><i class="fab fa-whatsapp text-lg"></i><span id="text-wa3" class="ml-2 text-xs font-bold hidden"></span></a>
-                </div>
             </div>
         </div>
         
@@ -702,8 +694,8 @@
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Nama Kepala Keluarga</label><input type="text" id="hk_kepala" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="md:col-span-2 xl:col-span-2"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Alamat Lengkap</label><input type="text" id="hk_alamat" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" onblur="padRtRk(this)" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" onblur="padRtRk(this)" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RT</label><input type="text" id="hk_rt" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
+                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">RK</label><input type="text" id="hk_rk" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 </div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Kode Pos</label><input type="text" id="hk_kodepos" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Desa / Kelurahan</label><input type="text" id="hk_desa" onkeyup="autoDetectKodePos()" oninput="autoSaveData()" readonly class="w-full px-3 py-2 bg-transparent border-b border-slate-200 font-bold outline-none" placeholder="-"></div>
@@ -752,9 +744,8 @@
                     <div class="flex flex-wrap gap-2 justify-end">
                         <button onclick="quickAddMemberDashboard()" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-bold shadow-sm flex items-center gap-2 hover:bg-brand-700 transition-all"><i class="fas fa-user-plus"></i> Tambah Anggota / KK Baru</button>
                         <button onclick="exportDashboardExcel()" class="px-5 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-excel"></i> Export Filter</button>
-                        <button onclick="exportDashboardPDF()" class="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-file-pdf"></i> Export PDF</button>
                         <button onclick="syncFromCloud()" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2" title="Tarik data terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
-                        <button id="btn-reset-dashboard" onclick="clearDashboardData()" class="px-5 py-2.5 bg-slate-50 text-slate-600 rounded-xl font-bold shadow-sm flex items-center gap-2 hidden"><i class="fas fa-trash-alt"></i> Reset Dasbor</button>
+                        <button onclick="clearDashboardData()" class="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm flex items-center gap-2"><i class="fas fa-trash-alt"></i> Reset Dasbor</button>
                     </div>
                 </div>
 
@@ -770,12 +761,6 @@
                         <span class="text-xs font-bold text-slate-500 mr-2"><i class="fas fa-map-signs text-amber-500 mr-1"></i> Filter Wilayah (RK):</span>
                         <div id="quick-rk-buttons-container" class="flex flex-wrap gap-2">
                             <!-- Tombol-tombol RK akan dimuat secara dinamis di sini -->
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 border-t border-slate-50 pt-2">
-                        <span class="text-xs font-bold text-slate-500 mr-2"><i class="fas fa-map-pin text-orange-500 mr-1"></i> Filter Wilayah (RT):</span>
-                        <div id="quick-rt-buttons-container" class="flex flex-wrap gap-2">
-                            <!-- Tombol-tombol RT akan dimuat secara dinamis di sini -->
                         </div>
                     </div>
                 </div>
@@ -864,9 +849,6 @@
                         <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-slate-200"><i class="fas fa-box-archive"></i></div>
                         <div><h2 class="text-2xl font-bold text-slate-800">Data Tidak Aktif</h2><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Meninggal, Pindah & Disembunyikan</p></div>
                     </div>
-                    <div class="flex flex-wrap gap-2 justify-end">
-                        <button onclick="syncInactiveFromCloud()" id="btn-sync-inactive" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
-                    </div>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border flex flex-col relative">
@@ -878,7 +860,7 @@
                             <thead class="sticky top-0 z-30">
                                 <tr class="bg-white text-slate-400 text-[10px] uppercase border-b-2">
                                     <th class="px-5 py-4 font-bold sticky left-0 bg-white z-40 shadow-[1px_0_0_#f1f5f9]">No</th>
-                                    <th class="px-5 py-4 font-bold bg-white">No. KK</th><th class="px-5 py-4 font-bold bg-white">Status Akhir</th><th class="px-5 py-4 font-bold bg-white">Nama Lengkap</th><th class="px-5 py-4 font-bold bg-white">NIK</th><th class="px-5 py-4 font-bold bg-white">J. Kelamin</th><th class="px-5 py-4 font-bold bg-white">Tempat Lahir</th><th class="px-5 py-4 font-bold bg-white">Tgl Lahir</th><th class="px-5 py-4 font-bold bg-white text-blue-600">Tgl Datang</th><th class="px-5 py-4 font-bold bg-white text-amber-600">Tgl Pindah</th><th class="px-5 py-4 font-bold bg-white text-rose-600">Tgl Meninggal</th><th class="px-5 py-4 font-bold bg-white z-30 text-center min-w-[150px]">Aksi & Pulihkan</th>
+                                    <th class="px-5 py-4 font-bold bg-white">No. KK</th><th class="px-5 py-4 font-bold bg-white">Status Akhir</th><th class="px-5 py-4 font-bold bg-white">Nama Lengkap</th><th class="px-5 py-4 font-bold bg-white">NIK</th><th class="px-5 py-4 font-bold bg-white">J. Kelamin</th><th class="px-5 py-4 font-bold bg-white">Tempat Lahir</th><th class="px-5 py-4 font-bold bg-white">Tgl Lahir</th><th class="px-5 py-4 font-bold bg-white z-30 text-center min-w-[150px]">Aksi & Pulihkan</th>
                                 </tr>
                             </thead>
                             <tbody id="inactive-table-body" class="divide-y text-slate-600"></tbody>
@@ -979,7 +961,6 @@
                     <div class="flex flex-wrap gap-2 justify-end">
                         <button onclick="archiveCurrentReport('Mutasi Penduduk')" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 transition-all"><i class="fas fa-box-archive"></i> Arsipkan Laporan</button>
                         <button onclick="printMutasiFormat()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-print"></i> Print Laporan</button>
-                        <button onclick="syncMutasiFromCloud()" id="btn-sync-mutasi" class="px-5 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold shadow-md flex items-center gap-2 transition-all hover:bg-emerald-100" title="Tarik data mutasi terbaru dari Google Sheets"><i class="fas fa-cloud-arrow-down"></i> Sync Manual</button>
                     </div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl shadow-sm border overflow-x-auto custom-scrollbar" id="mutasi-print-wrapper">
@@ -1376,42 +1357,6 @@
                     <button onclick="savePrintSettings()" class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm"><i class="fas fa-save"></i> Simpan Pengaturan Cetak</button>
                 </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-share-nodes text-brand-500"></i> Tautan Media Sosial Instansi</h3>
-                    <p class="text-xs text-slate-500 mb-4">Tautan ini akan ditampilkan di halaman depan (Login) agar warga mudah mengakses akun resmi.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-facebook text-blue-600"></i> Facebook</label>
-                            <div class="flex gap-2"><input type="text" id="set-fb-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-fb" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-instagram text-pink-600"></i> Instagram</label>
-                            <div class="flex gap-2"><input type="text" id="set-ig-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-ig" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-tiktok text-slate-800"></i> TikTok</label>
-                            <div class="flex gap-2"><input type="text" id="set-tiktok-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-tiktok" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-twitter text-sky-500"></i> Twitter / X</label>
-                            <div class="flex gap-2"><input type="text" id="set-twitter-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-twitter" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 1</label>
-                            <div class="flex gap-2"><input type="text" id="set-wa1-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa1" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 2</label>
-                            <div class="flex gap-2"><input type="text" id="set-wa2-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa2" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1"><i class="fab fa-whatsapp text-green-500"></i> WhatsApp 3</label>
-                            <div class="flex gap-2"><input type="text" id="set-wa3-name" class="w-1/3 px-3 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="Nama Akun (Opsional)"><input type="text" id="set-wa3" class="w-2/3 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-xs" placeholder="URL Tautan"></div>
-                        </div>
-                    </div>
-                    <button onclick="saveSocialMedia()" class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold text-sm"><i class="fas fa-save mr-1"></i> Simpan Tautan Sosial Media</button>
-                </div>
-
                 <div id="api-integration-card" class="bg-white p-8 rounded-3xl shadow-sm border flex flex-col w-full mt-6 hidden">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-link text-brand-500"></i> Integrasi Sistem (Backend & AI)</h3>
                     
@@ -1419,18 +1364,6 @@
                         <label class="block text-xs font-bold text-slate-500 mb-1">URL Utama Google Apps Script (Hanya Master / superakun)</label>
                         <input type="text" id="set-sheets-url" class="w-full px-4 py-2 bg-slate-50 border border-brand-300 rounded-xl font-semibold outline-none focus:border-brand-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
                         <p class="text-[10px] text-brand-600 font-bold mt-2"><i class="fas fa-shield-alt"></i> URL Utama ini bersifat rahasia dan hanya dapat dilihat/diubah oleh akun superakun.</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Spreadsheet Khusus Mutasi (Opsional)</label>
-                        <input type="text" id="set-mutasi-url" class="w-full px-4 py-2 bg-slate-50 border border-purple-300 rounded-xl font-semibold outline-none focus:border-purple-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
-                        <p class="text-[10px] text-purple-600 font-bold mt-2"><i class="fas fa-code-branch"></i> Jika diisi, setiap aksi Mutasi (Lahir/Mati/Pindah/Datang) akan dikirim juga ke URL ini dengan perintah <strong>action="save_mutasi"</strong>.</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">URL Spreadsheet Khusus Arsip (Opsional)</label>
-                        <input type="text" id="set-archive-url" class="w-full px-4 py-2 bg-slate-50 border border-amber-300 rounded-xl font-semibold outline-none focus:border-amber-500 text-slate-700" placeholder="https://script.google.com/macros/s/.../exec">
-                        <p class="text-[10px] text-amber-600 font-bold mt-2"><i class="fas fa-box-archive"></i> Jika diisi, setiap aksi Arsip akan dikirim juga ke URL ini dengan perintah <strong>action="save_archive"</strong>. Memungkinkan 1 Spreadsheet khusus memantau arsip realtime.</p>
                     </div>
 
                     <div class="mb-4">
@@ -1442,10 +1375,7 @@
                     </div>
 
                     <div>
-                        <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
-                            <label class="block text-xs font-bold text-slate-500">Daftar API Key Gemini AI (100 Kolom)</label>
-                            <button onclick="syncIntegrationFromCloud()" id="btn-sync-integration" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-bold shadow-sm flex items-center gap-2 text-[10px] transition-all hover:bg-emerald-100" title="Sinkronisasi Manual API Key & URL dari Cloud"><i class="fas fa-sync-alt"></i> Sinkronisasi API & URL</button>
-                        </div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Daftar API Key Gemini AI (100 Kolom)</label>
                         <div id="api-keys-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                             <!-- API Keys dimuat secara dinamis oleh JS untuk 100 kolom -->
                         </div>
@@ -1483,7 +1413,7 @@
                     <div class="mt-6 border-t border-slate-100 pt-6">
                         <label class="block text-xs font-bold text-slate-500 mb-2">Teks Berjalan (Halaman Login)</label>
                         <div class="flex gap-2">
-                            <input type="text" id="set-running-text" oninput="updateRunningTextRealtime()" class="flex-1 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-sm" placeholder="Contoh: Selamat Datang di Sistem Informasi Smart E-KK...">
+                            <input type="text" id="set-running-text" class="flex-1 px-4 py-2 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-brand-500 text-sm" placeholder="Contoh: Selamat Datang di Sistem Informasi Smart E-KK...">
                             <button onclick="saveRunningText()" class="px-4 py-2 bg-brand-600 text-white rounded-xl font-bold shadow-sm text-xs hover:bg-brand-700 transition-colors"><i class="fas fa-save mr-1"></i> Simpan</button>
                             <button onclick="removeRunningText()" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold shadow-sm text-xs hover:bg-rose-100 transition-colors" title="Hapus Teks"><i class="fas fa-trash-alt"></i></button>
                         </div>
@@ -1527,14 +1457,8 @@
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 mb-1">RK</label>
-                                    <input type="text" id="new-rk" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RK, cth: 001 atau all">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 mb-1">RT</label>
-                                    <input type="text" id="new-rt" onblur="padUserRtRk(this)" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold text-slate-700" placeholder="Ketik RT, cth: 002 atau all">
-                                </div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1">RK</label><input type="text" id="new-rk" placeholder="all atau 001,002" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold" value="all"></div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1">RT</label><input type="text" id="new-rt" placeholder="all atau 001,002,003" class="w-full px-4 py-3 bg-slate-50 border rounded-xl font-semibold" value="all"></div>
                             </div>
                             <button type="submit" class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold shadow-md"><i class="fas fa-user-plus"></i> Simpan Akun</button>
                         </form>
@@ -1577,7 +1501,7 @@
         let stream = null, isUsingCamera = false, isEditMode = false;
         let chartUmurInstance = null, chartPendidikanInstance = null, chartAgamaInstance = null, chartPekerjaanInstance = null;
         let currentUser = null, currentDashFilter = null, uploadedFileType = '', uploadedBase64 = '';
-        let activeRkFilter = 'all', activeRtFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
+        let activeRkFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
         let syncInterval = null; // Menangani interval realtime sync
         let currentEditingKK = null; // Menyimpan No KK yang sedang diedit agar tidak terdeteksi sebagai duplikat
 
@@ -1754,13 +1678,6 @@
             // Tampilkan tombol navigasi vertikal setelah masuk (login)
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
 
-            // Menyembunyikan tombol reset dari dashboard jika bukan akun super master
-            let btnResetDash = document.getElementById('btn-reset-dashboard');
-            if (btnResetDash) {
-                if (currentUser.username === 'superakun' || currentUser.is_master) btnResetDash.classList.remove('hidden');
-                else btnResetDash.classList.add('hidden');
-            }
-
             switchView('ocr-view'); 
             startRealtimeSync();
             
@@ -1783,12 +1700,12 @@
             syncInterval = setInterval(() => {
                 // Hanya lakukan sync otomatis jika user tidak sedang mengetik/mengedit form agar data ketikan aman
                 if(!isEditMode && !currentEditingKK && document.activeElement.tagName !== 'INPUT') {
-                    syncFromCloudBackground(true);
+                    syncFromCloudBackground();
                 }
-            }, 10000); // Sinkronisasi otomatis setiap 10 detik
+            }, 15000); // Sinkronisasi otomatis setiap 15 detik
         }
 
-        async function syncFromCloudBackground(isAuto = false) {
+        async function syncFromCloudBackground() {
             try {
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToFetch = [GOOGLE_SHEETS_API_URL, ...activeUrls];
@@ -1809,9 +1726,6 @@
                                 if (currentVal !== newVal) {
                                     if (s.key === 'google_sheets_url' || s.key === 'app_google_sheets_url') return; // Abaikan URL agar tidak bentrok
                                     
-                                    // Mencegah auto-sync latar belakang mengganggu data Manajemen Akun
-                                    if (isAuto && s.key === 'app_users_db') return;
-                                    
                                     if (s.value === '') { localStorage.removeItem(s.key); } 
                                     else { localStorage.setItem(s.key, s.value); }
                                     
@@ -1825,48 +1739,23 @@
                         if(json.data) {
                             allFetchedData = allFetchedData.concat(json.data);
                         }
-                        
-                        // Menarik data arsip dari Cloud
-                        if(json.archives && Array.isArray(json.archives)) {
-                            // Sortir arsip dari yang paling baru
-                            let sortedArchives = json.archives.sort((a,b) => b.id - a.id);
-                            localStorage.setItem('app_report_archives', JSON.stringify(sortedArchives));
-                            isUpdated = true;
-                        }
                     } catch(e) {
                         console.warn(`[Sync] Gagal menarik data dari URL: ${url}`);
                     }
                 }
                 
                 if(allFetchedData.length > 0) {
-                    let oldData = JSON.parse(localStorage.getItem('kk_data') || '[]');
-                    let oldDataMap = {};
-                    oldData.forEach(d => { oldDataMap[d.header.no_kk] = d; });
-
                     // Gabungkan data dan hilangkan duplikasi berdasarkan No. KK
                     let uniqueDataMap = {};
                     allFetchedData.forEach(d => {
-                        let localD = oldDataMap[d.header.no_kk];
-                        // ANTI-REVERT GUARD DIPERKUAT: Lindungi data lokal yang baru diinput/diubah (1 Jam / 3600000 ms) atau belum selesai sync
-                        if (localD && (localD.is_unsynced || (localD.local_updated && (Date.now() - localD.local_updated < 3600000)))) {
-                            uniqueDataMap[d.header.no_kk] = localD;
-                        } else {
-                            uniqueDataMap[d.header.no_kk] = d;
-                        }
+                        uniqueDataMap[d.header.no_kk] = d;
                     });
-                    
-                    // Pertahankan semua data lokal yang belum masuk ke server Cloud agar tidak pernah hilang
-                    oldData.forEach(d => {
-                        if (!uniqueDataMap[d.header.no_kk]) {
-                            uniqueDataMap[d.header.no_kk] = d;
-                        }
-                    });
-
                     let uniqueData = Object.values(uniqueDataMap);
                     
-                    let newDataStr = JSON.stringify(uniqueData);
-                    if(JSON.stringify(oldData) !== newDataStr) {
-                        localStorage.setItem('kk_data', newDataStr);
+                    let oldData = localStorage.getItem('kk_data') || '[]';
+                    let newData = JSON.stringify(uniqueData);
+                    if(oldData !== newData) {
+                        localStorage.setItem('kk_data', newData);
                         isUpdated = true;
                     }
                 }
@@ -1900,17 +1789,13 @@
                     if (document.getElementById('matapilih-view') && !document.getElementById('matapilih-view').classList.contains('hidden')) {
                         renderMataPilihTable();
                     }
-                    if (!isAuto && document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
+                    if (document.getElementById('users-view') && !document.getElementById('users-view').classList.contains('hidden')) {
                         renderUsersTable();
-                    }
-                    if (document.getElementById('archive-view') && !document.getElementById('archive-view').classList.contains('hidden')) {
-                        renderArchiveList();
                     }
                     if(typeof applyThemeAndBg === 'function') applyThemeAndBg();
                     loadSettingsUI();
                     applyLogo();
                     if(typeof applyRunningText === 'function') applyRunningText();
-                    if(typeof applySocialMedia === 'function') applySocialMedia();
                 }
                 
                 renderLoginRkSummary();
@@ -1981,55 +1866,6 @@
             
             if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sinkronisasi Manual'; }
             showToast("Sinkronisasi Logo Selesai!", "success");
-        }
-
-        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Laporan Mutasi
-        async function syncMutasiFromCloud() {
-            let btn = document.getElementById('btn-sync-mutasi');
-            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
-            showToast("Menarik data mutasi terbaru...", "info");
-            
-            // Panggil API background sync
-            await syncFromCloudBackground();
-            
-            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sync Manual'; }
-            showToast("Sinkronisasi Mutasi Selesai!", "success");
-        }
-
-        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Integrasi API & URL
-        async function syncIntegrationFromCloud() {
-            let btn = document.getElementById('btn-sync-integration');
-            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
-            showToast("Menarik data API & URL terbaru...", "info");
-            
-            // Panggil API background sync
-            await syncFromCloudBackground(false);
-            
-            // Perbarui variabel global dari Local Storage setelah sync
-            apiKeysList = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
-            activeKeyIndices = JSON.parse(localStorage.getItem('gemini_active_key_indices') || '[0]');
-            appUrlsList = JSON.parse(localStorage.getItem('app_urls_list') || '[]');
-            activeUrlIndices = JSON.parse(localStorage.getItem('app_active_url_indices') || '[]');
-            apiKey = localStorage.getItem('gemini_api_key') || "";
-            
-            // Memuat ulang kolom dengan data yang baru saja disingkronkan
-            loadSettingsUI();
-            
-            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sinkronisasi API & URL'; }
-            showToast("Sinkronisasi API Key & URL Selesai!", "success");
-        }
-
-        // TUGAS BARU: Fungsi Khusus untuk sinkronisasi manual di bagian Data Tidak Aktif
-        async function syncInactiveFromCloud() {
-            let btn = document.getElementById('btn-sync-inactive');
-            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menarik Data...'; }
-            showToast("Menarik data tidak aktif terbaru...", "info");
-            
-            // Panggil API background sync
-            await syncFromCloudBackground();
-            
-            if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-down"></i> Sync Manual'; }
-            showToast("Sinkronisasi Data Tidak Aktif Selesai!", "success");
         }
 
         function switchView(viewId) {
@@ -2195,7 +2031,7 @@
                     if(!res.ok) throw new Error(`API Error / Limit (Status: ${res.status})`); // Jika error/limit, langsung lempar ke catch untuk mencoba API Key selanjutnya
                     
                     let json = await res.json(), txt = json.candidates[0].content.parts[0].text.replace(/\`\`\`json/gi,'').replace(/\`\`\`/g,'');
-                    renderDataToUI(JSON.parse(txt)); toggleEdit(false); showToast("Sukses ekstrak AI & otomatis tersimpan ke Dasbor/Cloud!", "success");
+                    renderDataToUI(JSON.parse(txt)); toggleEdit(false); showToast("Sukses ekstrak AI", "success");
                     success = true;
                     break; // Berhenti mencari jika sukses
                 } catch(e) {
@@ -2207,13 +2043,7 @@
                 showToast("Gagal ekstrak AI! Pastikan API Key valid atau tidak terkena Limit.", "error"); 
             } else {
                 currentEditingKK = null; // Pastikan data baru tidak dianggap sedang di-edit
-                checkDuplicateKK(); // Cek duplikat saat selesai render
-                
-                // OTOMATIS SIMPAN KE DASBOR LOKAL & SPREADSHEET SETELAH SCAN AI BERHASIL
-                let nokkVal = document.getElementById('hk_nokk').value.trim();
-                if (nokkVal && nokkVal !== '-' && nokkVal !== '0000000000000000') {
-                    autoSaveData();
-                }
+                setTimeout(checkDuplicateKK, 500); // Cek duplikat saat selesai render
             }
             
             btnC.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Ekstrak AI'; btnC.disabled=false; document.getElementById('media-container').classList.remove('scanning'); stopCamera();
@@ -2358,43 +2188,12 @@
                 }
 
                 allUrlsToPush.forEach(url => {
-                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) })
-                    .then(res => {
-                        if(res.ok) {
-                            // Tandai bahwa data ini sudah sukses terkirim ke Cloud
-                            let sNow = JSON.parse(localStorage.getItem('kk_data') || '[]');
-                            let idxNow = sNow.findIndex(x => x.header.no_kk === d.header.no_kk);
-                            if (idxNow > -1) {
-                                sNow[idxNow].is_unsynced = false;
-                                localStorage.setItem('kk_data', JSON.stringify(sNow));
-                            }
-                        }
-                    }).catch(() => {});
+                    fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) }).catch(() => {});
                 });
             } catch (e) {}
         }
 
         function enableManualInput() { currentEditingKK = null; renderDataToUI({header:{}, anggota_keluarga:[{jenis_kelamin:"LAKI-LAKI", status_perkawinan:"BELUM KAWIN", status_hubungan_keluarga:"KEPALA KELUARGA", kewarganegaraan:"WNI"}]}); toggleEdit(true); showToast("Mode Manual Aktif", "info"); }
-
-        // Fungsi baru untuk memformat input angka RT/RK menjadi selalu 3 digit (contoh: 5 jadi 005)
-        function padRtRk(el) {
-            let val = el.value.replace(/\D/g, ''); 
-            if (val) {
-                el.value = val.padStart(3, '0');
-            } else {
-                el.value = '-';
-            }
-            if (typeof autoSaveData === 'function') autoSaveData();
-        }
-
-        // Fungsi khusus form User (membolehkan teks "all")
-        function padUserRtRk(el) {
-            let val = el.value.trim().toLowerCase();
-            if(val === 'all' || val === '') { el.value = 'all'; return; }
-            let num = val.replace(/\D/g, '');
-            if(num) el.value = num.padStart(3, '0');
-            else el.value = 'all';
-        }
 
         function autoDetectKodePos() {
             let desaEl = document.getElementById('hk_desa');
@@ -2428,14 +2227,7 @@
         function renderDataToUI(d) {
             let h = d.header||{};
             ['hk_nokk','hk_kepala','hk_alamat','hk_kodepos','hk_desa','hk_kecamatan','hk_kabupaten','hk_provinsi'].forEach(id => { let k=id==='hk_nokk'?'no_kk':id==='hk_kepala'?'nama_kepala_keluarga':id==='hk_desa'?'desa_kelurahan':id==='hk_kabupaten'?'kabupaten_kota':id==='hk_kodepos'?'kode_pos':id.replace('hk_',''); document.getElementById(id).value = h[k]||'-'; });
-            
-            // Format otomatis tampilan load RK & RT menjadi 3 digit (00X)
-            let rtrw = (h.rt_rw||'').split(/[\/\-]/); 
-            let rtVal = (rtrw[0]||'').replace(/\D/g, '');
-            let rkVal = (rtrw[1]||'').replace(/\D/g, '');
-            document.getElementById('hk_rt').value = rtVal ? rtVal.padStart(3, '0') : '-'; 
-            document.getElementById('hk_rk').value = rkVal ? rkVal.padStart(3, '0') : '-';
-            
+            let rtrw = (h.rt_rw||'').split(/[\/\-]/); document.getElementById('hk_rt').value = rtrw[0]||'-'; document.getElementById('hk_rk').value = rtrw[1]||'-';
             let tb = document.getElementById('table-body'); tb.innerHTML = '';
             (d.anggota_keluarga||[]).forEach((a,i) => {
                 tb.innerHTML += `<tr><td class="px-5 py-3 sticky left-0 bg-white font-bold">${i+1}</td>
@@ -2584,9 +2376,7 @@
             showToast("Baris anggota ditambahkan & langsung tersimpan!", "success");
 
             autoSaveData();
-            saveToGoogleSheetsSilent(); // Langsung kirim instan ke Spreadsheet tanpa menunggu jeda ketik
             activeRkFilter = 'all';
-            activeRtFilter = 'all';
             activeUserFilter = 'all';
             loadDashboardData();
         }
@@ -2618,16 +2408,12 @@
                     }
                 });
                 d.input_by = s[idx].input_by || (currentUser ? currentUser.username : 'admin');
-                d.local_updated = Date.now(); // ANTI-REVERT GUARD
-                d.is_unsynced = true; // TANDAI BELUM SELESAI SYNC KE CLOUD
                 s[idx] = d;
             } else {
                 (d.anggota_keluarga || []).forEach(a => {
                     a.status_penduduk = a.status_penduduk || 'AKTIF';
                 });
                 d.input_by = currentUser ? currentUser.username : 'admin';
-                d.local_updated = Date.now(); // ANTI-REVERT GUARD
-                d.is_unsynced = true; // TANDAI BELUM SELESAI SYNC KE CLOUD
                 s.unshift(d);
             }
             localStorage.setItem('kk_data', JSON.stringify(s));
@@ -2647,13 +2433,9 @@
             if(idx>-1){ 
                 (d.anggota_keluarga||[]).forEach((a,i)=>{ if(s[idx].anggota_keluarga[i]&&s[idx].anggota_keluarga[i].status_penduduk) a.status_penduduk=s[idx].anggota_keluarga[i].status_penduduk; }); 
                 d.input_by = s[idx].input_by || currentUser.username;
-                d.local_updated = Date.now(); // ANTI-REVERT GUARD
-                d.is_unsynced = true;
                 s[idx]=d; 
             } else {
                 d.input_by = currentUser.username;
-                d.local_updated = Date.now(); // ANTI-REVERT GUARD
-                d.is_unsynced = true;
                 s.unshift(d); 
             }
             localStorage.setItem('kk_data', JSON.stringify(s)); showToast("Tersimpan lokal", "success");
@@ -2667,18 +2449,12 @@
                 let successCount = 0;
                 for (let url of allUrlsToPush) {
                     try {
-                        let res = await fetch(url,{method:'POST', headers: { 'Content-Type': 'text/plain' }, body:JSON.stringify(d)}); 
-                        if(res.ok) successCount++;
+                        await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}); 
+                        successCount++;
                     } catch(e) {}
                 }
                 
                 if (successCount > 0) {
-                    let sNow = JSON.parse(localStorage.getItem('kk_data') || '[]');
-                    let idxNow = sNow.findIndex(x => x.header.no_kk === d.header.no_kk);
-                    if (idxNow > -1) {
-                        sNow[idxNow].is_unsynced = false;
-                        localStorage.setItem('kk_data', JSON.stringify(sNow));
-                    }
                     showToast("Tersinkronisasi ke Cloud", "success"); 
                     document.getElementById('sync-status-indicator').innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
                 } else {
@@ -2816,7 +2592,7 @@
             closeMutasiDateModal();
         }
 
-        async function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
+        function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
             let s = JSON.parse(localStorage.getItem('kk_data')||'[]'), k = s.findIndex(x=>x.header.no_kk===noKk);
             if(k>-1 && s[k].anggota_keluarga[pIdx]) { 
                 s[k].anggota_keluarga[pIdx].status_penduduk = st; 
@@ -2842,7 +2618,6 @@
                     }
                 }
                 
-                s[k].local_updated = Date.now(); // ANTI-REVERT GUARD
                 localStorage.setItem('kk_data',JSON.stringify(s)); 
                 
                 // TUGAS BARU: Sinkronisasi realtime pembaruan status ke semua view (laporan) yang sedang terbuka
@@ -2851,7 +2626,7 @@
                 if(!document.getElementById('mutasi-view').classList.contains('hidden')) renderMutasiTable();
                 if(!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
                 
-                showToast(`Status jadi ${st}. Menyinkronkan...`,"info"); 
+                showToast(`Status jadi ${st}`,"success"); 
                 
                 // Sync status ke cloud multi-url
                 let d = s[k]; d.action = "save";
@@ -2863,25 +2638,9 @@
                     allUrlsToPush = [currentUser.custom_url];
                 }
 
-                let success = false;
-                for (let url of allUrlsToPush) {
-                    try {
-                        let res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) });
-                        if(res.ok) success = true;
-                    } catch(e) {}
-                }
-                
-                // TUGAS BARU: Kirim ke URL Mutasi Khusus jika diatur
-                let mutasiUrl = localStorage.getItem('app_mutasi_url');
-                if (mutasiUrl && mutasiUrl.startsWith('http')) {
-                    let mutPayload = JSON.parse(JSON.stringify(d)); 
-                    mutPayload.action = "save_mutasi"; // Action khusus mutasi
-                    mutPayload.mutasi_info = { status: st, tanggal: dateVal, tempat: placeVal, index_anggota: pIdx };
-                    fetch(mutasiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(mutPayload) }).catch(e=>{});
-                }
-                
-                if(success) showToast(`Data Mutasi paten tersimpan ke Cloud!`, "success");
-                else showToast(`Koneksi lambat, data Mutasi aman di perangkat.`, "warning");
+                allUrlsToPush.forEach(url => {
+                    fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(d)}).catch(e=>{});
+                });
             }
         }
 
@@ -2915,10 +2674,6 @@
                             actBtn += ` <button onclick="hideResident('${kk.header.no_kk}',${idx},'${st}')" class="text-[9px] px-3 py-1.5 rounded font-bold transition-colors bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-sm ml-2"><i class="fas fa-ghost mr-1"></i> Hapus dr Mutasi</button>`;
                         }
 
-                        let tglDatang = formatDateID(a.tanggal_datang) !== '-' ? formatDateID(a.tanggal_datang) : '-';
-                        let tglPindah = formatDateID(a.tanggal_pindah) !== '-' ? formatDateID(a.tanggal_pindah) : '-';
-                        let tglMeninggal = formatDateID(a.tanggal_meninggal) !== '-' ? formatDateID(a.tanggal_meninggal) : '-';
-
                         tb.innerHTML += `<tr>
                             <td class="px-5 py-3 sticky left-0 bg-slate-50">${no++}</td>
                             <td>${kk.header.no_kk}</td>
@@ -2928,9 +2683,6 @@
                             <td class="opacity-70">${a.jenis_kelamin}</td>
                             <td class="opacity-70">${a.tempat_lahir}</td>
                             <td class="opacity-70">${formatDateID(a.tanggal_lahir)}</td>
-                            <td class="opacity-80 font-bold text-blue-600">${tglDatang}</td>
-                            <td class="opacity-80 font-bold text-amber-600">${tglPindah}</td>
-                            <td class="opacity-80 font-bold text-rose-600">${tglMeninggal}</td>
                             <td class="bg-slate-50 p-2 text-center">${actBtn}</td>
                         </tr>`;
                     }
@@ -2938,7 +2690,7 @@
             });
             
             if(no === 1) {
-                tb.innerHTML = '<tr><td colspan="12" class="text-center py-10 text-slate-400 font-bold"><i class="fas fa-box-open text-3xl mb-3 block opacity-50"></i> Tidak ada data penduduk yang tidak aktif.</td></tr>';
+                tb.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-slate-400 font-bold"><i class="fas fa-box-open text-3xl mb-3 block opacity-50"></i> Tidak ada data penduduk yang tidak aktif.</td></tr>';
             }
         }
 
@@ -2946,20 +2698,14 @@
             let container = document.getElementById('dash-user-filters');
             let quickContainer = document.getElementById('quick-user-buttons-container');
             let quickRkContainer = document.getElementById('quick-rk-buttons-container');
-            let quickRtContainer = document.getElementById('quick-rt-buttons-container');
             let quickBar = document.getElementById('dashboard-user-buttons-bar');
             
             let users = [...new Set(sD.map(k => k.input_by || 'Unknown'))].sort();
             
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
-            // Perbaikan: Memastikan rk dan rt di-convert ke String sebelum di-split untuk mencegah error TypeError
-            let rksFromUsers = uDb.map(u => u.rk).filter(rk => rk && String(rk) !== 'all').flatMap(rk => String(rk).split(',')).map(rk => rk.trim());
+            let rksFromUsers = uDb.map(u => u.rk).filter(rk => rk && rk !== 'all').flatMap(rk => rk.split(',')).map(rk => rk.trim());
             let rksFromData = sD.map(k => (k.header.rt_rw||'').split(/[\/\-]/)[1]||'').map(rk => rk.trim()).filter(rk => rk !== '' && rk !== '-');
             let rks = [...new Set([...rksFromUsers, ...rksFromData])].sort();
-
-            let rtsFromUsers = uDb.map(u => u.rt).filter(rt => rt && String(rt) !== 'all').flatMap(rt => String(rt).split(',')).map(rt => rt.trim());
-            let rtsFromData = sD.map(k => (k.header.rt_rw||'').split(/[\/\-]/)[0]||'').map(rt => rt.trim()).filter(rt => rt !== '' && rt !== '-');
-            let rts = [...new Set([...rtsFromUsers, ...rtsFromData])].sort();
             
             // Cek role: tampilkan jika superadmin atau admin, sembunyikan jika user biasa
             if (currentUser.role === 'superadmin' || currentUser.role === 'admin') {
@@ -2986,22 +2732,12 @@
 
                 // Render tombol cepat per RK
                 if (quickRkContainer) {
-                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua RK</button>`;
+                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua Wilayah</button>`;
                     rks.forEach(rk => {
                         let isActive = activeRkFilter === rk;
                         rkHtml += `<button onclick="activeRkFilter='${rk}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 ${isActive?'bg-amber-500 text-white':'bg-amber-50 text-amber-700 hover:bg-amber-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> ${rk}</button>`;
                     });
                     quickRkContainer.innerHTML = rkHtml;
-                }
-
-                // Render tombol cepat per RT
-                if (quickRtContainer) {
-                    let rtHtml = `<button onclick="activeRtFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRtFilter==='all'?'bg-orange-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua RT</button>`;
-                    rts.forEach(rt => {
-                        let isActive = activeRtFilter === rt;
-                        rtHtml += `<button onclick="activeRtFilter='${rt}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-orange-200 ${isActive?'bg-orange-500 text-white':'bg-orange-50 text-orange-700 hover:bg-orange-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-pin mr-1"></i> ${rt}</button>`;
-                    });
-                    quickRtContainer.innerHTML = rtHtml;
                 }
 
                 // Render tombol kecil di atas tabel
@@ -3030,15 +2766,13 @@
         function loadDashboardData() {
             let sD = getFilteredKKData();
             
-            // PENTING: Filter data berdasarkan RK, RT, dan User yang sedang aktif sebelum menghitung Rekap Total
+            // PENTING: Filter data berdasarkan RK dan User yang sedang aktif sebelum menghitung Rekap Total
             let filteredSD = sD.filter(kk => {
                 let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
-                let k_rt = (rtrw[0]||'').trim();
                 let k_rk = (rtrw[1]||'').trim();
-                let matchRt = activeRtFilter === 'all' || k_rt === activeRtFilter;
                 let matchRk = activeRkFilter === 'all' || k_rk === activeRkFilter;
                 let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
-                return matchRt && matchRk && matchUser;
+                return matchRk && matchUser;
             });
 
             loadUserFilters(sD); // Load button filter berdasarkan data asli (agar daftarnya tetap lengkap)
@@ -3099,7 +2833,6 @@
                             <button onclick="editDataKK('${kk.header.no_kk}')" class="p-1 bg-amber-100 text-amber-600 rounded" title="Edit Data KK"><i class="fas fa-edit"></i></button>
                             <button onclick="printDataKK('${kk.header.no_kk}')" class="p-1 bg-slate-100 text-slate-600 rounded" title="Print Form Capil"><i class="fas fa-print"></i></button>
                             <button onclick="printKTP('${kk.header.no_kk}', ${idx})" class="p-1 bg-sky-100 text-sky-600 rounded" title="Cetak KTP Individual"><i class="fas fa-id-card"></i></button>
-                            <button onclick="syncDataKK('${kk.header.no_kk}')" class="p-1 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 rounded transition-colors" title="Upload/Sync Ulang KK ini ke Spreadsheet"><i class="fas fa-cloud-arrow-up"></i></button>
                             ${deleteBtnHTML}
                             ${hideBtnHTML}
                             <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'AKTIF')" class="text-[9px] px-2 py-1 rounded font-bold ml-1 transition-colors ${clsAktif}">AKTIF</button>
@@ -3161,137 +2894,16 @@
             let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
             let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
             allUrlsToPush.forEach(url => {
-                fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({action:'delete',no_kk:no}) }).catch(e=>{}); 
+                fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'delete',no_kk:no})}).catch(e=>{}); 
             });
             showToast("Terhapus"); 
         }); }
-        
-        async function syncDataKK(noKk) {
-            let s = JSON.parse(localStorage.getItem('kk_data')||'[]');
-            let kk = s.find(x => x.header.no_kk === noKk);
-            if(!kk) return showToast("Data KK tidak ditemukan", "error");
-            
-            kk.action = "save";
-            kk.local_updated = Date.now(); // Segarkan timestamp Anti-Revert
-            localStorage.setItem('kk_data', JSON.stringify(s)); 
-            
-            showToast(`Mengupload Ulang KK ${noKk} ke Cloud...`, "info");
-            
-            try {
-                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
-                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-                
-                if (currentUser && currentUser.role === 'user' && currentUser.custom_url && currentUser.custom_url.startsWith('http')) {
-                    allUrlsToPush = [currentUser.custom_url];
-                }
-
-                let successCount = 0;
-                for (let url of allUrlsToPush) {
-                    try {
-                        let res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(kk) });
-                        if (res.ok) successCount++;
-                    } catch(e) {}
-                }
-                
-                if (successCount > 0) {
-                    showToast("Sukses! Data terinput & realtime di semua perangkat.", "success");
-                    let indicator = document.getElementById('sync-status-indicator');
-                    if(indicator) indicator.innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
-                } else {
-                    showToast("Gagal mengupload ke Spreadsheet.", "error");
-                }
-            } catch(e) {
-                showToast("Error saat sinkronisasi.", "error");
-            }
-        }
-
         function clearDashboardData() { showConfirmModal("Reset Dasbor","Yakin hapus SEMUA data lokal?",()=>{ localStorage.removeItem('kk_data'); loadDashboardData(); showToast("Reset berhasil"); }); }
 
         function exportDashboardExcel() {
             let sD = getFilteredKKData(), flat = [];
             sD.forEach(k => { (k.anggota_keluarga||[]).forEach(a => { flat.push({ "No KK":k.header.no_kk, "Nama KK":k.header.nama_kepala_keluarga, "Alamat":k.header.alamat, "RT/RW":k.header.rt_rw, "Nama":a.nama_lengkap, "NIK":a.nik, "J.Kelamin":a.jenis_kelamin, "Tmp Lahir":a.tempat_lahir, "Tgl Lahir":formatDateID(a.tanggal_lahir), "Umur":calculateAge(a.tanggal_lahir), "Agama":a.agama, "Pendidikan":a.pendidikan, "Pekerjaan":a.jenis_pekerjaan, "Status Kawin":a.status_perkawinan, "Hubungan":a.status_hubungan_keluarga, "Datang Dari": a.datang_dari || '-', "Tgl Datang": formatDateID(a.tanggal_datang), "Pindah Ke": a.pindah_ke || '-', "Tgl Pindah": formatDateID(a.tanggal_pindah), "Tgl Meninggal": formatDateID(a.tanggal_meninggal) }); }); });
             let ws = XLSX.utils.json_to_sheet(flat), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Data_Dasbor.xlsx"); showToast("Export OK", "success");
-        }
-
-        function exportDashboardPDF() {
-            showToast("Menyiapkan PDF Dasbor, mohon tunggu...", "info");
-            let element = document.createElement('div');
-            element.innerHTML = `
-                <div style="padding: 10px; font-family: sans-serif;">
-                    <h2 style="text-align: center; margin-bottom: 15px; font-weight: bold; text-transform: uppercase;">DATA MASTER PENDUDUK (DASHBOARD)</h2>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: left; color: black;">
-                        <thead>
-                            <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">No</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">No KK</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Nama Lengkap</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">NIK</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">J. Kelamin</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">Umur</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">RT/RW</th>
-                                <th style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; text-align: center;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
-            let sD = getFilteredKKData();
-            let filteredSD = sD.filter(kk => {
-                let rtrw = (kk.header.rt_rw||'').split(/[\/\-]/);
-                let matchRt = activeRtFilter === 'all' || (rtrw[0]||'').trim() === activeRtFilter;
-                let matchRk = activeRkFilter === 'all' || (rtrw[1]||'').trim() === activeRkFilter;
-                let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
-                return matchRt && matchRk && matchUser;
-            });
-            let no = 1;
-            filteredSD.forEach(kk => {
-                (kk.anggota_keluarga||[]).forEach(a => {
-                    let st = a.status_penduduk||'AKTIF';
-                    if (st.toUpperCase() !== 'INVALID') {
-                        let ok = true;
-                        let jk = (a.jenis_kelamin||'').toUpperCase();
-                        let um = calculateAge(a.tanggal_lahir);
-                        if(currentDashFilter) {
-                            let kw = (a.status_perkawinan||'').toUpperCase();
-                            let isPem = um>=17 || (kw!==''&&kw!=='-'&&kw!=='BELUM KAWIN');
-                            let isAktif = ['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st);
-                            ok = false;
-                            if(currentDashFilter.type==='aktif' && isAktif) ok=true;
-                            if(currentDashFilter.type==='pemilih' && isPem) ok=true;
-                            if(currentDashFilter.type==='kepala_keluarga' && (a.status_hubungan_keluarga||'').toUpperCase() === 'KEPALA KELUARGA') ok=true;
-                            if(currentDashFilter.type==='gender' && jk===currentDashFilter.val.toUpperCase()) ok=true;
-                            if(currentDashFilter.type==='pendidikan' && a.pendidikan===currentDashFilter.val) ok=true;
-                            if(currentDashFilter.type==='agama' && a.agama===currentDashFilter.val) ok=true;
-                            if(currentDashFilter.type==='pekerjaan' && a.jenis_pekerjaan===currentDashFilter.val) ok=true;
-                            if(currentDashFilter.type==='nama' && a.nama_lengkap.toUpperCase().includes(currentDashFilter.val.toUpperCase())) ok=true;
-                            if(currentDashFilter.type==='umur') { if(currentDashFilter.val==="0-4"&&um<=4) ok=true; else if(currentDashFilter.val==="5-14"&&um>4&&um<=14) ok=true; else if(currentDashFilter.val==="15-24"&&um>14&&um<=24) ok=true; else if(currentDashFilter.val==="25-54"&&um>24&&um<=54) ok=true; else if(currentDashFilter.val==="55+"&&um>=55) ok=true; }
-                        }
-                        if(ok) {
-                            element.innerHTML += `<tr>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${no++}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${kk.header.no_kk}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0; font-weight: bold;">${a.nama_lengkap}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${a.nik}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0;">${jk}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${um}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${kk.header.rt_rw || '-'}</td>
-                                <td style="padding: 4px; border: 1px solid #e2e8f0; text-align: center;">${st}</td>
-                            </tr>`;
-                        }
-                    }
-                });
-            });
-            element.innerHTML += `</tbody></table></div>`;
-            
-            html2pdf().set({
-                margin: 10,
-                filename: 'Data_Dashboard_Kependudukan.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            }).from(element).save().then(() => {
-                showToast("PDF Dasbor Berhasil Diunduh", "success");
-            });
         }
 
         function scrollActiveTable(a) { document.querySelectorAll('.overflow-x-auto').forEach(e => e.scrollBy({left:a, behavior:'smooth'})); }
@@ -3471,67 +3083,21 @@
         }
 
         function renderRtTable() {
-            let sD = getFilteredKKData(), r = {}; 
-            const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80+"];
+            let sD = getFilteredKKData(), r = {}; const BR = ["0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75+"];
             let th = document.getElementById('rt-thead'), tb = document.getElementById('rt-tbody'), tf = document.getElementById('rt-tfoot');
             if(!th || !tb || !tf) return;
-            
-            let th1 = `<tr><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RK</div></th><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-10 border border-black"><div class="vertical-text-container">KK</div></th>`, th2 = `<tr>`;
+            let th1 = `<tr><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RW</div></th><th rowspan="2" class="w-8 border border-black"><div class="vertical-text-container">RT</div></th><th rowspan="2" class="w-10 border border-black"><div class="vertical-text-container">KK</div></th>`, th2 = `<tr>`;
             BR.forEach(b => { th1 += `<th colspan="3" class="border border-black text-[8px]">${b} THN</th>`; th2 += `<th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-6 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th>`; });
-            th.innerHTML = th1+`<th colspan="3" class="border border-black">JML TOTAL</th></tr>`+th2+`<th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th></tr>`;
-            tb.innerHTML=''; tf.innerHTML=''; 
-            
-            // Pengelompokan Data per RK dan RT
-            sD.forEach(k => { 
-                let p = (k.header.rt_rw||'').split(/[\/\-]/), rt=(p[0]||'-').trim(), rk=(p[1]||'-').trim(), wil=`${rk}_${rt}`; 
-                if(!r[wil]) {
-                    r[wil]={rt,rk,kk:0,U:{}};
-                    BR.forEach(b => r[wil].U[b] = {l:0, p:0});
-                }
-                
-                let aKk=false; 
-                (k.anggota_keluarga||[]).forEach(a=>{ if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) aKk=true; }); 
-                if(aKk) r[wil].kk++;
-                
-                (k.anggota_keluarga||[]).forEach(a => { 
-                    if(['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes((a.status_penduduk||'AKTIF').toUpperCase())) {
-                        let um = calculateAge(a.tanggal_lahir);
-                        let b = "80+"; // Default kelompok
-                        
-                        if(um<=4) b="0-4"; else if(um<=9) b="5-9"; else if(um<=14) b="10-14"; else if(um<=19) b="15-19"; else if(um<=24) b="20-24"; else if(um<=29) b="25-29"; else if(um<=34) b="30-34"; else if(um<=39) b="35-39"; else if(um<=44) b="40-44"; else if(um<=49) b="45-49"; else if(um<=54) b="50-54"; else if(um<=59) b="55-59"; else if(um<=64) b="60-64"; else if(um<=69) b="65-69"; else if(um<=74) b="70-74"; else if(um<=79) b="75-79";
-                        
-                        let isL = (a.jenis_kelamin||'').toUpperCase().includes('LAKI');
-                        if(isL) r[wil].U[b].l++; else r[wil].U[b].p++;
-                    } 
-                });
-            });
-
-            let gKk=0, gT={}; BR.forEach(k=>gT[k]={l:0,p:0});
-            
-            // Render Tabel berdasarkan urutan RK dan RT
+            th.innerHTML = th1+`<th colspan="3" class="border border-black">JML</th></tr>`+th2+`<th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">LAKI</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">PRP</div></th><th class="w-8 border border-black text-[7px]"><div class="vertical-text-container">L+P</div></th></tr>`;
+            tb.innerHTML=''; tf.innerHTML=''; let gKk=0, gT={}; BR.forEach(k=>gT[k]={l:0,p:0});
             Object.keys(r).sort((a,b)=>(parseInt(r[a].rk)||0)-(parseInt(r[b].rk)||0)||(parseInt(r[a].rt)||0)-(parseInt(r[b].rt)||0)).forEach(w => {
-                let d = r[w]; gKk+=d.kk; 
-                let ht=`<tr><td class="border border-black font-bold">${d.rk}</td><td class="border border-black font-bold">${d.rt}</td><td class="border border-black font-bold">${d.kk}</td>`;
-                let tl=0,tp=0; 
-                
-                BR.forEach((k, idx)=>{ 
-                    let l=d.U[k].l, p=d.U[k].p; gT[k].l+=l; gT[k].p+=p; tl+=l; tp+=p; 
-                    let bgClass = idx % 2 === 0 ? 'bg-[#e2e8f0]/40' : 'bg-transparent'; // Efek zebra coloring kolom umur
-                    ht+=`<td class="border border-black ${bgClass}">${l||'-'}</td><td class="border border-black ${bgClass}">${p||'-'}</td><td class="border border-black font-bold ${bgClass}">${(l+p)||'-'}</td>`; 
-                });
-                
-                tb.innerHTML += ht+`<td class="border border-black bg-slate-200">${tl||'-'}</td><td class="border border-black bg-slate-200">${tp||'-'}</td><td class="border border-black font-bold bg-slate-300">${(tl+tp)||'-'}</td></tr>`;
+                let d = r[w]; gKk+=d.kk; let ht=`<tr><td class="border border-black">${d.rk}</td><td class="border border-black">${d.rt}</td><td class="border border-black font-bold">${d.kk}</td>`;
+                let tl=0,tp=0; BR.forEach(k=>{ let l=d.U[k].l, p=d.U[k].p; gT[k].l+=l; gT[k].p+=p; tl+=l; tp+=p; ht+=`<td class="border border-black">${l||'-'}</td><td class="border border-black">${p||'-'}</td><td class="border border-black font-bold bg-[#e2e8f0]/50">${(l+p)||'-'}</td>`; });
+                tb.innerHTML += ht+`<td class="border border-black">${tl||'-'}</td><td class="border border-black">${tp||'-'}</td><td class="border border-black font-bold bg-[#e2e8f0]">${(tl+tp)||'-'}</td></tr>`;
             });
-            
-            let fHt=`<tr><td colspan="2" class="border border-black text-center font-bold uppercase tracking-wider">Total Jumlah</td><td class="border border-black font-bold">${gKk}</td>`, gl=0,gp=0;
-            
-            BR.forEach((k, idx)=>{ 
-                let l=gT[k].l, p=gT[k].p; gl+=l; gp+=p; 
-                let bgClass = idx % 2 === 0 ? 'bg-[#e2e8f0]/70' : 'bg-transparent';
-                fHt+=`<td class="border border-black font-bold text-blue-800 ${bgClass}">${l||'-'}</td><td class="border border-black font-bold text-rose-700 ${bgClass}">${p||'-'}</td><td class="border border-black font-bold ${bgClass}">${(l+p)||'-'}</td>`; 
-            });
-            
-            tf.innerHTML = fHt+`<td class="border border-black font-bold text-blue-800 bg-slate-200">${gl||'-'}</td><td class="border border-black font-bold text-rose-700 bg-slate-200">${gp||'-'}</td><td class="border border-black font-bold bg-slate-300 text-sm">${(gl+gp)||'-'}</td></tr>`;
+            let fHt=`<tr><td colspan="2" class="border border-black text-center">JUMLAH</td><td class="border border-black">${gKk}</td>`, gl=0,gp=0;
+            BR.forEach(k=>{ let l=gT[k].l, p=gT[k].p; gl+=l; gp+=p; fHt+=`<td class="border border-black">${l||'-'}</td><td class="border border-black">${p||'-'}</td><td class="border border-black bg-[#e2e8f0]/50">${(l+p)||'-'}</td>`; });
+            tf.innerHTML = fHt+`<td class="border border-black">${gl||'-'}</td><td class="border border-black">${gp||'-'}</td><td class="border border-black bg-[#e2e8f0]">${(gl+gp)||'-'}</td></tr>`;
         }
 
         function renderAgamaTable() {
@@ -3989,21 +3555,6 @@
             document.getElementById('set-paper').value = localStorage.getItem('set_paper') || 'A4';
             document.getElementById('set-margin').value = localStorage.getItem('set_margin') || '5';
             
-            document.getElementById('set-fb').value = localStorage.getItem('app_social_fb') || '';
-            document.getElementById('set-fb-name').value = localStorage.getItem('app_social_fb_name') || '';
-            document.getElementById('set-ig').value = localStorage.getItem('app_social_ig') || '';
-            document.getElementById('set-ig-name').value = localStorage.getItem('app_social_ig_name') || '';
-            document.getElementById('set-tiktok').value = localStorage.getItem('app_social_tiktok') || '';
-            document.getElementById('set-tiktok-name').value = localStorage.getItem('app_social_tiktok_name') || '';
-            document.getElementById('set-twitter').value = localStorage.getItem('app_social_twitter') || '';
-            document.getElementById('set-twitter-name').value = localStorage.getItem('app_social_twitter_name') || '';
-            document.getElementById('set-wa1').value = localStorage.getItem('app_social_wa1') || '';
-            document.getElementById('set-wa1-name').value = localStorage.getItem('app_social_wa1_name') || '';
-            document.getElementById('set-wa2').value = localStorage.getItem('app_social_wa2') || '';
-            document.getElementById('set-wa2-name').value = localStorage.getItem('app_social_wa2_name') || '';
-            document.getElementById('set-wa3').value = localStorage.getItem('app_social_wa3') || '';
-            document.getElementById('set-wa3-name').value = localStorage.getItem('app_social_wa3_name') || '';
-            
             document.getElementById('set-running-text').value = localStorage.getItem('app_running_text') || '';
             
             if (currentUser && currentUser.username === 'superakun') {
@@ -4013,19 +3564,6 @@
             } else {
                 let urlContainer = document.getElementById('master-url-container');
                 if (urlContainer) urlContainer.classList.add('hidden');
-            }
-            
-            let mutasiUrlEl = document.getElementById('set-mutasi-url');
-            if(mutasiUrlEl) mutasiUrlEl.value = localStorage.getItem('app_mutasi_url') || '';
-            
-            let archiveUrlEl = document.getElementById('set-archive-url');
-            if(archiveUrlEl) archiveUrlEl.value = localStorage.getItem('app_archive_url') || '';
-            
-            // MIGRASI OTOMATIS: Tarik API Key lama jika daftar 100 kolom masih kosong
-            let legacyApiKey = localStorage.getItem('gemini_api_key');
-            if (legacyApiKey && (!apiKeysList || apiKeysList.length === 0 || (apiKeysList.length > 0 && apiKeysList[0] === ''))) {
-                apiKeysList[0] = legacyApiKey;
-                if (!activeKeyIndices.includes(0)) activeKeyIndices.push(0);
             }
             
             // Load 100 API Keys secara dinamis
@@ -4183,20 +3721,6 @@
                 }
             }
             
-            let inputMutasiUrl = document.getElementById('set-mutasi-url');
-            if(inputMutasiUrl) {
-                let v = inputMutasiUrl.value.trim();
-                localStorage.setItem('app_mutasi_url', v);
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_mutasi_url', value:v})}).catch(e=>{});
-            }
-
-            let inputArchiveUrl = document.getElementById('set-archive-url');
-            if(inputArchiveUrl) {
-                let v = inputArchiveUrl.value.trim();
-                localStorage.setItem('app_archive_url', v);
-                fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'app_archive_url', value:v})}).catch(e=>{});
-            }
-            
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_keys', value:JSON.stringify(apiKeysList)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_active_key_indices', value:JSON.stringify(activeKeyIndices)})}).catch(e=>{});
             fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:'gemini_api_key', value:apiKey})}).catch(e=>{});
@@ -4302,18 +3826,11 @@
             }
         }
 
-        function updateRunningTextRealtime() {
-            let txt = document.getElementById('set-running-text').value;
-            localStorage.setItem('app_running_text', txt);
-            applyRunningText();
-        }
-
         function saveRunningText() {
             let val = document.getElementById('set-running-text').value;
             localStorage.setItem('app_running_text', val);
             applyRunningText();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'save_setting', key:'app_running_text', value:val})}).catch(e=>{});
-            showToast("Teks berjalan disimpan & tersinkron ke Cloud", "success");
+            showToast("Teks berjalan disimpan", "success");
         }
 
         function removeRunningText() {
@@ -4321,76 +3838,7 @@
             let input = document.getElementById('set-running-text');
             if (input) input.value = '';
             applyRunningText();
-            fetch(GOOGLE_SHEETS_API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'save_setting', key:'app_running_text', value:''})}).catch(e=>{});
             showToast("Teks berjalan dihapus", "info");
-        }
-
-        // Fitur Media Sosial
-        function applySocialMedia() {
-            let medsos = [
-                {id: 'fb', url: localStorage.getItem('app_social_fb'), name: localStorage.getItem('app_social_fb_name')},
-                {id: 'ig', url: localStorage.getItem('app_social_ig'), name: localStorage.getItem('app_social_ig_name')},
-                {id: 'tiktok', url: localStorage.getItem('app_social_tiktok'), name: localStorage.getItem('app_social_tiktok_name')},
-                {id: 'twitter', url: localStorage.getItem('app_social_twitter'), name: localStorage.getItem('app_social_twitter_name')},
-                {id: 'wa1', url: localStorage.getItem('app_social_wa1'), name: localStorage.getItem('app_social_wa1_name')},
-                {id: 'wa2', url: localStorage.getItem('app_social_wa2'), name: localStorage.getItem('app_social_wa2_name')},
-                {id: 'wa3', url: localStorage.getItem('app_social_wa3'), name: localStorage.getItem('app_social_wa3_name')}
-            ];
-
-            let container = document.getElementById('login-social-media');
-            let hasAny = false;
-
-            medsos.forEach(m => {
-                let linkEl = document.getElementById(`link-${m.id}`);
-                let textEl = document.getElementById(`text-${m.id}`);
-                if (linkEl) {
-                    if (m.url) {
-                        linkEl.href = m.url;
-                        linkEl.classList.remove('hidden');
-                        hasAny = true;
-                        
-                        // Cek apakah ada label/nama
-                        if (m.name && textEl) {
-                            textEl.innerText = m.name;
-                            textEl.classList.remove('hidden');
-                            linkEl.classList.remove('w-10');
-                            linkEl.classList.add('px-4', 'w-auto'); // Melebarkan tombol agar teks muat
-                        } else if (textEl) {
-                            textEl.classList.add('hidden');
-                            linkEl.classList.remove('px-4', 'w-auto');
-                            linkEl.classList.add('w-10'); // Kembalikan ke bulat ikon saja
-                        }
-                    } else {
-                        linkEl.classList.add('hidden');
-                    }
-                }
-            });
-
-            if (container) {
-                if (hasAny) container.classList.remove('hidden');
-                else container.classList.add('hidden');
-            }
-        }
-
-        function saveSocialMedia() {
-            let fields = ['fb', 'ig', 'tiktok', 'twitter', 'wa1', 'wa2', 'wa3'];
-            let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...(activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http')))])];
-            
-            fields.forEach(f => {
-                let urlVal = document.getElementById(`set-${f}`).value.trim();
-                let nameVal = document.getElementById(`set-${f}-name`).value.trim();
-                
-                localStorage.setItem(`app_social_${f}`, urlVal);
-                localStorage.setItem(`app_social_${f}_name`, nameVal);
-                
-                allUrlsToPush.forEach(url => {
-                    fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:`app_social_${f}`, value:urlVal})}).catch(e=>{});
-                    fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'save_setting', key:`app_social_${f}_name`, value:nameVal})}).catch(e=>{});
-                });
-            });
-
-            applySocialMedia();
-            showToast("Tautan & Nama Sosial Media berhasil disimpan", "success");
         }
 
         // TUGAS BARU: Menerapkan Nama Aplikasi saat load pertama kali (termasuk layar login)
@@ -4529,20 +3977,6 @@
             archives.unshift(newArchive);
             localStorage.setItem('app_report_archives', JSON.stringify(archives));
 
-            // Sync Arsip ke Cloud
-            let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
-            let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-            
-            let customArchiveUrl = localStorage.getItem('app_archive_url');
-            if (customArchiveUrl && customArchiveUrl.startsWith('http')) {
-                allUrlsToPush.push(customArchiveUrl);
-            }
-            allUrlsToPush = [...new Set(allUrlsToPush)];
-
-            allUrlsToPush.forEach(url => {
-                fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'save_archive', archive: newArchive }) }).catch(e => {});
-            });
-
             showToast(`Laporan ${reportType} (${bln} ${thn}) berhasil diarsipkan!`, "success");
             switchView('archive-view');
         }
@@ -4642,17 +4076,6 @@
                 localStorage.setItem('app_report_archives', JSON.stringify(archives));
                 renderArchiveList();
                 showToast("Arsip laporan berhasil dihapus", "info");
-                
-                // Sync Hapus Arsip ke Cloud
-                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
-                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-                let customArchiveUrl = localStorage.getItem('app_archive_url');
-                if (customArchiveUrl && customArchiveUrl.startsWith('http')) allUrlsToPush.push(customArchiveUrl);
-                allUrlsToPush = [...new Set(allUrlsToPush)];
-
-                allUrlsToPush.forEach(url => {
-                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'delete_archive', id: id }) }).catch(e => {});
-                });
             });
         }
 
@@ -4661,17 +4084,6 @@
                 localStorage.removeItem('app_report_archives');
                 renderArchiveList();
                 showToast("Semua arsip berhasil dihapus", "info");
-                
-                // Sync Kosongkan Semua Arsip ke Cloud
-                let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
-                let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-                let customArchiveUrl = localStorage.getItem('app_archive_url');
-                if (customArchiveUrl && customArchiveUrl.startsWith('http')) allUrlsToPush.push(customArchiveUrl);
-                allUrlsToPush = [...new Set(allUrlsToPush)];
-
-                allUrlsToPush.forEach(url => {
-                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'clear_archives' }) }).catch(e => {});
-                });
             });
         }
 
@@ -4813,11 +4225,61 @@
 
         // TUGAS BARU: Fitur Drag (Geser) untuk Panel Login
         function initDraggableLogin() {
-            // Fitur drag dinonaktifkan sesuai permintaan
-            return;
+            let dragItem = document.getElementById("login-panel");
+            if (!dragItem) return;
+            
+            let active = false;
+            let currentX = 0, currentY = 0, initialX = 0, initialY = 0;
+            let xOffset = 0, yOffset = 0;
+
+            function dragStart(e) {
+                // Cegah fungsi geser jika sedang mengklik input atau tombol
+                if (['INPUT', 'BUTTON', 'A', 'I', 'LABEL'].includes(e.target.tagName)) return;
+                
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                
+                if (e.target.closest('#login-panel')) active = true;
+            }
+
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                active = false;
+            }
+
+            function drag(e) {
+                if (active) {
+                    e.preventDefault();
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    dragItem.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+                }
+            }
+
+            // Event listener untuk touch (smartphone) dan mouse (desktop)
+            dragItem.addEventListener("touchstart", dragStart, {passive: false});
+            window.addEventListener("touchend", dragEnd, false);
+            window.addEventListener("touchmove", drag, {passive: false});
+
+            dragItem.addEventListener("mousedown", dragStart, false);
+            window.addEventListener("mouseup", dragEnd, false);
+            window.addEventListener("mousemove", drag, false);
         }
 
-        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); applySocialMedia(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
+        window.onload = () => { applyThemeAndBg(); applyLogo(); applyRunningText(); applyAppTitles(); renderLoginRkSummary(); initAuth(); initDraggableLogin(); };
     </script>
 </body>
 </html>
