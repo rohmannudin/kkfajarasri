@@ -1584,6 +1584,8 @@
         let currentUser = null, currentDashFilter = null, uploadedFileType = '', uploadedBase64 = '';
         let activeRkFilter = 'all', activeRtFilter = 'all', activeUserFilter = 'all'; // State untuk memisahkan filter tombol wilayah
         let syncInterval = null; // Menangani interval realtime sync
+        let isRealtimeLoopActive = false; // Kontrol loop sinkronisasi instan tanpa jeda
+        let isSyncingNow = false; // Mencegah tabrakan request saat fetch berjalan
         let currentEditingKK = null; // Menyimpan No KK yang sedang diedit agar tidak terdeteksi sebagai duplikat
 
         const loginView = document.getElementById('login-view'), appWrapper = document.getElementById('app-wrapper'), modal = document.getElementById('custom-modal'), floatingScrollBtns = document.getElementById('floating-scroll-btns');
@@ -1728,6 +1730,7 @@
 
         function handleLogout() {
             showConfirmModal("Keluar", "Akhiri sesi?", () => { 
+                isRealtimeLoopActive = false;
                 if(syncInterval) clearInterval(syncInterval);
                 sessionStorage.removeItem('app_session'); location.reload(); 
             });
@@ -1784,25 +1787,32 @@
         // --- SISTEM REALTIME BACKGROUND SYNC ---
         function startRealtimeSync() {
             if(syncInterval) clearInterval(syncInterval);
-            // Langsung jalankan sinkronisasi pertama kali saat masuk aplikasi tanpa menunggu jeda
-            syncFromCloudBackground(true);
-            
-            // Mengaktifkan auto-refresh (setInterval) untuk Realtime Sync Mutasi & Dasbor di semua perangkat
-            syncInterval = setInterval(() => {
-                // Hanya lakukan sync otomatis jika user tidak sedang mengetik/mengedit form agar data ketikan aman
-                if(!isEditMode && !currentEditingKK && document.activeElement.tagName !== 'INPUT') {
-                    syncFromCloudBackground(true);
+            if(isRealtimeLoopActive) return;
+            isRealtimeLoopActive = true;
+
+            // Loop sinkronisasi instan berkesinambungan (langsung tarik ulang segera setelah selesai tanpa jeda detik)
+            const runInstantSyncLoop = async () => {
+                if (!isRealtimeLoopActive) return;
+                if (!isEditMode && !currentEditingKK && document.activeElement?.tagName !== 'INPUT') {
+                    await syncFromCloudBackground(true);
                 }
-            }, 5000); // Sinkronisasi otomatis setiap 5 detik agar lebih realtime
+                if (isRealtimeLoopActive) {
+                    setTimeout(runInstantSyncLoop, 50); // Jeda mikro 50ms agar UI tetap responsif & langsung tarik data berikutnya
+                }
+            };
+
+            runInstantSyncLoop();
         }
 
         async function syncFromCloudBackground(isAuto = false) {
+            if (isSyncingNow) return;
             let indicator = document.getElementById('sync-status-indicator');
             if (!navigator.onLine) {
                 if (indicator) indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500 mr-1"></i> Offline';
                 return;
             }
 
+            isSyncingNow = true;
             try {
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToFetch = [GOOGLE_SHEETS_API_URL, ...activeUrls];
@@ -1812,10 +1822,18 @@
                 let anySuccess = false;
                 let allFetchedData = [];
                 
-                for (let url of allUrlsToFetch) {
-                    try {
-                        let res = await fetch(url + "?action=get"); 
-                        let json = await res.json();
+                // Penarikan paralel (serentak) ke semua URL tanpa saling menunggu & tanpa cache
+                const fetchResults = await Promise.allSettled(
+                    allUrlsToFetch.map(async (url) => {
+                        const sep = url.includes('?') ? '&' : '?';
+                        const res = await fetch(`${url}${sep}action=get&_t=${Date.now()}`, { cache: 'no-store' });
+                        return await res.json();
+                    })
+                );
+
+                fetchResults.forEach((result, idx) => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        const json = result.value;
                         anySuccess = true;
                         
                         if(json.settings) {
@@ -1844,15 +1862,18 @@
                         
                         // Menarik data arsip dari Cloud
                         if(json.archives && Array.isArray(json.archives)) {
-                            // Sortir arsip dari yang paling baru
                             let sortedArchives = json.archives.sort((a,b) => b.id - a.id);
-                            localStorage.setItem('app_report_archives', JSON.stringify(sortedArchives));
-                            isUpdated = true;
+                            let oldArchStr = localStorage.getItem('app_report_archives') || '[]';
+                            let newArchStr = JSON.stringify(sortedArchives);
+                            if (oldArchStr !== newArchStr) {
+                                localStorage.setItem('app_report_archives', newArchStr);
+                                isUpdated = true;
+                            }
                         }
-                    } catch(e) {
-                        console.warn(`[Sync] Gagal menarik data dari URL: ${url}`);
+                    } else {
+                        console.warn(`[Sync] Gagal menarik data dari URL: ${allUrlsToFetch[idx]}`);
                     }
-                }
+                });
                 
                 if(allFetchedData.length > 0) {
                     let oldData = JSON.parse(localStorage.getItem('kk_data') || '[]');
@@ -1927,14 +1948,13 @@
                     applyLogo();
                     if(typeof applyRunningText === 'function') applyRunningText();
                     if(typeof applySocialMedia === 'function') applySocialMedia();
+                    renderLoginRkSummary();
                 }
-                
-                renderLoginRkSummary();
 
                 if(indicator) {
                     if (anySuccess) {
                         indicator.className = "text-[9px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full flex items-center gap-1.5";
-                        indicator.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online (Realtime)';
+                        indicator.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync (Instan)';
                     } else {
                         indicator.className = "text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-full flex items-center gap-1.5";
                         indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
@@ -1946,6 +1966,8 @@
                     indicator.className = "text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-full flex items-center gap-1.5";
                     indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Offline';
                 }
+            } finally {
+                isSyncingNow = false;
             }
         }
 
@@ -2335,7 +2357,7 @@
             if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
             autoSaveTimeout = setTimeout(() => {
                 saveToGoogleSheetsSilent();
-            }, 800);
+            }, 150);
         }
 
         async function saveToGoogleSheets() {
@@ -4872,6 +4894,12 @@
         window.addEventListener('online', () => {
             showToast("Koneksi internet kembali Online! Menyinkronkan data...", "success");
             syncFromCloudBackground(true);
+        });
+        window.addEventListener('focus', () => {
+            if (navigator.onLine) syncFromCloudBackground(true);
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && navigator.onLine) syncFromCloudBackground(true);
         });
         window.addEventListener('offline', () => {
             let indicator = document.getElementById('sync-status-indicator');
