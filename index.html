@@ -155,6 +155,9 @@
             padding: 3px 5px !important;
             color: black !important;
         }
+        #rekap-table-main th, #rekap-table-main td {
+            border: 1px solid #000000 !important;
+        }
 
         /* --- PRINT STYLES --- */
         @media print {
@@ -653,11 +656,11 @@
 
                 <!-- FILTER BAR -->
                 <div id="dashboard-user-buttons-bar" class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-3">
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div id="user-filter-row" class="flex flex-wrap items-center gap-2">
                         <span class="text-xs font-bold text-slate-500 mr-2"><i class="fas fa-user text-brand-500 mr-1"></i> Filter Akun User:</span>
                         <div id="quick-user-buttons-container" class="flex flex-wrap gap-2"></div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 border-t border-slate-50 pt-2">
+                    <div id="rk-filter-row" class="flex flex-wrap items-center gap-2 border-t border-slate-50 pt-2">
                         <span class="text-xs font-bold text-slate-500 mr-2"><i class="fas fa-map-signs text-amber-500 mr-1"></i> Filter Wilayah (RK):</span>
                         <div id="quick-rk-buttons-container" class="flex flex-wrap gap-2"></div>
                     </div>
@@ -1413,14 +1416,43 @@
                 }
             });
 
-            if (currentUser && currentUser.role === 'user' && (currentUser.rk !== 'all' || currentUser.rt !== 'all')) {
-                sD = sD.filter(k => { 
-                    let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(); 
-                    let matchRt = currentUser.rt === 'all' || currentUser.rt.split(',').map(x => x.trim()).includes(rt);
-                    let matchRk = currentUser.rk === 'all' || currentUser.rk.split(',').map(x => x.trim()).includes(rk);
-                    return matchRt && matchRk; 
+            // Pembatasan akses khusus akun pengguna biasa (role === 'user') berdasarkan RK/RT atau akun penginput
+            if (currentUser && currentUser.role === 'user' && !currentUser.is_master && currentUser.username !== 'superakun') {
+                const uname = (currentUser.username || '').trim().toLowerCase();
+                let userRkRaw = (currentUser.rk || 'all').trim().toLowerCase();
+                let userRtRaw = (currentUser.rt || 'all').trim().toLowerCase();
+
+                // Jika RK pada profil akun masih 'all', deteksi otomatis jika username berpola rk001, rk01, rk1, dll.
+                if (userRkRaw === 'all' || userRkRaw === '') {
+                    let matchUnameRk = uname.match(/^rk\s*0*(\d+)$/i);
+                    if (matchUnameRk) {
+                        userRkRaw = matchUnameRk[1].padStart(3, '0');
+                    }
+                }
+
+                const allowedRks = userRkRaw !== 'all' && userRkRaw !== ''
+                    ? userRkRaw.split(',').map(x => x.replace(/\D/g, '').padStart(3, '0')).filter(Boolean)
+                    : [];
+                const allowedRts = userRtRaw !== 'all' && userRtRaw !== ''
+                    ? userRtRaw.split(',').map(x => x.replace(/\D/g, '').padStart(3, '0')).filter(Boolean)
+                    : [];
+
+                return sD.filter(k => {
+                    let rtrw = (k.header && k.header.rt_rw ? k.header.rt_rw : '').split(/[\/\-]/);
+                    let kRt = (rtrw[0] || '').replace(/\D/g, '').padStart(3, '0');
+                    let kRk = (rtrw[1] || '').replace(/\D/g, '').padStart(3, '0');
+
+                    if (allowedRks.length > 0) {
+                        let matchRk = allowedRks.includes(kRk);
+                        let matchRt = allowedRts.length === 0 || allowedRts.includes(kRt);
+                        return matchRk && matchRt;
+                    }
+                    // Fallback jika user tidak terikat RK tertentu: tampilkan data yang diinputkan sendiri
+                    return (k.input_by || '').trim().toLowerCase() === uname;
                 });
             }
+
+            // Superakun, Superadmin, dan Administrator dapat melihat seluruh data
             return sD;
         }
 
@@ -1603,8 +1635,31 @@
                 }
                 
                 if (allFetchedData.length > 0) {
+                    let localList = JSON.parse(localStorage.getItem('kk_data') || '[]');
+                    let localMap = {};
+                    localList.forEach(item => { if (item && item.header && item.header.no_kk) localMap[item.header.no_kk] = item; });
+
                     let uniqueDataMap = {};
-                    allFetchedData.forEach(d => { uniqueDataMap[d.header.no_kk] = d; });
+                    allFetchedData.forEach(d => {
+                        let noKk = d.header && d.header.no_kk;
+                        if (!noKk) return;
+                        // Pertahankan input_by dari penyimpanan lokal jika dari Cloud kosong/tidak ada
+                        if ((!d.input_by || d.input_by === '-' || d.input_by === 'Unknown') && localMap[noKk] && localMap[noKk].input_by) {
+                            d.input_by = localMap[noKk].input_by;
+                        }
+                        // Pertahankan status disembunyikan (INVALID) agar tidak muncul kembali di Mutasi Penduduk setelah sync
+                        if (d.anggota_keluarga && Array.isArray(d.anggota_keluarga)) {
+                            let localMembers = (localMap[noKk] && localMap[noKk].anggota_keluarga) || [];
+                            d.anggota_keluarga.forEach((a, idx) => {
+                                let localMatch = localMembers.find(lm => (a.nik && a.nik !== '-' && lm.nik === a.nik) || (lm.nama_lengkap === a.nama_lengkap)) || localMembers[idx];
+                                if ((localMatch && ((localMatch.status_penduduk || '').toUpperCase() === 'INVALID' || localMatch.is_hidden === true)) || isResidentHidden(noKk, a)) {
+                                    a.status_penduduk = 'INVALID';
+                                    a.is_hidden = true;
+                                }
+                            });
+                        }
+                        uniqueDataMap[noKk] = d;
+                    });
                     let uniqueData = Object.values(uniqueDataMap);
                     let oldData = localStorage.getItem('kk_data') || '[]';
                     let newData = JSON.stringify(uniqueData);
@@ -2102,8 +2157,15 @@
 
             if (currentUser && currentUser.role === 'user') {
                 let rtEl = document.getElementById('hk_rt'), rkEl = document.getElementById('hk_rk');
-                if (currentUser.rt !== 'all' && (!rtEl.value || rtEl.value === '-')) rtEl.value = currentUser.rt.split(',')[0].trim();
-                if (currentUser.rk !== 'all' && (!rkEl.value || rkEl.value === '-')) rkEl.value = currentUser.rk.split(',')[0].trim();
+                if (currentUser.rt && currentUser.rt !== 'all' && (!rtEl.value || rtEl.value === '-')) {
+                    rtEl.value = currentUser.rt.split(',')[0].replace(/\D/g, '').padStart(3, '0');
+                }
+                let defaultRk = (currentUser.rk && currentUser.rk !== 'all') ? currentUser.rk.split(',')[0].replace(/\D/g, '').padStart(3, '0') : '';
+                if (!defaultRk) {
+                    let mRk = (currentUser.username || '').match(/^rk\s*0*(\d+)$/i);
+                    if (mRk) defaultRk = mRk[1].padStart(3, '0');
+                }
+                if (defaultRk && (!rkEl.value || rkEl.value === '-')) rkEl.value = defaultRk;
             }
 
             let tb = document.getElementById('table-body');
@@ -2311,8 +2373,16 @@
         function executeMutasiStatus(noKk, pIdx, st, dateVal, placeVal) {
             let s = JSON.parse(localStorage.getItem('kk_data') || '[]'), k = s.findIndex(x => x.header.no_kk === noKk);
             if (k > -1 && s[k].anggota_keluarga[pIdx]) { 
-                s[k].anggota_keluarga[pIdx].status_penduduk = st; 
-                if (st === 'TKI' || st === 'TKW') s[k].anggota_keluarga[pIdx].jenis_pekerjaan = st;
+                let member = s[k].anggota_keluarga[pIdx];
+                member.status_penduduk = st; 
+                if (st === 'INVALID') {
+                    member.is_hidden = true;
+                    setResidentHiddenFlag(noKk, member, true);
+                } else if (st === 'AKTIF') {
+                    member.is_hidden = false;
+                    setResidentHiddenFlag(noKk, member, false);
+                }
+                if (st === 'TKI' || st === 'TKW') member.jenis_pekerjaan = st;
                 
                 if (dateVal) {
                     let fDate = formatDateID(dateVal);
@@ -2323,30 +2393,54 @@
                     } else if (st === 'PINDAH') {
                         s[k].anggota_keluarga[pIdx].tanggal_pindah = fDate;
                         if (placeVal) s[k].anggota_keluarga[pIdx].pindah_ke = placeVal.toUpperCase();
-                    } else if (st === 'MENINGGAL') s[k].anggota_keluarga[pIdx].tanggal_meninggal = fDate;
-                    else if (st === 'MERANTAU' || st === 'TKI' || st === 'TKW') {
-                        s[k].anggota_keluarga[pIdx].tanggal_pindah = fDate; 
+                    } else if (st === 'MENINGGAL') {
+                        s[k].anggota_keluarga[pIdx].tanggal_meninggal = fDate;
+                    } else if (st === 'MERANTAU' || st === 'TKI' || st === 'TKW') {
+                        s[k].anggota_keluarga[pIdx].tanggal_pindah = fDate;
                         if (placeVal) s[k].anggota_keluarga[pIdx].pindah_ke = placeVal.toUpperCase();
                     }
                 }
-                
-                localStorage.setItem('kk_data', JSON.stringify(s)); 
-                if (!document.getElementById('dashboard-view').classList.contains('hidden')) loadDashboardData(); 
+
+                localStorage.setItem('kk_data', JSON.stringify(s));
+                loadDashboardData();
                 if (!document.getElementById('inactive-view').classList.contains('hidden')) renderInactiveTable();
                 if (!document.getElementById('mutasi-view').classList.contains('hidden')) renderMutasiTable();
                 if (!document.getElementById('rekap-view').classList.contains('hidden')) renderRekapTable();
-                showToast(`Status diubah menjadi ${st}`, "success"); 
-                
-                let d = s[k]; d.action = "save";
+
+                let payload = Object.assign({}, s[k], { action: 'save' });
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-                allUrlsToPush.forEach(url => { fetch(url, {method: 'POST', mode: 'no-cors', body: JSON.stringify(d)}).catch(() => {}); });
+                allUrlsToPush.forEach(url => {
+                    fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(() => {});
+                });
+
+                showToast(`Status penduduk diperbarui menjadi ${st}`, "success");
             }
         }
 
+        function getHiddenResidentKey(noKk, a) {
+            let idPart = (a && a.nik && a.nik !== '-') ? String(a.nik).trim() : String((a && a.nama_lengkap) || '').trim().toUpperCase();
+            return `${String(noKk || '').trim()}::${idPart}`;
+        }
+
+        function setResidentHiddenFlag(noKk, a, isHidden) {
+            let hiddenMap = JSON.parse(localStorage.getItem('app_hidden_residents') || '{}');
+            let key = getHiddenResidentKey(noKk, a);
+            if (isHidden) hiddenMap[key] = true;
+            else delete hiddenMap[key];
+            localStorage.setItem('app_hidden_residents', JSON.stringify(hiddenMap));
+        }
+
+        function isResidentHidden(noKk, a) {
+            if (!a) return false;
+            let st = (a.status_penduduk || '').trim().toUpperCase();
+            if (st === 'INVALID' || st === 'HIDDEN' || st === 'DISEMBUNYIKAN' || a.is_hidden === true) return true;
+            let hiddenMap = JSON.parse(localStorage.getItem('app_hidden_residents') || '{}');
+            return !!hiddenMap[getHiddenResidentKey(noKk, a)];
+        }
+
         function hideResident(noKk, pIdx, st) {
-            if (st !== 'PINDAH' && st !== 'MENINGGAL') return showToast("Hanya untuk masyarakat berstatus PINDAH atau MENINGGAL", "warning");
-            showConfirmModal("Sembunyikan dari Laporan", "Masyarakat ini tidak akan muncul lagi di Laporan Mutasi, Rekap, dan Dashboard. Lanjutkan?", () => {
+            showConfirmModal("Sembunyikan dari Laporan", "Masyarakat ini tidak akan muncul lagi di Laporan Mutasi, Rekap, dan laporan lainnya. Lanjutkan?", () => {
                 updatePendudukStatus(noKk, pIdx, 'INVALID');
             });
         }
@@ -2358,7 +2452,7 @@
             
             sD.forEach(kk => {
                 (kk.anggota_keluarga || []).forEach((a, idx) => {
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    let st = isResidentHidden(kk.header.no_kk, a) ? 'INVALID' : (a.status_penduduk || 'AKTIF').toUpperCase();
                     if (st === 'MENINGGAL' || st === 'PINDAH' || st === 'INVALID') {
                         let stBadge = st === 'MENINGGAL' ? '<span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-[10px] font-bold">MENINGGAL</span>' :
                                       st === 'PINDAH' ? '<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">PINDAH</span>' :
@@ -2388,57 +2482,86 @@
             let quickContainer = document.getElementById('quick-user-buttons-container');
             let quickRkContainer = document.getElementById('quick-rk-buttons-container');
             let quickBar = document.getElementById('dashboard-user-buttons-bar');
+            let userFilterRow = document.getElementById('user-filter-row');
+            let rkFilterRow = document.getElementById('rk-filter-row');
             
-            let users = [...new Set(sD.map(k => k.input_by || 'Unknown'))].sort();
             let uDb = JSON.parse(localStorage.getItem('app_users_db') || '[]');
+            // Gabungkan seluruh akun user terdaftar di database & akun penginput pada data KK
+            let usersFromDb = uDb.map(u => (u.username || '').trim()).filter(Boolean);
+            let usersFromData = sD.map(k => (k.input_by || '').trim()).filter(u => u && u !== 'Unknown');
+            let usersMap = new Map();
+            [...usersFromDb, ...usersFromData].forEach(u => {
+                let key = u.toLowerCase();
+                if (!usersMap.has(key)) usersMap.set(key, u);
+            });
+            let users = Array.from(usersMap.values()).sort((a, b) => a.localeCompare(b));
+
             let rksFromUsers = uDb.map(u => u.rk).filter(rk => rk && rk !== 'all').flatMap(rk => rk.split(',')).map(rk => rk.trim());
             let rksFromData = sD.map(k => (k.header.rt_rw || '').split(/[\/\-]/)[1] || '').map(rk => rk.trim()).filter(rk => rk !== '' && rk !== '-');
             let rks = [...new Set([...rksFromUsers, ...rksFromData])].sort();
+
+            const isPrivileged = currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin' || currentUser.is_master || currentUser.username === 'superakun');
             
-            if (currentUser.role === 'superadmin' || currentUser.role === 'admin') {
-                if (quickBar) { quickBar.classList.remove('hidden'); quickBar.classList.add('flex'); }
+            if (quickBar) { quickBar.classList.remove('hidden'); quickBar.classList.add('flex'); }
+
+            if (isPrivileged) {
+                if (userFilterRow) { userFilterRow.classList.remove('hidden'); userFilterRow.classList.add('flex'); }
+                if (rkFilterRow) { rkFilterRow.classList.add('border-t', 'border-slate-50', 'pt-2'); }
                 if (container) { container.classList.remove('hidden'); container.classList.add('flex'); }
                 
                 if (quickContainer) {
-                    let qHtml = `<button onclick="activeUserFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeUserFilter==='all'?'bg-indigo-600 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua User</button>`;
+                    let qHtml = `<button onclick="activeUserFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeUserFilter==='all'?'bg-indigo-600 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua User (${users.length})</button>`;
                     users.forEach(u => {
-                        let isActive = activeUserFilter === u;
-                        qHtml += `<button onclick="activeUserFilter='${u}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-indigo-200 ${isActive?'bg-indigo-600 text-white':'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'} transition-all uppercase shadow-sm"><i class="fas fa-user-circle mr-1"></i> ${u}</button>`;
+                        let isActive = activeUserFilter.toLowerCase() === u.toLowerCase();
+                        let countKK = sD.filter(k => (k.input_by || '').trim().toLowerCase() === u.toLowerCase()).length;
+                        qHtml += `<button onclick="activeUserFilter='${u}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-indigo-200 ${isActive?'bg-indigo-600 text-white':'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'} transition-all uppercase shadow-sm"><i class="fas fa-user-circle mr-1"></i> ${u} <span class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] ${isActive?'bg-white/20 text-white':'bg-indigo-200/70 text-indigo-800'}">${countKK}</span></button>`;
                     });
                     quickContainer.innerHTML = qHtml;
-                }
-
-                if (quickRkContainer) {
-                    let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua Wilayah</button>`;
-                    rks.forEach(rk => {
-                        let isActive = activeRkFilter === rk;
-                        rkHtml += `<button onclick="activeRkFilter='${rk}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 ${isActive?'bg-amber-500 text-white':'bg-amber-50 text-amber-700 hover:bg-amber-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> ${rk}</button>`;
-                    });
-                    quickRkContainer.innerHTML = rkHtml;
                 }
 
                 if (container) {
                     let html = `<span class="text-[10px] font-bold text-slate-500 self-center mr-1">Filter Akun:</span>`;
                     html += `<button onclick="activeUserFilter='all'; loadDashboardData();" class="px-2 py-1 text-[9px] font-bold rounded-md border border-slate-200 ${activeUserFilter==='all'?'bg-brand-500 text-white':'bg-white hover:bg-slate-50'} transition-colors">Semua</button>`;
                     users.forEach(u => {
-                        let isActive = activeUserFilter === u;
+                        let isActive = activeUserFilter.toLowerCase() === u.toLowerCase();
                         html += `<button onclick="activeUserFilter='${u}'; loadDashboardData();" class="px-2 py-1 text-[9px] font-bold rounded-md border border-brand-200 ${isActive?'bg-brand-500 text-white':'bg-brand-50 text-brand-700 hover:bg-brand-100'} uppercase transition-colors">${u}</button>`;
                     });
                     container.innerHTML = html;
                 }
             } else {
-                if (quickBar) { quickBar.classList.add('hidden'); quickBar.classList.remove('flex'); }
+                // Tampilkan identitas hasil inputan sesuai wilayah RK/RT akun user yang sedang login
+                activeUserFilter = 'all';
+                if (userFilterRow) { userFilterRow.classList.remove('hidden'); userFilterRow.classList.add('flex'); }
+                if (rkFilterRow) { rkFilterRow.classList.add('border-t', 'border-slate-50', 'pt-2'); }
                 if (container) { container.classList.add('hidden'); container.classList.remove('flex'); }
+                if (quickContainer && currentUser) {
+                    let totalJiwaUser = sD.reduce((sum, kk) => sum + (kk.anggota_keluarga || []).filter(a => (a.status_penduduk || 'AKTIF').toUpperCase() !== 'INVALID').length, 0);
+                    let uRk = (currentUser.rk && currentUser.rk !== 'all') ? currentUser.rk : ((currentUser.username || '').match(/^rk\s*0*(\d+)$/i) ? (currentUser.username || '').match(/^rk\s*0*(\d+)$/i)[1].padStart(3, '0') : 'Semua');
+                    let uRt = (currentUser.rt && currentUser.rt !== 'all') ? ` • RT ${currentUser.rt}` : '';
+                    quickContainer.innerHTML = `<span class="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-indigo-200 bg-indigo-600 text-white uppercase shadow-sm flex items-center gap-2"><i class="fas fa-user-check"></i> Akun: ${currentUser.username} (RK ${uRk}${uRt}) <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white">${sD.length} KK • ${totalJiwaUser} Jiwa</span></span>`;
+                }
+            }
+
+            if (quickRkContainer) {
+                let rkHtml = `<button onclick="activeRkFilter='all'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 ${activeRkFilter==='all'?'bg-amber-500 text-white':'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-all shadow-sm">Semua Wilayah</button>`;
+                rks.forEach(rk => {
+                    let isActive = activeRkFilter === rk;
+                    rkHtml += `<button onclick="activeRkFilter='${rk}'; loadDashboardData();" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 ${isActive?'bg-amber-500 text-white':'bg-amber-50 text-amber-700 hover:bg-amber-100'} transition-all uppercase shadow-sm"><i class="fas fa-map-marker-alt mr-1"></i> ${rk}</button>`;
+                });
+                quickRkContainer.innerHTML = rkHtml;
             }
         }
 
         function loadDashboardData() {
             let sD = getFilteredKKData();
+            const isPrivileged = currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin' || currentUser.is_master || currentUser.username === 'superakun');
+            if (!isPrivileged) activeUserFilter = 'all';
+
             let filteredSD = sD.filter(kk => {
                 let rtrw = (kk.header.rt_rw || '').split(/[\/\-]/);
                 let k_rk = (rtrw[1] || '').trim();
                 let matchRk = activeRkFilter === 'all' || k_rk === activeRkFilter;
-                let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown') === activeUserFilter;
+                let matchUser = activeUserFilter === 'all' || (kk.input_by || 'Unknown').trim().toLowerCase() === activeUserFilter.trim().toLowerCase();
                 return matchRk && matchUser;
             });
 
@@ -2454,7 +2577,7 @@
                 let aktifKk = false; (kk.anggota_keluarga || []).forEach(a => { if (!['INVALID','PINDAH','MENINGGAL'].includes((a.status_penduduk || 'AKTIF').toUpperCase())) aktifKk = true; }); if (aktifKk) tK++;
                 (kk.anggota_keluarga || []).forEach((a, idx) => {
                     let st = a.status_penduduk || 'AKTIF', um = calculateAge(a.tanggal_lahir), kw = (a.status_perkawinan || '').toUpperCase(), jk = (a.jenis_kelamin || '').toUpperCase();
-                    if (st.toUpperCase() === 'INVALID') return;
+                    if (st.toUpperCase() === 'INVALID' || isResidentHidden(kk.header.no_kk, a)) return;
                     let isPem = um >= 17 || (kw !== '' && kw !== '-' && kw !== 'BELUM KAWIN'), isAktif = ['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st);
                     
                     if (isAktif) {
@@ -2514,10 +2637,11 @@
                             <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'MERANTAU')" class="px-1.5 py-1 rounded transition-colors ${clsMerantau}">MERANTAU</button>
                             <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKI')" class="px-1.5 py-1 rounded transition-colors ${clsTKI}">TKI</button>
                             <button onclick="updatePendudukStatus('${kk.header.no_kk}',${idx},'TKW')" class="px-1.5 py-1 rounded transition-colors ${clsTKW}">TKW</button>
-                            </div>`;
+                        </div>`;
+                        let inputterBadge = `<div class="mt-1"><span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded text-[9px] font-bold uppercase"><i class="fas fa-user-pen mr-1"></i>${kk.input_by || (currentUser ? currentUser.username : '-')}</span></div>`;
                         
                         htmlBuffer += `<tr class="${!isAktif?'opacity-60 bg-slate-50':''}">
-                            <td class="px-5 py-3 sticky left-0 ${!isAktif?'bg-slate-50':'bg-white'}">${no}</td><td>${kk.header.no_kk}</td>
+                            <td class="px-5 py-3 sticky left-0 ${!isAktif?'bg-slate-50':'bg-white'}">${no}</td><td><div>${kk.header.no_kk}</div>${inputterBadge}</td>
                             <td class="text-center">${isPem?'<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">YA</span>':'<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[10px] font-bold">TIDAK</span>'}</td>
                             <td class="font-bold">${a.nama_lengkap} ${!isAktif?`<span class="ml-1 text-[8px] bg-rose-200 px-1 rounded">${st}</span>`:''}</td>
                             <td>${a.nik}</td><td>${jk}</td><td>${a.tempat_lahir}</td><td>${formatDateID(a.tanggal_lahir)}</td><td class="font-bold text-brand-600 text-center">${um}</td>
@@ -2578,7 +2702,7 @@
 
         function exportDashboardExcel() {
             let sD = getFilteredKKData(), flat = [];
-            sD.forEach(k => { (k.anggota_keluarga || []).forEach(a => { flat.push({ "No KK": k.header.no_kk, "Nama KK": k.header.nama_kepala_keluarga, "Alamat": k.header.alamat, "RT/RW": k.header.rt_rw, "Nama": a.nama_lengkap, "NIK": a.nik, "J.Kelamin": a.jenis_kelamin, "Tmp Lahir": a.tempat_lahir, "Tgl Lahir": formatDateID(a.tanggal_lahir), "Umur": calculateAge(a.tanggal_lahir), "Agama": a.agama, "Pendidikan": a.pendidikan, "Pekerjaan": a.jenis_pekerjaan, "Status Kawin": a.status_perkawinan, "Hubungan": a.status_hubungan_keluarga, "Datang Dari": a.datang_dari || '-', "Tgl Datang": formatDateID(a.tanggal_datang), "Pindah Ke": a.pindah_ke || '-', "Tgl Pindah": formatDateID(a.tanggal_pindah), "Tgl Meninggal": formatDateID(a.tanggal_meninggal) }); }); });
+            sD.forEach(k => { (k.anggota_keluarga || []).forEach(a => { if ((a.status_penduduk || 'AKTIF').toUpperCase() === 'INVALID' || isResidentHidden(k.header.no_kk, a)) return; flat.push({ "No KK": k.header.no_kk, "Nama KK": k.header.nama_kepala_keluarga, "Alamat": k.header.alamat, "RT/RW": k.header.rt_rw, "Nama": a.nama_lengkap, "NIK": a.nik, "J.Kelamin": a.jenis_kelamin, "Tmp Lahir": a.tempat_lahir, "Tgl Lahir": formatDateID(a.tanggal_lahir), "Umur": calculateAge(a.tanggal_lahir), "Agama": a.agama, "Pendidikan": a.pendidikan, "Pekerjaan": a.jenis_pekerjaan, "Status Kawin": a.status_perkawinan, "Hubungan": a.status_hubungan_keluarga, "Datang Dari": a.datang_dari || '-', "Tgl Datang": formatDateID(a.tanggal_datang), "Pindah Ke": a.pindah_ke || '-', "Tgl Pindah": formatDateID(a.tanggal_pindah), "Tgl Meninggal": formatDateID(a.tanggal_meninggal) }); }); });
             let ws = XLSX.utils.json_to_sheet(flat), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Data_Dasbor.xlsx"); showToast("Export OK", "success");
         }
 
@@ -2767,13 +2891,13 @@
                 if (!g[ky]) g[ky] = {rk, rt, label: `RT.${rt||'000'} / RK.${rk||'000'}`, aw_l:0,aw_p:0,aw_kk:0,aw_ag:0, l_l:0,l_p:0, d_l:0,d_p:0, dm_l:0,dm_p:0, m_l:0,m_p:0, p_l:0,p_p:0, mr_l:0,mr_p:0, tki_l:0,tki_p:0};
                 let d = g[ky], akK = false;
                 (k.anggota_keluarga || []).forEach(a => {
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (st === 'INVALID') return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (st === 'INVALID' || isResidentHidden(k.header.no_kk, a)) return;
                     let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI');
                     if (st === 'LAHIR') isL ? d.l_l++ : d.l_p++; else if (st === 'PENDATANG') isL ? d.d_l++ : d.d_p++; else if (st === 'DOMISILI') isL ? d.dm_l++ : d.dm_p++;
                     else if (st === 'MENINGGAL') isL ? d.m_l++ : d.m_p++; else if (st === 'PINDAH') isL ? d.p_l++ : d.p_p++; else if (st === 'MERANTAU') isL ? d.mr_l++ : d.mr_p++;
                     else if (st === 'TKI' || st === 'TKW') isL ? d.tki_l++ : d.tki_p++; else { isL ? d.aw_l++ : d.aw_p++; akK = true; }
                 });
-                if (akK) { d.aw_kk++; (k.anggota_keluarga || []).forEach(a => { if ((a.status_penduduk || 'AKTIF').toUpperCase() === 'AKTIF' && (a.status_hubungan_keluarga || '').toUpperCase() !== 'KEPALA KELUARGA') d.aw_ag++; }); }
+                if (akK) { d.aw_kk++; (k.anggota_keluarga || []).forEach(a => { if ((a.status_penduduk || 'AKTIF').toUpperCase() === 'AKTIF' && !isResidentHidden(k.header.no_kk, a) && (a.status_hubungan_keluarga || '').toUpperCase() !== 'KEPALA KELUARGA') d.aw_ag++; }); }
             });
 
             let tb = document.getElementById('rekap-table-body'); tb.innerHTML = ''; let no = 1;
@@ -2782,9 +2906,9 @@
                 let d = g[ky], aw_j = d.aw_l + d.aw_p, ak_l = d.aw_l + d.l_l + d.d_l + d.dm_l - d.m_l - d.p_l, ak_p = d.aw_p + d.l_p + d.d_p + d.dm_p - d.m_p - d.p_p, ak_j = ak_l + ak_p, ak_kk = d.aw_kk, ak_ag = ak_j - ak_kk;
                 if (ak_ag < 0) ak_ag = 0;
                 tot.aw_l += d.aw_l; tot.aw_p += d.aw_p; tot.aw_kk += d.aw_kk; tot.aw_ag += d.aw_ag; tot.aw_j += aw_j; tot.l_l += d.l_l; tot.l_p += d.l_p; tot.d_l += d.d_l; tot.d_p += d.d_p; tot.dm_l += d.dm_l; tot.dm_p += d.dm_p; tot.m_l += d.m_l; tot.m_p += d.m_p; tot.p_l += d.p_l; tot.p_p += d.p_p; tot.mr_l += d.mr_l; tot.mr_p += d.mr_p; tot.ak_l += ak_l; tot.ak_p += ak_p; tot.ak_kk += ak_kk; tot.ak_ag += ak_ag; tot.ak_j += ak_j; tot.tki_l += d.tki_l; tot.tki_p += d.tki_p;
-                tb.innerHTML += `<tr><td>${no++}</td><td class="text-left font-bold px-2">${d.label}</td><td>0</td><td>0</td><td>${d.aw_l}</td><td>${d.aw_p}</td><td>${d.aw_kk}</td><td>${d.aw_ag}</td><td class="bg-slate-50">${aw_j}</td><td>0</td><td>0</td><td>${d.l_l}</td><td>${d.l_p}</td><td>0</td><td>0</td><td>${d.d_l}</td><td>${d.d_p}</td><td>0</td><td>0</td><td>${d.dm_l}</td><td>${d.dm_p}</td><td>0</td><td>0</td><td>${d.m_l}</td><td>${d.m_p}</td><td>0</td><td>0</td><td>${d.p_l}</td><td>${d.p_p}</td><td>0</td><td>0</td><td>${d.mr_l}</td><td>${d.mr_p}</td><td>0</td><td>0</td><td class="font-bold">${ak_l}</td><td class="font-bold">${ak_p}</td><td class="font-bold">${ak_kk}</td><td class="font-bold">${ak_ag}</td><td class="bg-slate-100 font-bold">${ak_j}</td><td>${d.tki_l}</td><td>${d.tki_p}</td><td>-</td></tr>`;
+                tb.innerHTML += `<tr><td class="p-1 border border-black">${no++}</td><td class="p-1 border border-black text-left font-bold px-2">${d.label}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.aw_l}</td><td class="p-1 border border-black">${d.aw_p}</td><td class="p-1 border border-black">${d.aw_kk}</td><td class="p-1 border border-black">${d.aw_ag}</td><td class="p-1 border border-black bg-slate-50">${aw_j}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.l_l}</td><td class="p-1 border border-black">${d.l_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.d_l}</td><td class="p-1 border border-black">${d.d_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.dm_l}</td><td class="p-1 border border-black">${d.dm_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.m_l}</td><td class="p-1 border border-black">${d.m_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.p_l}</td><td class="p-1 border border-black">${d.p_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.mr_l}</td><td class="p-1 border border-black">${d.mr_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black font-bold">${ak_l}</td><td class="p-1 border border-black font-bold">${ak_p}</td><td class="p-1 border border-black font-bold">${ak_kk}</td><td class="p-1 border border-black font-bold">${ak_ag}</td><td class="p-1 border border-black bg-slate-100 font-bold">${ak_j}</td><td class="p-1 border border-black">${d.tki_l}</td><td class="p-1 border border-black">${d.tki_p}</td><td class="p-1 border border-black">-</td></tr>`;
             });
-            document.getElementById('rekap-table-foot').innerHTML = `<tr class="bg-slate-200"><td>-</td><td>JUMLAH TOTAL</td><td>0</td><td>0</td><td>${tot.aw_l}</td><td>${tot.aw_p}</td><td>${tot.aw_kk}</td><td>${tot.aw_ag}</td><td>${tot.aw_j}</td><td>0</td><td>0</td><td>${tot.l_l}</td><td>${tot.l_p}</td><td>0</td><td>0</td><td>${tot.d_l}</td><td>${tot.d_p}</td><td>0</td><td>0</td><td>${tot.dm_l}</td><td>${tot.dm_p}</td><td>0</td><td>0</td><td>${tot.m_l}</td><td>${tot.m_p}</td><td>0</td><td>0</td><td>${tot.p_l}</td><td>${tot.p_p}</td><td>0</td><td>0</td><td>${tot.mr_l}</td><td>${tot.mr_p}</td><td>0</td><td>0</td><td>${tot.ak_l}</td><td>${tot.ak_p}</td><td>${tot.ak_kk}</td><td>${tot.ak_ag}</td><td>${tot.ak_j}</td><td>${tot.tki_l}</td><td>${tot.tki_p}</td><td>-</td></tr>`;
+            document.getElementById('rekap-table-foot').innerHTML = `<tr class="bg-slate-200"><td class="p-1 border border-black">-</td><td class="p-1 border border-black">JUMLAH TOTAL</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.aw_l}</td><td class="p-1 border border-black">${tot.aw_p}</td><td class="p-1 border border-black">${tot.aw_kk}</td><td class="p-1 border border-black">${tot.aw_ag}</td><td class="p-1 border border-black">${tot.aw_j}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.l_l}</td><td class="p-1 border border-black">${tot.l_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.d_l}</td><td class="p-1 border border-black">${tot.d_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.dm_l}</td><td class="p-1 border border-black">${tot.dm_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.m_l}</td><td class="p-1 border border-black">${tot.m_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.p_l}</td><td class="p-1 border border-black">${tot.p_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.mr_l}</td><td class="p-1 border border-black">${tot.mr_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.ak_l}</td><td class="p-1 border border-black">${tot.ak_p}</td><td class="p-1 border border-black">${tot.ak_kk}</td><td class="p-1 border border-black">${tot.ak_ag}</td><td class="p-1 border border-black">${tot.ak_j}</td><td class="p-1 border border-black">${tot.tki_l}</td><td class="p-1 border border-black">${tot.tki_p}</td><td class="p-1 border border-black">-</td></tr>`;
         }
 
         function renderMutasiTable() {
@@ -2801,8 +2925,8 @@
 
             sD.forEach(kk => {
                 (kk.anggota_keluarga || []).forEach((a, idx) => {
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
-                    if (st === 'INVALID') return; 
+                    let st = (a.status_penduduk || 'AKTIF').trim().toUpperCase();
+                    if (st === 'INVALID' || isResidentHidden(kk.header.no_kk, a)) return; 
 
                     let isLahir = st === 'LAHIR';
                     let isDatang = st === 'PENDATANG' || st === 'DOMISILI' || (a.tanggal_datang && a.tanggal_datang !== '-') || (a.datang_dari && a.datang_dari !== '-');
@@ -2816,8 +2940,8 @@
                     if (isPindah) countPindah++;
                     if (isMati) countMati++;
 
-                    let hideMutasiBtn = (currentUser.role === 'superadmin' || currentUser.role === 'admin') && (st === 'PINDAH' || st === 'MENINGGAL') 
-                        ? `<button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="print-hide ml-1 px-1.5 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded text-[8px]" title="Sembunyikan dari Mutasi"><i class="fas fa-ghost"></i></button>` : '';
+                    let hideMutasiBtn = (currentUser.role === 'superadmin' || currentUser.role === 'admin') 
+                        ? `<button onclick="hideResident('${kk.header.no_kk}', ${idx}, '${st}')" class="print-hide ml-1 px-1.5 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded text-[8px]" title="Sembunyikan dari Mutasi & Laporan"><i class="fas fa-ghost"></i></button>` : '';
 
                     let rowBg = isMati ? 'bg-slate-100' : (isPindah ? 'bg-blue-50/40' : (isDatang ? 'bg-indigo-50/40' : (isLahir ? 'bg-sky-50/40' : '')));
 
@@ -2857,6 +2981,7 @@
                 if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; cats.forEach(c => { g[ky][c+'_l'] = 0; g[ky][c+'_p'] = 0; }); }
                 let akK = false;
                 (k.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(k.header.no_kk, a)) return;
                     let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
                     akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), p = (a.pendidikan || '').toUpperCase(), c = 'tdk_blm';
                     if (p.includes('BELUM TAMAT SD')) c = 'blm_sd'; else if (p.includes('TAMAT SD') || p === 'SD') c = 'sd'; else if (p.includes('SLTP') || p.includes('SMP')) c = 'sltp'; else if (p.includes('SLTA') || p.includes('SMA')) c = 'slta'; else if (p.includes('SMK')) c = 'smk'; else if (p.includes('DIPLOMA I') || p.includes('D1') || p.includes('D2')) c = 'd12'; else if (p.includes('AKADEMI') || p.includes('D3')) c = 'd3'; else if (p.includes('STRATA') || p.includes('S1') || p.includes('S2') || p.includes('S3') || p.includes('DIPLOMA IV')) c = 's123';
@@ -2898,6 +3023,7 @@
                 if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; umurGroups.forEach(u => { g[ky][u+'_l'] = 0; g[ky][u+'_p'] = 0; }); }
                 let akK = false;
                 (k.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(k.header.no_kk, a)) return;
                     let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
                     akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), um = calculateAge(a.tanggal_lahir), ug = "75+";
                     if (um <= 4) ug = "00-04"; else if (um <= 9) ug = "05-09"; else if (um <= 14) ug = "10-14"; else if (um <= 19) ug = "15-19";
@@ -2935,6 +3061,7 @@
                 if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; ags.forEach(a => { g[ky][a+'_l'] = 0; g[ky][a+'_p'] = 0; }); }
                 let akK = false;
                 (k.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(k.header.no_kk, a)) return;
                     let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
                     akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), ag = (a.agama || 'ISLAM').toUpperCase();
                     if (ag.includes('KRISTEN') || ag.includes('PROTESTAN')) ag = 'KRISTEN'; else if (ag.includes('KATOLIK') || ag.includes('KATHOLIK')) ag = 'KATHOLIK';
@@ -2967,6 +3094,7 @@
             let sD = getFilteredKKData(), jobs = {};
             sD.forEach(k => {
                 (k.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(k.header.no_kk, a)) return;
                     let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
                     let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), pk = (a.jenis_pekerjaan || 'BELUM / TIDAK BEKERJA').toUpperCase();
                     if (pk === '-' || pk === '') pk = 'BELUM / TIDAK BEKERJA';
@@ -2999,6 +3127,7 @@
                 if (!g[ky]) g[ky] = {rk, rt, kk: 0, pem_l: 0, pem_p: 0, blm_l: 0, blm_p: 0};
                 let akK = false;
                 (k.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(k.header.no_kk, a)) return;
                     let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
                     akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), um = calculateAge(a.tanggal_lahir), kw = (a.status_perkawinan || '').toUpperCase();
                     let isPem = um >= 17 || (kw !== '' && kw !== '-' && kw !== 'BELUM KAWIN');
@@ -3450,7 +3579,7 @@
             sD.forEach(k => {
                 let rtrw = (k.header.rt_rw || '').split(/[\/\-]/);
                 let rk = (rtrw[1] || '000').trim().padStart(3, '0');
-                let hasAktif = (k.anggota_keluarga || []).some(a => !['INVALID', 'PINDAH', 'MENINGGAL'].includes((a.status_penduduk || 'AKTIF').toUpperCase()));
+                let hasAktif = (k.anggota_keluarga || []).some(a => !isResidentHidden(k.header.no_kk, a) && !['INVALID', 'PINDAH', 'MENINGGAL'].includes((a.status_penduduk || 'AKTIF').toUpperCase()));
                 if (hasAktif) {
                     rkMap[rk] = (rkMap[rk] || 0) + 1;
                     totalKK++;
