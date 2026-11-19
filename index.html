@@ -1617,8 +1617,9 @@
             if (document.getElementById('floating-vertical-scroll')) document.getElementById('floating-vertical-scroll').classList.remove('hidden');
 
             switchView('ocr-view'); 
-            syncFromCloudBackground();
-            startRealtimeSync();
+            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+            loadDashboardData();
+            renderLoginRkSummary();
             
             let apiCard = document.getElementById('api-integration-card');
             if (apiCard) {
@@ -1688,12 +1689,11 @@
         }
 
         function startRealtimeSync() {
-            if (syncInterval) clearInterval(syncInterval);
-            syncInterval = setInterval(() => {
-                if (!isEditMode && !currentEditingKK && document.activeElement.tagName !== 'INPUT') {
-                    syncFromCloudBackground();
-                }
-            }, 15000);
+            // Sinkronisasi otomatis dinonaktifkan agar data hasil inputan tidak tertimpa atau hilang
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                syncInterval = null;
+            }
         }
 
         async function syncFromCloudBackground() {
@@ -1713,7 +1713,7 @@
                                 let currentVal = localStorage.getItem(s.key) || '';
                                 let newVal = s.value || '';
                                 if (currentVal !== newVal) {
-                                    if (s.key === 'google_sheets_url' || s.key === 'app_google_sheets_url') return;
+                                    if (s.key === 'google_sheets_url' || s.key === 'app_google_sheets_url' || s.key === 'kk_data') return;
                                     if (s.value === '') localStorage.removeItem(s.key);
                                     else localStorage.setItem(s.key, s.value);
                                     if (s.key === 'gemini_api_key') apiKey = s.value;
@@ -1728,40 +1728,26 @@
                 
                 if (allFetchedData.length > 0) {
                     let localList = JSON.parse(localStorage.getItem('kk_data') || '[]');
-                    let localMap = {};
+                    let deletedSet = new Set(JSON.parse(localStorage.getItem('app_deleted_kk') || '[]').map(x => String(x).trim()));
+                    let uniqueDataMap = {};
+
+                    // Pertahankan 100% seluruh data hasil inputan lokal yang sudah ada
                     localList.forEach(item => {
                         if (item && item.header && item.header.no_kk) {
-                            localMap[String(item.header.no_kk).trim()] = item;
+                            let noKk = String(item.header.no_kk).trim();
+                            if (!deletedSet.has(noKk)) {
+                                uniqueDataMap[noKk] = item;
+                            }
                         }
                     });
 
-                    // Pertahankan data lokal yang belum sempat tersinkronisasi agar tidak tertimpa
-                    let uniqueDataMap = {};
-                    localList.forEach(item => {
-                        if (item && item.header && item.header.no_kk && item.is_unsynced) {
-                            uniqueDataMap[String(item.header.no_kk).trim()] = item;
-                        }
-                    });
-
+                    // Hanya tambahkan data dari cloud jika No. KK belum ada di lokal dan belum pernah dihapus
                     allFetchedData.forEach(rawItem => {
                         let d = normalizeCloudKKRecord(rawItem);
                         if (!d || !d.header || !d.header.no_kk) return;
                         let noKk = String(d.header.no_kk).trim();
-                        if (uniqueDataMap[noKk] && uniqueDataMap[noKk].is_unsynced) return;
+                        if (deletedSet.has(noKk) || uniqueDataMap[noKk]) return;
 
-                        // Gabungkan anggota jika Spreadsheet mengembalikan baris datar per anggota
-                        if (uniqueDataMap[noKk] && !rawItem.header) {
-                            let existingNiks = new Set(uniqueDataMap[noKk].anggota_keluarga.map(a => a.nik));
-                            (d.anggota_keluarga || []).forEach(ang => {
-                                if (!existingNiks.has(ang.nik)) uniqueDataMap[noKk].anggota_keluarga.push(ang);
-                            });
-                            return;
-                        }
-
-                        // Pertahankan input_by dari penyimpanan lokal jika dari Cloud kosong/tidak ada
-                        if ((!d.input_by || d.input_by === '-' || d.input_by === 'Unknown' || d.input_by === 'spreadsheet') && localMap[noKk] && localMap[noKk].input_by) {
-                            d.input_by = localMap[noKk].input_by;
-                        }
                         (d.anggota_keluarga || []).forEach(ang => {
                             if (isResidentHidden(noKk, ang) || String(ang.status_penduduk || '').toUpperCase() === 'INVALID') {
                                 ang.status_penduduk = 'INVALID';
@@ -1797,10 +1783,10 @@
                 
                 renderLoginRkSummary();
                 let indicator = document.getElementById('sync-status-indicator');
-                if (indicator) indicator.innerHTML = '<i class="fas fa-cloud-check text-emerald-500"></i> Tersinkronisasi';
+                if (indicator) indicator.innerHTML = '<i class="fas fa-shield-check text-emerald-500"></i> Data Terjaga';
             } catch (error) {
                 let indicator = document.getElementById('sync-status-indicator');
-                if (indicator) indicator.innerHTML = '<i class="fas fa-cloud-xmark text-rose-500"></i> Mode Lokal';
+                if (indicator) indicator.innerHTML = '<i class="fas fa-database text-emerald-500"></i> Penyimpanan Lokal Aktif';
             }
         }
 
@@ -2649,6 +2635,8 @@
                 if (s[kIdx].anggota_keluarga.length === 0) {
                     s.splice(kIdx, 1);
                     localStorage.setItem('kk_data', JSON.stringify(s));
+                    let delList = JSON.parse(localStorage.getItem('app_deleted_kk') || '[]');
+                    if (!delList.includes(cleanNoKk)) { delList.push(cleanNoKk); localStorage.setItem('app_deleted_kk', JSON.stringify(delList)); }
                     allUrlsToPush.forEach(url => {
                         fetch(url, {method: 'POST', mode: 'no-cors', body: JSON.stringify({action: 'delete', no_kk: cleanNoKk})}).catch(() => {});
                     });
@@ -2665,6 +2653,7 @@
 
                 renderInactiveTable();
                 if (!document.getElementById('dashboard-view').classList.contains('hidden')) loadDashboardData();
+                renderLoginRkSummary();
                 showToast(`Data "${nama}" berhasil dihapus permanen`, "success");
             });
         }
@@ -2930,12 +2919,17 @@
         function editDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data') || '[]').find(x => x.header.no_kk === no); if (kk) { currentEditingKK = no; renderDataToUI(kk); switchView('ocr-view'); toggleEdit(true); } }
         function printDataKK(no) { let kk = JSON.parse(localStorage.getItem('kk_data') || '[]').find(x => x.header.no_kk === no); if (kk) { renderDataToUI(kk); switchView('ocr-view'); toggleEdit(false); setTimeout(() => printDukcapilFormat(), 500); } }
         function deleteDataKK(no) { 
-            showConfirmModal("Hapus KK", "Yakin hapus KK " + no + "?", () => { 
-                let d = JSON.parse(localStorage.getItem('kk_data') || '[]').filter(x => x.header.no_kk !== no); 
-                localStorage.setItem('kk_data', JSON.stringify(d)); loadDashboardData(); 
+            let cleanNo = String(no || '').trim();
+            showConfirmModal("Hapus KK", "Yakin hapus KK " + cleanNo + "?", () => { 
+                let d = JSON.parse(localStorage.getItem('kk_data') || '[]').filter(x => String(x.header.no_kk || '').trim() !== cleanNo); 
+                localStorage.setItem('kk_data', JSON.stringify(d)); 
+                let delList = JSON.parse(localStorage.getItem('app_deleted_kk') || '[]');
+                if (!delList.includes(cleanNo)) { delList.push(cleanNo); localStorage.setItem('app_deleted_kk', JSON.stringify(delList)); }
+                loadDashboardData(); 
+                renderLoginRkSummary();
                 let activeUrls = activeUrlIndices.map(i => appUrlsList[i]).filter(u => u && u.startsWith('http'));
                 let allUrlsToPush = [...new Set([GOOGLE_SHEETS_API_URL, ...activeUrls])];
-                allUrlsToPush.forEach(url => { fetch(url, {method: 'POST', mode: 'no-cors', body: JSON.stringify({action: 'delete', no_kk: no})}).catch(() => {}); });
+                allUrlsToPush.forEach(url => { fetch(url, {method: 'POST', mode: 'no-cors', body: JSON.stringify({action: 'delete', no_kk: cleanNo})}).catch(() => {}); });
                 showToast("Data KK terhapus", "success"); 
             }); 
         }
@@ -2943,509 +2937,14 @@
             if (currentUser && currentUser.role === 'user' && !currentUser.is_master && currentUser.username !== 'superakun') {
                 return showToast("Fitur Reset Dasbor tidak tersedia untuk akun User.", "warning");
             }
-            showConfirmModal("Reset Dasbor", "Yakin hapus SEMUA data lokal?", () => { localStorage.removeItem('kk_data'); loadDashboardData(); showToast("Reset berhasil", "info"); });
-        }
-
-        function scrollActiveTable(a) { document.querySelectorAll('.overflow-x-auto').forEach(e => e.scrollBy({left: a, behavior: 'smooth'})); }
-        function smoothScrollVertical(element, targetPosition, duration) {
-            let startPosition = element.scrollTop, distance = targetPosition - startPosition, startTime = null;
-            function animation(currentTime) {
-                if (startTime === null) startTime = currentTime;
-                let timeElapsed = currentTime - startTime;
-                let t = timeElapsed / (duration / 2);
-                let run = t < 1 ? (distance / 2) * t * t * t + startPosition : (distance / 2) * ((t -= 2) * t * t + 2) + startPosition;
-                element.scrollTop = run;
-                if (timeElapsed < duration) requestAnimationFrame(animation);
-                else element.scrollTop = targetPosition;
-            }
-            requestAnimationFrame(animation);
-        }
-        function scrollToTop() {
-            let main = document.getElementById('main-scroll-area');
-            if (main) smoothScrollVertical(main, 0, 1200);
-            document.querySelectorAll('.overflow-y-auto, .max-h-\\[600px\\]').forEach(el => { if (el.scrollTop > 0) smoothScrollVertical(el, 0, 1000); });
-        }
-        function scrollToBottom() {
-            let main = document.getElementById('main-scroll-area');
-            if (main) smoothScrollVertical(main, main.scrollHeight, 1200);
-            document.querySelectorAll('.overflow-y-auto, .max-h-\\[600px\\]').forEach(el => { if (el.scrollHeight > el.clientHeight) smoothScrollVertical(el, el.scrollHeight, 1000); });
-        }
-
-        // --- PRINTING FUNCTIONS ---
-        function generatePDF() {
-            let el = document.getElementById('right-panel'); 
-            showToast("Membuat PDF...", "info"); 
-            html2pdf().set({ margin: 0.3, filename: `KK_${document.getElementById('hk_nokk').value}.pdf`, image: {type: 'jpeg', quality: 0.98}, html2canvas: {scale: 2}, jsPDF: {unit: 'in', format: 'a4', orientation: 'landscape'} }).from(el).save();
-        }
-
-        function printDukcapilFormat() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            let desa = (document.getElementById('hk_desa').value || s.desa || 'FAJAR ASRI').toUpperCase();
-            let kec = (document.getElementById('hk_kecamatan').value || s.kec || 'PANCA JAYA').toUpperCase();
-            let kab = (document.getElementById('hk_kabupaten').value || s.kab || 'MESUJI').toUpperCase();
-            let prov = (document.getElementById('hk_provinsi').value || 'LAMPUNG').toUpperCase();
-            let jabKK = (s.jabatan_kk || `KEPALA DESA ${desa}`).toUpperCase();
-            let namKK = (s.nama_kk || '(............................................)').toUpperCase();
-            let nipKK = (s.nip_kk || 'NIP. ........................................').toUpperCase();
-
-            let d = collectFormData(), r = '', r2 = '';
-            (d.anggota_keluarga || []).forEach((a, i) => {
-                r += `<tr><td class="text-center">${i+1}</td><td>${a.nama_lengkap}</td><td>${a.nik}</td><td>${a.jenis_kelamin}</td><td>${a.tempat_lahir}</td><td>${formatDateID(a.tanggal_lahir)}</td><td>${a.agama}</td><td>${a.pendidikan}</td><td>${a.jenis_pekerjaan}</td><td class="text-center">${a.golongan_darah}</td></tr>`;
-                r2 += `<tr><td class="text-center">${i+1}</td><td>${a.status_perkawinan}</td><td>${formatDateID(a.tanggal_perkawinan)}</td><td>${a.status_hubungan_keluarga}</td><td>${a.kewarganegaraan}</td><td>${a.no_paspor}</td><td>${a.no_kitap}</td><td>${a.nama_ayah}</td><td>${a.nama_ibu}</td></tr>`;
-            });
-            for (let j = (d.anggota_keluarga || []).length; j < 10; j++) {
-                r += `<tr><td class="text-center">${j+1}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td class="text-center">-</td></tr>`;
-                r2 += `<tr><td class="text-center">${j+1}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>`;
-            }
-
-            document.getElementById('dukcapil-print-area').innerHTML = `
-                <div class="text-center font-bold mb-2">
-                    <h1 class="text-2xl tracking-widest">KARTU KELUARGA</h1>
-                    <p class="text-base tracking-wide font-semibold">No. ${d.header.no_kk || '0000000000000000'}</p>
-                </div>
-                <div class="flex justify-between mb-3 text-[10px] font-bold uppercase px-1">
-                    <table style="border:none;">
-                        <tr><td style="border:none;padding:1px;width:140px;">Nama Kepala Keluarga</td><td style="border:none;padding:1px;">: ${d.header.nama_kepala_keluarga || '-'}</td></tr>
-                        <tr><td style="border:none;padding:1px;">Alamat</td><td style="border:none;padding:1px;">: ${d.header.alamat || '-'}</td></tr>
-                        <tr><td style="border:none;padding:1px;">RT / RW</td><td style="border:none;padding:1px;">: ${d.header.rt_rw || '-'}</td></tr>
-                        <tr><td style="border:none;padding:1px;">Kode Pos</td><td style="border:none;padding:1px;">: ${d.header.kode_pos || '-'}</td></tr>
-                    </table>
-                    <table style="border:none;">
-                        <tr><td style="border:none;padding:1px;width:130px;">Desa / Kelurahan</td><td style="border:none;padding:1px;">: ${desa}</td></tr>
-                        <tr><td style="border:none;padding:1px;">Kecamatan</td><td style="border:none;padding:1px;">: ${kec}</td></tr>
-                        <tr><td style="border:none;padding:1px;">Kabupaten / Kota</td><td style="border:none;padding:1px;">: ${kab}</td></tr>
-                        <tr><td style="border:none;padding:1px;">Provinsi</td><td style="border:none;padding:1px;">: ${prov}</td></tr>
-                    </table>
-                </div>
-                <table class="dukcapil-table mb-3">
-                    <thead>
-                        <tr><th>No</th><th>Nama Lengkap</th><th>NIK</th><th>Jenis Kelamin</th><th>Tempat Lahir</th><th>Tanggal Lahir</th><th>Agama</th><th>Pendidikan</th><th>Jenis Pekerjaan</th><th>Gol. Darah</th></tr>
-                    </thead>
-                    <tbody>${r}</tbody>
-                </table>
-                <table class="dukcapil-table mb-4">
-                    <thead>
-                        <tr><th>No</th><th>Status Perkawinan</th><th>Tgl Perkawinan</th><th>Status Hubungan Dalam Keluarga</th><th>Kewarganegaraan</th><th>No. Paspor</th><th>No. KITAP</th><th>Nama Ayah</th><th>Nama Ibu</th></tr>
-                    </thead>
-                    <tbody>${r2}</tbody>
-                </table>
-                <div class="flex justify-between items-start text-[10px] font-bold uppercase px-4 mt-4">
-                    <div>
-                        <p class="mb-2">Dikeluarkan Tanggal : ${s.tgl || '01'} ${s.bln || 'Januari'} ${s.thn || '2026'}</p>
-                        <table style="border:none;">
-                            <tr><td style="border:none;padding:1px;width:60px;">LEMBAR</td><td style="border:none;padding:1px;">: I. Kepala Keluarga</td></tr>
-                            <tr><td style="border:none;padding:1px;"></td><td style="border:none;padding:1px;">: II. RT / RK</td></tr>
-                            <tr><td style="border:none;padding:1px;"></td><td style="border:none;padding:1px;">: III. Desa / Kelurahan</td></tr>
-                            <tr><td style="border:none;padding:1px;"></td><td style="border:none;padding:1px;">: IV. Kecamatan</td></tr>
-                        </table>
-                    </div>
-                    <div class="text-center">
-                        <p>KEPALA KELUARGA</p>
-                        <br><br><br><br>
-                        <p class="underline">${d.header.nama_kepala_keluarga || '............................................'}</p>
-                        <p class="text-[8px] font-normal mt-0.5">Tanda Tangan / Cap Jempol</p>
-                    </div>
-                    <div class="text-center">
-                        <p>${jabKK}</p>
-                        <br><br><br><br>
-                        <p class="underline">${namKK}</p>
-                        <p class="text-[9px] font-normal mt-0.5">${nipKK}</p>
-                    </div>
-                </div>
-            `;
-            document.body.classList.add('printing-dukcapil'); window.print(); document.body.classList.remove('printing-dukcapil');
-        }
-
-        function printKTP(noKk, pIdx) {
-            let kk = JSON.parse(localStorage.getItem('kk_data') || '[]').find(x => x.header.no_kk === noKk);
-            if (!kk || !kk.anggota_keluarga[pIdx]) return showToast("Data penduduk tidak ditemukan!", "error");
-            let a = kk.anggota_keluarga[pIdx], h = kk.header;
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            let prov = (h.provinsi && h.provinsi !== '-' ? h.provinsi : 'LAMPUNG').toUpperCase();
-            let kab = (h.kabupaten_kota && h.kabupaten_kota !== '-' ? h.kabupaten_kota : (s.kab || 'MESUJI')).toUpperCase();
-            let kec = (h.kecamatan && h.kecamatan !== '-' ? h.kecamatan : (s.kec || 'PANCA JAYA')).toUpperCase();
-            let desa = (h.desa_kelurahan && h.desa_kelurahan !== '-' ? h.desa_kelurahan : (s.desa || 'FAJAR ASRI')).toUpperCase();
-            let rtrw = h.rt_rw && h.rt_rw !== '-' ? h.rt_rw : '000/000';
-            let tempatTgl = `${a.tempat_lahir && a.tempat_lahir !== '-' ? a.tempat_lahir.toUpperCase() : '-'}, ${formatDateID(a.tanggal_lahir)}`;
-            
-            document.getElementById('ktp-print-area').innerHTML = `
-                <div style="width: 85.6mm; height: 53.98mm; border: 1.5px solid #0284c7; border-radius: 3.18mm; padding: 3mm 4mm; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%); font-family: Arial, sans-serif; color: #0f172a; box-sizing: border-box; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                    <div style="text-align: center; font-weight: bold; line-height: 1.1; border-bottom: 1px solid #0369a1; padding-bottom: 1.5mm; margin-bottom: 1.5mm;">
-                        <div style="font-size: 9px; letter-spacing: 0.5px;">PROVINSI ${prov}</div>
-                        <div style="font-size: 9px; letter-spacing: 0.5px;">KABUPATEN ${kab}</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div style="width: 68%; font-size: 6.5px; font-weight: bold; line-height: 1.35;">
-                            <div style="font-size: 9px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 1mm;">NIK : ${a.nik || '-'}</div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 6.2px;">
-                                <tr><td style="width: 28mm; padding: 0;">Nama</td><td style="width: 2mm; padding: 0;">:</td><td style="padding: 0;">${(a.nama_lengkap || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Tempat/Tgl Lahir</td><td style="padding: 0;">:</td><td style="padding: 0;">${tempatTgl}</td></tr>
-                                <tr><td style="padding: 0;">Jenis Kelamin</td><td style="padding: 0;">:</td><td style="padding: 0;">${(a.jenis_kelamin || '-').toUpperCase()} &nbsp;&nbsp;&nbsp; Gol. Darah : ${(a.golongan_darah || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Alamat</td><td style="padding: 0;">:</td><td style="padding: 0;">${(h.alamat || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding-left: 3mm; padding-top: 0; padding-bottom: 0;">RT/RW</td><td style="padding: 0;">:</td><td style="padding: 0;">${rtrw}</td></tr>
-                                <tr><td style="padding-left: 3mm; padding-top: 0; padding-bottom: 0;">Kel/Desa</td><td style="padding: 0;">:</td><td style="padding: 0;">${desa}</td></tr>
-                                <tr><td style="padding-left: 3mm; padding-top: 0; padding-bottom: 0;">Kecamatan</td><td style="padding: 0;">:</td><td style="padding: 0;">${kec}</td></tr>
-                                <tr><td style="padding: 0;">Agama</td><td style="padding: 0;">:</td><td style="padding: 0;">${(a.agama || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Status Perkawinan</td><td style="padding: 0;">:</td><td style="padding: 0;">${(a.status_perkawinan || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Pekerjaan</td><td style="padding: 0;">:</td><td style="padding: 0;">${(a.jenis_pekerjaan || '-').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Kewarganegaraan</td><td style="padding: 0;">:</td><td style="padding: 0;">${(a.kewarganegaraan || 'WNI').toUpperCase()}</td></tr>
-                                <tr><td style="padding: 0;">Berlaku Hingga</td><td style="padding: 0;">:</td><td style="padding: 0;">SEUMUR HIDUP</td></tr>
-                            </table>
-                        </div>
-                        <div style="width: 30%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center;">
-                            <div style="width: 20mm; height: 25mm; background-color: #ef4444; border: 1px solid #991b1b; display: flex; align-items: center; justify-content: center; color: white; font-size: 7px; font-weight: bold; margin-bottom: 1.5mm; box-shadow: inset 0 0 4px rgba(0,0,0,0.3);">
-                                FOTO<br>3x4
-                            </div>
-                            <div style="font-size: 5.5px; font-weight: bold; line-height: 1.1;">
-                                <div>${kab}</div>
-                                <div>${s.tgl || '01'}-${s.bln || '01'}-${s.thn || '2026'}</div>
-                                <div style="margin-top: 3mm; border-bottom: 0.5px solid black; width: 14mm; margin-left: auto; margin-right: auto;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.classList.add('printing-ktp'); window.print(); document.body.classList.remove('printing-ktp');
-        }
-
-        function printPendidikanFormat() { document.body.classList.add('printing-pendidikan'); window.print(); document.body.classList.remove('printing-pendidikan'); }
-        function printRtFormat() { document.body.classList.add('printing-rt'); window.print(); document.body.classList.remove('printing-rt'); }
-        function printAgamaFormat() { document.body.classList.add('printing-agama'); window.print(); document.body.classList.remove('printing-agama'); }
-        function printPengangguranFormat() { document.body.classList.add('printing-pengangguran'); window.print(); document.body.classList.remove('printing-pengangguran'); }
-        function printMataPilihFormat() { document.body.classList.add('printing-matapilih'); window.print(); document.body.classList.remove('printing-matapilih'); }
-        function printMutasiFormat() { document.body.classList.add('printing-mutasi'); window.print(); document.body.classList.remove('printing-mutasi'); }
-
-        // --- LAPORAN GENERATOR ---
-        function renderRekapTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['rekap-bulan','rekap-tahun','rekap-title-desa','rekap-title-kec','rekap-title-kab','rekap-ttd-kasi','rekap-ttd-desa','rekap-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('rekap-title-','').replace('rekap-ttd-','').replace('rekap-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('rekap-ttd-tgl'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let sD = getFilteredKKData(), g = {};
-            sD.forEach(k => {
-                let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(), ky = `${rk}|${rt}`;
-                if (!g[ky]) g[ky] = {rk, rt, label: `RT.${rt||'000'} / RK.${rk||'000'}`, aw_l:0,aw_p:0,aw_kk:0,aw_ag:0, l_l:0,l_p:0, d_l:0,d_p:0, dm_l:0,dm_p:0, m_l:0,m_p:0, p_l:0,p_p:0, mr_l:0,mr_p:0, tki_l:0,tki_p:0};
-                let d = g[ky], akK = false;
-                (k.anggota_keluarga || []).forEach(a => {
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (st === 'INVALID' || isResidentHidden(k.header.no_kk, a)) return;
-                    let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI');
-                    if (st === 'LAHIR') isL ? d.l_l++ : d.l_p++; else if (st === 'PENDATANG') isL ? d.d_l++ : d.d_p++; else if (st === 'DOMISILI') isL ? d.dm_l++ : d.dm_p++;
-                    else if (st === 'MENINGGAL') isL ? d.m_l++ : d.m_p++; else if (st === 'PINDAH') isL ? d.p_l++ : d.p_p++; else if (st === 'MERANTAU') isL ? d.mr_l++ : d.mr_p++;
-                    else if (st === 'TKI' || st === 'TKW') isL ? d.tki_l++ : d.tki_p++; else { isL ? d.aw_l++ : d.aw_p++; akK = true; }
-                });
-                if (akK) { d.aw_kk++; (k.anggota_keluarga || []).forEach(a => { if (!isResidentHidden(k.header.no_kk, a) && (a.status_penduduk || 'AKTIF').toUpperCase() === 'AKTIF' && (a.status_hubungan_keluarga || '').toUpperCase() !== 'KEPALA KELUARGA') d.aw_ag++; }); }
-            });
-
-            let tb = document.getElementById('rekap-table-body'); tb.innerHTML = ''; let no = 1;
-            let tot = { aw_l:0,aw_p:0,aw_kk:0,aw_ag:0,aw_j:0, l_l:0,l_p:0, d_l:0,d_p:0, dm_l:0,dm_p:0, m_l:0,m_p:0, p_l:0,p_p:0, mr_l:0,mr_p:0, ak_l:0,ak_p:0,ak_kk:0,ak_ag:0,ak_j:0, tki_l:0,tki_p:0 };
-            Object.keys(g).sort().forEach(ky => {
-                let d = g[ky], aw_j = d.aw_l + d.aw_p, ak_l = d.aw_l + d.l_l + d.d_l + d.dm_l - d.m_l - d.p_l, ak_p = d.aw_p + d.l_p + d.d_p + d.dm_p - d.m_p - d.p_p, ak_j = ak_l + ak_p, ak_kk = d.aw_kk, ak_ag = ak_j - ak_kk;
-                if (ak_ag < 0) ak_ag = 0;
-                tot.aw_l += d.aw_l; tot.aw_p += d.aw_p; tot.aw_kk += d.aw_kk; tot.aw_ag += d.aw_ag; tot.aw_j += aw_j; tot.l_l += d.l_l; tot.l_p += d.l_p; tot.d_l += d.d_l; tot.d_p += d.d_p; tot.dm_l += d.dm_l; tot.dm_p += d.dm_p; tot.m_l += d.m_l; tot.m_p += d.m_p; tot.p_l += d.p_l; tot.p_p += d.p_p; tot.mr_l += d.mr_l; tot.mr_p += d.mr_p; tot.ak_l += ak_l; tot.ak_p += ak_p; tot.ak_kk += ak_kk; tot.ak_ag += ak_ag; tot.ak_j += ak_j; tot.tki_l += d.tki_l; tot.tki_p += d.tki_p;
-                tb.innerHTML += `<tr><td class="p-1 border border-black">${no++}</td><td class="p-1 border border-black text-left font-bold px-2">${d.label}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.aw_l}</td><td class="p-1 border border-black">${d.aw_p}</td><td class="p-1 border border-black">${d.aw_kk}</td><td class="p-1 border border-black">${d.aw_ag}</td><td class="p-1 border border-black bg-slate-50">${aw_j}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.l_l}</td><td class="p-1 border border-black">${d.l_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.d_l}</td><td class="p-1 border border-black">${d.d_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.dm_l}</td><td class="p-1 border border-black">${d.dm_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.m_l}</td><td class="p-1 border border-black">${d.m_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.p_l}</td><td class="p-1 border border-black">${d.p_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${d.mr_l}</td><td class="p-1 border border-black">${d.mr_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black font-bold">${ak_l}</td><td class="p-1 border border-black font-bold">${ak_p}</td><td class="p-1 border border-black font-bold">${ak_kk}</td><td class="p-1 border border-black font-bold">${ak_ag}</td><td class="p-1 border border-black bg-slate-100 font-bold">${ak_j}</td><td class="p-1 border border-black">${d.tki_l}</td><td class="p-1 border border-black">${d.tki_p}</td><td class="p-1 border border-black">-</td></tr>`;
-            });
-            document.getElementById('rekap-table-foot').innerHTML = `<tr class="bg-slate-200"><td class="p-1 border border-black">-</td><td class="p-1 border border-black">JUMLAH TOTAL</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.aw_l}</td><td class="p-1 border border-black">${tot.aw_p}</td><td class="p-1 border border-black">${tot.aw_kk}</td><td class="p-1 border border-black">${tot.aw_ag}</td><td class="p-1 border border-black">${tot.aw_j}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.l_l}</td><td class="p-1 border border-black">${tot.l_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.d_l}</td><td class="p-1 border border-black">${tot.d_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.dm_l}</td><td class="p-1 border border-black">${tot.dm_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.m_l}</td><td class="p-1 border border-black">${tot.m_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.p_l}</td><td class="p-1 border border-black">${tot.p_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.mr_l}</td><td class="p-1 border border-black">${tot.mr_p}</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">0</td><td class="p-1 border border-black">${tot.ak_l}</td><td class="p-1 border border-black">${tot.ak_p}</td><td class="p-1 border border-black">${tot.ak_kk}</td><td class="p-1 border border-black">${tot.ak_ag}</td><td class="p-1 border border-black">${tot.ak_j}</td><td class="p-1 border border-black">${tot.tki_l}</td><td class="p-1 border border-black">${tot.tki_p}</td><td class="p-1 border border-black">-</td></tr>`;
-        }
-
-        function renderMutasiTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['mutasi-bulan','mutasi-tahun','mutasi-title-desa','mutasi-title-kec','mutasi-title-kab','mutasi-ttd-kasi','mutasi-ttd-desa','mutasi-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('mutasi-title-','').replace('mutasi-ttd-','').replace('mutasi-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('mutasi-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-            
-            let sD = getFilteredKKData(), tb = document.getElementById('mutasi-tbody'); tb.innerHTML = ''; let no = 1;
-            let countLahir = 0, countDatang = 0, countPindah = 0, countMati = 0;
-
-            sD.forEach(kk => {
-                (kk.anggota_keluarga || []).forEach((a, idx) => {
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
-                    if (st === 'INVALID' || isResidentHidden(kk.header.no_kk, a)) return; 
-
-                    let isLahir = st === 'LAHIR';
-                    let isDatang = st === 'PENDATANG' || st === 'DOMISILI' || (a.tanggal_datang && a.tanggal_datang !== '-') || (a.datang_dari && a.datang_dari !== '-');
-                    let isPindah = st === 'PINDAH' || st === 'MERANTAU' || st === 'TKI' || st === 'TKW' || (a.tanggal_pindah && a.tanggal_pindah !== '-') || (a.pindah_ke && a.pindah_ke !== '-');
-                    let isMati = st === 'MENINGGAL' || (a.tanggal_meninggal && a.tanggal_meninggal !== '-');
-
-                    if (!isLahir && !isDatang && !isPindah && !isMati) return;
-
-                    if (isLahir) countLahir++;
-                    if (isDatang) countDatang++;
-                    if (isPindah) countPindah++;
-                    if (isMati) countMati++;
-
-                    let safeNoKk = String(kk.header.no_kk || '').replace(/'/g, "\\'");
-                    let safeNik = String(a.nik || '').replace(/'/g, "\\'");
-                    let safeNama = String(a.nama_lengkap || '').replace(/'/g, "\\'");
-                    let hideMutasiBtn = `<button type="button" onclick="hideResident('${safeNoKk}', ${idx}, '${st}', '${safeNik}', '${safeNama}')" class="px-2 py-1 bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white rounded font-bold text-[9px] transition-colors inline-flex items-center gap-1" title="Sembunyikan Data dari Laporan Mutasi"><i class="fas fa-eye-slash"></i> Sembunyikan Data</button>`;
-
-                    let rowBg = isMati ? 'bg-slate-100' : (isPindah ? 'bg-blue-50/40' : (isDatang ? 'bg-indigo-50/40' : (isLahir ? 'bg-sky-50/40' : '')));
-
-                    tb.innerHTML += `<tr class="${rowBg}">
-                        <td class="border border-black font-bold">${no++}</td>
-                        <td class="border border-black">${kk.header.no_kk}</td>
-                        <td class="border border-black font-bold text-left px-2">${a.nama_lengkap}</td>
-                        <td class="border border-black">${a.jenis_kelamin === 'LAKI-LAKI' ? 'L' : 'P'}</td>
-                        <td class="border border-black text-left px-2">${a.tempat_lahir || '-'}, ${formatDateID(a.tanggal_lahir)}</td>
-                        <td class="border border-black">${a.kewarganegaraan || 'WNI'}</td>
-                        <td class="border border-black text-left px-2">${kk.header.alamat || '-'} (${kk.header.rt_rw || '-'})</td>
-                        <td class="border border-black text-blue-700 font-semibold">${a.datang_dari && a.datang_dari !== '-' ? a.datang_dari : (isLahir ? 'KELAHIRAN' : '-')}</td>
-                        <td class="border border-black text-blue-700 font-semibold">${a.tanggal_datang && a.tanggal_datang !== '-' ? formatDateID(a.tanggal_datang) : (isLahir ? formatDateID(a.tanggal_lahir) : '-')}</td>
-                        <td class="border border-black text-rose-700 font-semibold">${a.pindah_ke || '-'}</td>
-                        <td class="border border-black text-rose-700 font-semibold">${formatDateID(a.tanggal_pindah)}</td>
-                        <td class="border border-black text-slate-900 font-bold">${formatDateID(a.tanggal_meninggal)}</td>
-                        <td class="border border-black print-hide p-1">${hideMutasiBtn}</td>
-                    </tr>`;
-                });
-            });
-
-            if (no === 1) tb.innerHTML = '<tr><td colspan="13" class="border border-black py-8 text-slate-400 font-bold">Belum ada data mutasi penduduk (Lahir / Datang / Pindah / Meninggal) pada bulan ini.</td></tr>';
-            document.getElementById('mutasi-tfoot').innerHTML = `<tr class="bg-[#e9d5ff]"><td colspan="7" class="border border-black text-right px-4 py-1.5">REKAP TOTAL MUTASI :</td><td colspan="2" class="border border-black text-blue-800">LAHIR: ${countLahir} | DATANG: ${countDatang}</td><td colspan="2" class="border border-black text-rose-800">PINDAH: ${countPindah}</td><td class="border border-black text-slate-900">MATI: ${countMati}</td><td class="border border-black print-hide">-</td></tr>`;
-        }
-
-        function renderPendidikanTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['pend-bulan','pend-tahun','pend-title-desa','pend-title-kec','pend-title-kab','pend-ttd-kasi','pend-ttd-desa','pend-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('pend-title-','').replace('pend-ttd-','').replace('pend-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('pend-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let sD = getFilteredKKData(), g = {}, cats = ['tdk_blm', 'blm_sd', 'sd', 'sltp', 'slta', 'smk', 'd12', 'd3', 's123'];
-            sD.forEach(k => {
-                let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(), ky = `${rk}|${rt}`;
-                if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; cats.forEach(c => { g[ky][c+'_l'] = 0; g[ky][c+'_p'] = 0; }); }
-                let akK = false;
-                (k.anggota_keluarga || []).forEach(a => {
-                    if (isResidentHidden(k.header.no_kk, a)) return;
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
-                    akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), p = (a.pendidikan || '').toUpperCase(), c = 'tdk_blm';
-                    if (p.includes('BELUM TAMAT SD')) c = 'blm_sd'; else if (p.includes('TAMAT SD') || p === 'SD') c = 'sd'; else if (p.includes('SLTP') || p.includes('SMP')) c = 'sltp'; else if (p.includes('SLTA') || p.includes('SMA')) c = 'slta'; else if (p.includes('SMK')) c = 'smk'; else if (p.includes('DIPLOMA I') || p.includes('D1') || p.includes('D2')) c = 'd12'; else if (p.includes('AKADEMI') || p.includes('D3')) c = 'd3'; else if (p.includes('STRATA') || p.includes('S1') || p.includes('S2') || p.includes('S3') || p.includes('DIPLOMA IV')) c = 's123';
-                    isL ? g[ky][c+'_l']++ : g[ky][c+'_p']++;
-                });
-                if (akK) g[ky].kk++;
-            });
-            let tb = document.getElementById('pendidikan-tbody'); tb.innerHTML = ''; let tot = {kk: 0}; cats.forEach(c => { tot[c+'_l'] = 0; tot[c+'_p'] = 0; });
-            Object.keys(g).sort().forEach(ky => {
-                let d = g[ky]; tot.kk += d.kk; let h = `<td>${d.rk}</td><td>${d.rt}</td><td class="font-bold">${d.kk}</td>`, rl = 0, rp = 0;
-                cats.forEach(c => { tot[c+'_l'] += d[c+'_l']; tot[c+'_p'] += d[c+'_p']; rl += d[c+'_l']; rp += d[c+'_p']; h += `<td>${d[c+'_l']}</td><td>${d[c+'_p']}</td><td class="bg-slate-50 font-semibold">${d[c+'_l']+d[c+'_p']}</td>`; });
-                h += `<td class="font-bold">${rl}</td><td class="font-bold">${rp}</td><td class="bg-[#fff2cc] font-bold">${rl+rp}</td>`; tb.innerHTML += `<tr>${h}</tr>`;
-            });
-            let fh = `<td colspan="2">JUMLAH</td><td>${tot.kk}</td>`, gl = 0, gp = 0;
-            cats.forEach(c => { gl += tot[c+'_l']; gp += tot[c+'_p']; fh += `<td>${tot[c+'_l']}</td><td>${tot[c+'_p']}</td><td>${tot[c+'_l']+tot[c+'_p']}</td>`; });
-            fh += `<td>${gl}</td><td>${gp}</td><td class="bg-[#fff2cc]">${gl+gp}</td>`; document.getElementById('pendidikan-tfoot').innerHTML = `<tr>${fh}</tr>`;
-        }
-
-        function renderRtTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['rt-bulan','rt-tahun','rt-title-desa','rt-title-kec','rt-title-kab','rt-ttd-kasi','rt-ttd-desa','rt-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('rt-title-','').replace('rt-ttd-','').replace('rt-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('rt-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let umurGroups = ["00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75+"];
-            let th1 = `<tr><th rowspan="2" class="w-8 border border-black">RK</th><th rowspan="2" class="w-8 border border-black">RT</th><th rowspan="2" class="w-10 border border-black">KK</th>`;
-            let th2 = `<tr>`;
-            umurGroups.forEach(u => { th1 += `<th colspan="2" class="border border-black text-[8px]">${u}</th>`; th2 += `<th class="border border-black text-[7px]">L</th><th class="border border-black text-[7px]">P</th>`; });
-            th1 += `<th colspan="3" class="border border-black bg-slate-300">JUMLAH</th></tr>`;
-            th2 += `<th class="border border-black bg-slate-300 text-[8px]">L</th><th class="border border-black bg-slate-300 text-[8px]">P</th><th class="border border-black bg-slate-300 text-[8px]">L+P</th></tr>`;
-            document.getElementById('rt-thead').innerHTML = th1 + th2;
-
-            let sD = getFilteredKKData(), g = {};
-            sD.forEach(k => {
-                let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(), ky = `${rk}|${rt}`;
-                if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; umurGroups.forEach(u => { g[ky][u+'_l'] = 0; g[ky][u+'_p'] = 0; }); }
-                let akK = false;
-                (k.anggota_keluarga || []).forEach(a => {
-                    if (isResidentHidden(k.header.no_kk, a)) return;
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
-                    akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), um = calculateAge(a.tanggal_lahir), ug = "75+";
-                    if (um <= 4) ug = "00-04"; else if (um <= 9) ug = "05-09"; else if (um <= 14) ug = "10-14"; else if (um <= 19) ug = "15-19";
-                    else if (um <= 24) ug = "20-24"; else if (um <= 29) ug = "25-29"; else if (um <= 34) ug = "30-34"; else if (um <= 39) ug = "35-39";
-                    else if (um <= 44) ug = "40-44"; else if (um <= 49) ug = "45-49"; else if (um <= 54) ug = "50-54"; else if (um <= 59) ug = "55-59";
-                    else if (um <= 64) ug = "60-64"; else if (um <= 69) ug = "65-69"; else if (um <= 74) ug = "70-74";
-                    isL ? g[ky][ug+'_l']++ : g[ky][ug+'_p']++;
-                });
-                if (akK) g[ky].kk++;
-            });
-
-            let tb = document.getElementById('rt-tbody'); tb.innerHTML = ''; let tot = {kk: 0}; umurGroups.forEach(u => { tot[u+'_l'] = 0; tot[u+'_p'] = 0; });
-            Object.keys(g).sort().forEach(ky => {
-                let d = g[ky]; tot.kk += d.kk; let h = `<td>${d.rk}</td><td>${d.rt}</td><td class="font-bold">${d.kk}</td>`, rl = 0, rp = 0;
-                umurGroups.forEach(u => { tot[u+'_l'] += d[u+'_l']; tot[u+'_p'] += d[u+'_p']; rl += d[u+'_l']; rp += d[u+'_p']; h += `<td>${d[u+'_l']}</td><td>${d[u+'_p']}</td>`; });
-                h += `<td class="font-bold bg-slate-50">${rl}</td><td class="font-bold bg-slate-50">${rp}</td><td class="font-bold bg-slate-200">${rl+rp}</td>`; tb.innerHTML += `<tr>${h}</tr>`;
-            });
-            let fh = `<td colspan="2">JUMLAH</td><td>${tot.kk}</td>`, gl = 0, gp = 0;
-            umurGroups.forEach(u => { gl += tot[u+'_l']; gp += tot[u+'_p']; fh += `<td>${tot[u+'_l']}</td><td>${tot[u+'_p']}</td>`; });
-            fh += `<td>${gl}</td><td>${gp}</td><td class="bg-slate-300">${gl+gp}</td>`; document.getElementById('rt-tfoot').innerHTML = `<tr>${fh}</tr>`;
-        }
-
-        function renderAgamaTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['agama-bulan','agama-tahun','agama-title-desa','agama-title-kec','agama-title-kab','agama-ttd-kasi','agama-ttd-desa','agama-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('agama-title-','').replace('agama-ttd-','').replace('agama-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('agama-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let sD = getFilteredKKData(), g = {}, ags = ['ISLAM', 'KRISTEN', 'KATHOLIK', 'HINDU', 'BUDHA', 'KONGHUCHU'];
-            sD.forEach(k => {
-                let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(), ky = `${rk}|${rt}`;
-                if (!g[ky]) { g[ky] = {rk, rt, kk: 0}; ags.forEach(a => { g[ky][a+'_l'] = 0; g[ky][a+'_p'] = 0; }); }
-                let akK = false;
-                (k.anggota_keluarga || []).forEach(a => {
-                    if (isResidentHidden(k.header.no_kk, a)) return;
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
-                    akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), ag = (a.agama || 'ISLAM').toUpperCase();
-                    if (ag.includes('KRISTEN') || ag.includes('PROTESTAN')) ag = 'KRISTEN'; else if (ag.includes('KATOLIK') || ag.includes('KATHOLIK')) ag = 'KATHOLIK';
-                    else if (ag.includes('HINDU')) ag = 'HINDU'; else if (ag.includes('BUDHA') || ag.includes('BUDDHA')) ag = 'BUDHA'; else if (ag.includes('KONGHUCHU')) ag = 'KONGHUCHU'; else ag = 'ISLAM';
-                    isL ? g[ky][ag+'_l']++ : g[ky][ag+'_p']++;
-                });
-                if (akK) g[ky].kk++;
-            });
-
-            let tb = document.getElementById('agama-tbody'); tb.innerHTML = ''; let tot = {kk: 0}; ags.forEach(a => { tot[a+'_l'] = 0; tot[a+'_p'] = 0; });
-            Object.keys(g).sort().forEach(ky => {
-                let d = g[ky]; tot.kk += d.kk; let h = `<td>${d.rk}</td><td>${d.rt}</td><td class="font-bold">${d.kk}</td>`, rl = 0, rp = 0;
-                ags.forEach(a => { tot[a+'_l'] += d[a+'_l']; tot[a+'_p'] += d[a+'_p']; rl += d[a+'_l']; rp += d[a+'_p']; h += `<td>${d[a+'_l']}</td><td>${d[a+'_p']}</td><td class="bg-slate-50 font-semibold">${d[a+'_l']+d[a+'_p']}</td>`; });
-                h += `<td class="font-bold">${rl}</td><td class="font-bold">${rp}</td><td class="bg-emerald-100 font-bold">${rl+rp}</td>`; tb.innerHTML += `<tr>${h}</tr>`;
-            });
-            let fh = `<td colspan="2">JUMLAH</td><td>${tot.kk}</td>`, gl = 0, gp = 0;
-            ags.forEach(a => { gl += tot[a+'_l']; gp += tot[a+'_p']; fh += `<td>${tot[a+'_l']}</td><td>${tot[a+'_p']}</td><td>${tot[a+'_l']+tot[a+'_p']}</td>`; });
-            fh += `<td>${gl}</td><td>${gp}</td><td class="bg-emerald-200">${gl+gp}</td>`; document.getElementById('agama-tfoot').innerHTML = `<tr>${fh}</tr>`;
-        }
-
-        function renderPengangguranTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['pengangguran-bulan','pengangguran-tahun','pengangguran-title-desa','pengangguran-title-kec','pengangguran-title-kab','pengangguran-ttd-kasi','pengangguran-ttd-desa','pengangguran-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('pengangguran-title-','').replace('pengangguran-ttd-','').replace('pengangguran-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('pengangguran-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let sD = getFilteredKKData(), jobs = {};
-            sD.forEach(k => {
-                (k.anggota_keluarga || []).forEach(a => {
-                    if (isResidentHidden(k.header.no_kk, a)) return;
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
-                    let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), pk = (a.jenis_pekerjaan || 'BELUM / TIDAK BEKERJA').toUpperCase();
-                    if (pk === '-' || pk === '') pk = 'BELUM / TIDAK BEKERJA';
-                    if (!jobs[pk]) jobs[pk] = {l: 0, p: 0};
-                    isL ? jobs[pk].l++ : jobs[pk].p++;
-                });
-            });
-
-            let tb = document.getElementById('pengangguran-tbody'); tb.innerHTML = ''; let no = 1, totL = 0, totP = 0;
-            Object.entries(jobs).sort((a,b) => (b[1].l+b[1].p) - (a[1].l+a[1].p)).forEach(([pk, val]) => {
-                totL += val.l; totP += val.p;
-                let isUnemployed = pk.includes('TIDAK BEKERJA') || pk.includes('BELUM');
-                tb.innerHTML += `<tr class="${isUnemployed?'bg-rose-50 font-bold text-rose-800':''}"><td>${no++}</td><td class="text-left px-4">${pk}</td><td>${val.l}</td><td>${val.p}</td><td class="font-bold bg-slate-50">${val.l+val.p}</td></tr>`;
-            });
-            document.getElementById('pengangguran-tfoot').innerHTML = `<tr class="bg-slate-200"><td colspan="2">JUMLAH TOTAL</td><td>${totL}</td><td>${totP}</td><td class="bg-rose-200">${totL+totP}</td></tr>`;
-        }
-
-        function renderMataPilihTable() {
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            ['matapilih-bulan','matapilih-tahun','matapilih-title-desa','matapilih-title-kec','matapilih-title-kab','matapilih-ttd-kasi','matapilih-ttd-desa','matapilih-ttd-sekdes'].forEach(id => { 
-                let k = id.replace('matapilih-title-','').replace('matapilih-ttd-','').replace('matapilih-',''); 
-                if (k === 'bulan') k = 'bln'; if (k === 'tahun') k = 'thn'; 
-                let el = document.getElementById(id); if (el) el.innerText = s[k] || ''; 
-            });
-            let tglEl = document.getElementById('matapilih-tanggal-ttd'); if (tglEl) tglEl.innerText = `${s.tgl||'31'} ${s.bln||'Agustus'} ${s.thn||'2026'}`;
-
-            let sD = getFilteredKKData(), g = {};
-            sD.forEach(k => {
-                let rtrw = (k.header.rt_rw || '').split(/[\/\-]/), rt = (rtrw[0] || '').trim(), rk = (rtrw[1] || '').trim(), ky = `${rk}|${rt}`;
-                if (!g[ky]) g[ky] = {rk, rt, kk: 0, pem_l: 0, pem_p: 0, blm_l: 0, blm_p: 0};
-                let akK = false;
-                (k.anggota_keluarga || []).forEach(a => {
-                    if (isResidentHidden(k.header.no_kk, a)) return;
-                    let st = (a.status_penduduk || 'AKTIF').toUpperCase(); if (!['AKTIF','LAHIR','DOMISILI','PENDATANG','MERANTAU','TKI','TKW'].includes(st)) return;
-                    akK = true; let isL = (a.jenis_kelamin || '').toUpperCase().includes('LAKI'), um = calculateAge(a.tanggal_lahir), kw = (a.status_perkawinan || '').toUpperCase();
-                    let isPem = um >= 17 || (kw !== '' && kw !== '-' && kw !== 'BELUM KAWIN');
-                    if (isPem) isL ? g[ky].pem_l++ : g[ky].pem_p++;
-                    else isL ? g[ky].blm_l++ : g[ky].blm_p++;
-                });
-                if (akK) g[ky].kk++;
-            });
-
-            let tb = document.getElementById('matapilih-tbody'); tb.innerHTML = '';
-            let tot = {kk: 0, pem_l: 0, pem_p: 0, blm_l: 0, blm_p: 0};
-            Object.keys(g).sort().forEach(ky => {
-                let d = g[ky]; tot.kk += d.kk; tot.pem_l += d.pem_l; tot.pem_p += d.pem_p; tot.blm_l += d.blm_l; tot.blm_p += d.blm_p;
-                let tl = d.pem_l + d.blm_l, tp = d.pem_p + d.blm_p;
-                tb.innerHTML += `<tr><td>${d.rk}</td><td>${d.rt}</td><td class="font-bold">${d.kk}</td><td>${d.pem_l}</td><td>${d.pem_p}</td><td class="bg-indigo-50 font-bold text-indigo-800">${d.pem_l+d.pem_p}</td><td>${d.blm_l}</td><td>${d.blm_p}</td><td class="bg-slate-50 font-semibold">${d.blm_l+d.blm_p}</td><td class="font-bold">${tl}</td><td class="font-bold">${tp}</td><td class="bg-indigo-100 font-bold">${tl+tp}</td></tr>`;
-            });
-            let gl = tot.pem_l + tot.blm_l, gp = tot.pem_p + tot.blm_p;
-            document.getElementById('matapilih-tfoot').innerHTML = `<tr class="bg-slate-200"><td colspan="2">JUMLAH TOTAL</td><td>${tot.kk}</td><td>${tot.pem_l}</td><td>${tot.pem_p}</td><td class="bg-indigo-200">${tot.pem_l+tot.pem_p}</td><td>${tot.blm_l}</td><td>${tot.blm_p}</td><td>${tot.blm_l+tot.blm_p}</td><td>${gl}</td><td>${gp}</td><td class="bg-indigo-300">${gl+gp}</td></tr>`;
-        }
-
-        // --- ARSIP LAPORAN ---
-        function archiveCurrentReport(reportType) {
-            const wrapperMap = {
-                'Rekap Penduduk': 'rekap-print-wrapper',
-                'Mutasi Penduduk': 'mutasi-print-wrapper',
-                'Laporan Pendidikan': 'pendidikan-print-wrapper',
-                'Laporan Kelompok RT': 'rt-print-wrapper',
-                'Laporan Agama': 'agama-print-wrapper',
-                'Laporan Pekerjaan': 'pengangguran-print-wrapper',
-                'Laporan Mata Pilih': 'matapilih-print-wrapper'
-            };
-            let wrapper = document.getElementById(wrapperMap[reportType]);
-            if (!wrapper) return showToast("Gagal mengambil konten laporan!", "error");
-
-            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
-            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
-            let newArchive = {
-                id: 'ARC-' + Date.now(),
-                title: reportType,
-                periode: `${s.bln || 'Bulan'} ${s.thn || 'Tahun'}`,
-                created_at: new Date().toLocaleString('id-ID'),
-                created_by: currentUser ? currentUser.username : 'System',
-                html_content: wrapper.innerHTML
-            };
-            archives.unshift(newArchive);
-            localStorage.setItem('app_report_archives', JSON.stringify(archives));
-            showToast(`Laporan "${reportType}" berhasil diarsipkan!`, "success");
-        }
-
-        function renderArchiveList() {
-            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
-            let container = document.getElementById('archive-list-container');
-            container.innerHTML = '';
-
-            if (archives.length === 0) {
-                container.innerHTML = `<div class="col-span-full bg-white p-12 rounded-3xl border text-center text-slate-400"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p class="font-bold">Belum ada laporan yang diarsipkan.</p><p class="text-xs mt-1">Buka salah satu menu laporan lalu klik tombol "Arsipkan Laporan".</p></div>`;
-                return;
-            }
-
-            archives.forEach(arc => {
-                container.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-all">
-                        <div>
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-wider">${arc.periode}</span>
-                                <button onclick="deleteArchive('${arc.id}')" class="text-slate-400 hover:text-rose-500 transition-colors" title="Hapus Arsip"><i class="fas fa-trash-alt"></i></button>
-                            </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-1">${arc.title}</h3>
-                            <p class="text-xs text-slate-500 mb-4"><i class="fas fa-clock mr-1"></i> ${arc.created_at}<br><i class="fas fa-user mr-1"></i> Oleh: <span class="font-semibold uppercase">${arc.created_by}</span></p>
-                        </div>
-                        <button onclick="openArchiveDetail('${arc.id}')" class="w-full py-2.5 bg-slate-800 hover:bg-brand-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors">
-                            <i class="fas fa-eye"></i> Lihat & Cetak Arsip
-                        </button>
-                    </div>
-                `;
+            showConfirmModal("Reset Dasbor", "Yakin hapus SEMUA data lokal?", () => { 
+                let allNos = JSON.parse(localStorage.getItem('kk_data') || '[]').map(x => String(x.header && x.header.no_kk || '').trim()).filter(Boolean);
+                let delList = [...new Set([...JSON.parse(localStorage.getItem('app_deleted_kk') || '[]'), ...allNos])];
+                localStorage.setItem('app_deleted_kk', JSON.stringify(delList));
+                localStorage.removeItem('kk_data'); 
+                loadDashboardData(); 
+                renderLoginRkSummary();
+                showToast("Semua data berhasil dihapus", "info"); 
             });
         }
 
