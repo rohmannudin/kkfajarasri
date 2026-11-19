@@ -1607,8 +1607,8 @@
                 if (btnResetDash) btnResetDash.classList.remove('hidden');
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-rose-300 bg-rose-500/20 border border-rose-500/30"; rBadge.innerText = 'ADMIN';
             } else {
-                ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts', 'tab-mutasi'].forEach(t => { let el = document.getElementById(t); if (el) el.classList.add('hidden'); });
-                ['tab-rekap', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-archive'].forEach(t => { let el = document.getElementById(t); if (el) el.classList.remove('hidden'); });
+                ['tab-users', 'tab-settings', 'tab-inactive', 'tab-charts'].forEach(t => { let el = document.getElementById(t); if (el) el.classList.add('hidden'); });
+                ['tab-rekap', 'tab-mutasi', 'tab-pendidikan', 'tab-rt', 'tab-agama', 'tab-pengangguran', 'tab-matapilih', 'tab-archive'].forEach(t => { let el = document.getElementById(t); if (el) el.classList.remove('hidden'); });
                 if (btnResetDash) btnResetDash.classList.add('hidden');
                 rBadge.className = "ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-md text-brand-300 bg-brand-500/20 border border-brand-500/30";
                 rBadge.innerText = 'USER' + (currentUser.rk !== 'all' ? ` | RK:${currentUser.rk} RT:${currentUser.rt}` : '');
@@ -1835,9 +1835,6 @@
 
         // --- NAVIGATION & VIEWS ---
         function switchView(viewId) {
-            if (viewId === 'mutasi-view' && currentUser && currentUser.role === 'user' && !currentUser.is_master && currentUser.username !== 'superakun') {
-                return showToast("Menu Laporan Mutasi hanya tersedia untuk Superakun, Superadmin, dan Administrator.", "warning");
-            }
             const views = ['ocr-view', 'dashboard-view', 'charts-view', 'inactive-view', 'rekap-view', 'mutasi-view', 'pendidikan-view', 'rt-view', 'agama-view', 'pengangguran-view', 'matapilih-view', 'archive-view', 'settings-view', 'users-view'];
             views.forEach(v => { let e = document.getElementById(v); if (e) { e.classList.add('hidden'); e.classList.remove('flex'); } });
             
@@ -2988,6 +2985,789 @@
                 renderArchiveList();
                 showToast("Semua arsip berhasil dihapus", "info");
             });
+        }
+
+        // --- LAPORAN & REKAPITULASI LENGKAP ---
+        function applyReportHeaderInfo(prefix) {
+            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
+            const now = new Date();
+            const bulanNames = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+            let desa = (s.desa || 'FAJAR ASRI').toUpperCase();
+            let kec = (s.kec || 'PANCA JAYA').toUpperCase();
+            let kab = (s.kab || 'MESUJI').toUpperCase();
+            let kasi = (s.kasi || 'SUPRIYANTO').toUpperCase();
+            let sekdes = (s.sekdes || 'ROHMAN NUDIN').toUpperCase();
+            let blnRaw = (s.bln || bulanNames[now.getMonth()]).trim();
+            let bln = blnRaw.toUpperCase();
+            let blnTitle = blnRaw.charAt(0).toUpperCase() + blnRaw.slice(1).toLowerCase();
+            let thn = (s.thn || String(now.getFullYear())).trim();
+            let tglInput = (s.tgl || String(now.getDate())).trim();
+            let tglLengkap = (s.tgl && !/^\d{1,2}$/.test(tglInput)) ? tglInput : `${tglInput} ${blnTitle} ${thn}`;
+
+            const setT = (id, val) => { let el = document.getElementById(id); if (el) el.innerText = val; };
+            setT(`${prefix}-title-desa`, desa);
+            setT(`${prefix}-title-kec`, kec);
+            setT(`${prefix}-title-kab`, kab);
+            setT(`${prefix}-bulan`, bln);
+            setT(`${prefix}-tahun`, thn);
+            setT(`${prefix}-ttd-kasi`, kasi);
+            setT(`${prefix}-ttd-sekdes`, sekdes);
+            setT(`${prefix}-ttd-desa`, desa);
+            setT(`${prefix}-ttd-tgl`, tglLengkap);
+            setT(`${prefix}-tanggal-ttd`, tglLengkap);
+        }
+
+        function parseRkRtFromKK(kk) {
+            let rtrw = ((kk && kk.header && kk.header.rt_rw) ? kk.header.rt_rw : '000/000').split(/[\/\-]/);
+            let rt = (rtrw[0] || '').replace(/\D/g, '').padStart(3, '0') || '000';
+            let rk = (rtrw[1] || '').replace(/\D/g, '').padStart(3, '0') || '000';
+            return { rk, rt, key: `${rk}-${rt}` };
+        }
+
+        function getSortedWilayahKeys(sD) {
+            let setKeys = new Set();
+            sD.forEach(kk => {
+                let hasVisible = (kk.anggota_keluarga || []).some(a => !isResidentHidden(kk.header.no_kk, a));
+                if (hasVisible) setKeys.add(parseRkRtFromKK(kk).key);
+            });
+            if (setKeys.size === 0) setKeys.add('001-001');
+            return Array.from(setKeys).sort();
+        }
+
+        function renderRekapTable() {
+            applyReportHeaderInfo('rekap');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('rekap-table-body');
+            let tfoot = document.getElementById('rekap-table-foot');
+            if (!tbody || !tfoot) return;
+
+            let keys = getSortedWilayahKeys(sD);
+            let rowsData = {};
+            keys.forEach(k => {
+                rowsData[k] = {
+                    awal_wna_l: 0, awal_wna_p: 0, awal_wni_l: 0, awal_wni_p: 0, awal_kk: 0, awal_ang: 0, awal_jiwa: 0,
+                    lahir_wna_l: 0, lahir_wna_p: 0, lahir_wni_l: 0, lahir_wni_p: 0,
+                    datang_wna_l: 0, datang_wna_p: 0, datang_wni_l: 0, datang_wni_p: 0,
+                    dom_wna_l: 0, dom_wna_p: 0, dom_wni_l: 0, dom_wni_p: 0,
+                    mati_wna_l: 0, mati_wna_p: 0, mati_wni_l: 0, mati_wni_p: 0,
+                    pindah_wna_l: 0, pindah_wna_p: 0, pindah_wni_l: 0, pindah_wni_p: 0,
+                    rantau_wna_l: 0, rantau_wna_p: 0, rantau_wni_l: 0, rantau_wni_p: 0,
+                    akhir_wna_l: 0, akhir_wna_p: 0, akhir_wni_l: 0, akhir_wni_p: 0, akhir_kk: 0, akhir_ang: 0, akhir_jiwa: 0,
+                    tki_l: 0, tki_p: 0
+                };
+            });
+
+            sD.forEach(kk => {
+                let { key } = parseRkRtFromKK(kk);
+                if (!rowsData[key]) return;
+                let r = rowsData[key];
+                let hasAktifKK = false, hasAwalKK = false;
+
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    let jk = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN') ? 'P' : 'L';
+                    let wn = (a.kewarganegaraan || 'WNI').toUpperCase().includes('WNA') ? 'wna' : 'wni';
+                    let isKepala = (a.status_hubungan_keluarga || '').toUpperCase().includes('KEPALA');
+
+                    if (['AKTIF', 'MENINGGAL', 'PINDAH', 'MERANTAU', 'TKI', 'TKW'].includes(st)) {
+                        r[`awal_${wn}_${jk.toLowerCase()}`]++;
+                        r.awal_jiwa++;
+                        if (!isKepala) r.awal_ang++;
+                        hasAwalKK = true;
+                    }
+                    if (st === 'LAHIR') r[`lahir_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'PENDATANG') r[`datang_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'DOMISILI') r[`dom_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'MENINGGAL') r[`mati_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'PINDAH') r[`pindah_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'MERANTAU') r[`rantau_${wn}_${jk.toLowerCase()}`]++;
+                    if (st === 'TKI' || st === 'TKW' || ['TKI', 'TKW'].includes((a.jenis_pekerjaan || '').toUpperCase())) {
+                        if (jk === 'L') r.tki_l++; else r.tki_p++;
+                    }
+
+                    if (!['MENINGGAL', 'PINDAH'].includes(st)) {
+                        r[`akhir_${wn}_${jk.toLowerCase()}`]++;
+                        r.akhir_jiwa++;
+                        if (!isKepala) r.akhir_ang++;
+                        hasAktifKK = true;
+                    }
+                });
+                if (hasAwalKK) r.awal_kk++;
+                if (hasAktifKK) r.akhir_kk++;
+            });
+
+            let totals = {};
+            Object.keys(rowsData[keys[0]]).forEach(f => totals[f] = 0);
+
+            tbody.innerHTML = keys.map((k, idx) => {
+                let [rk, rt] = k.split('-');
+                let r = rowsData[k];
+                Object.keys(totals).forEach(f => totals[f] += r[f]);
+                return `<tr>
+                    <td class="p-1 border border-black">${idx + 1}</td>
+                    <td class="p-1 border border-black font-bold text-left px-2">RT ${rt} / RK ${rk}</td>
+                    <td class="p-1 border border-black">${r.awal_wna_l}</td><td class="p-1 border border-black">${r.awal_wna_p}</td><td class="p-1 border border-black">${r.awal_wni_l}</td><td class="p-1 border border-black">${r.awal_wni_p}</td><td class="p-1 border border-black font-bold">${r.awal_kk}</td><td class="p-1 border border-black">${r.awal_ang}</td><td class="p-1 border border-black font-bold">${r.awal_jiwa}</td>
+                    <td class="p-1 border border-black">${r.lahir_wna_l}</td><td class="p-1 border border-black">${r.lahir_wna_p}</td><td class="p-1 border border-black">${r.lahir_wni_l}</td><td class="p-1 border border-black">${r.lahir_wni_p}</td>
+                    <td class="p-1 border border-black">${r.datang_wna_l}</td><td class="p-1 border border-black">${r.datang_wna_p}</td><td class="p-1 border border-black">${r.datang_wni_l}</td><td class="p-1 border border-black">${r.datang_wni_p}</td>
+                    <td class="p-1 border border-black">${r.dom_wna_l}</td><td class="p-1 border border-black">${r.dom_wna_p}</td><td class="p-1 border border-black">${r.dom_wni_l}</td><td class="p-1 border border-black">${r.dom_wni_p}</td>
+                    <td class="p-1 border border-black">${r.mati_wna_l}</td><td class="p-1 border border-black">${r.mati_wna_p}</td><td class="p-1 border border-black">${r.mati_wni_l}</td><td class="p-1 border border-black">${r.mati_wni_p}</td>
+                    <td class="p-1 border border-black">${r.pindah_wna_l}</td><td class="p-1 border border-black">${r.pindah_wna_p}</td><td class="p-1 border border-black">${r.pindah_wni_l}</td><td class="p-1 border border-black">${r.pindah_wni_p}</td>
+                    <td class="p-1 border border-black">${r.rantau_wna_l}</td><td class="p-1 border border-black">${r.rantau_wna_p}</td><td class="p-1 border border-black">${r.rantau_wni_l}</td><td class="p-1 border border-black">${r.rantau_wni_p}</td>
+                    <td class="p-1 border border-black">${r.akhir_wna_l}</td><td class="p-1 border border-black">${r.akhir_wna_p}</td><td class="p-1 border border-black">${r.akhir_wni_l}</td><td class="p-1 border border-black">${r.akhir_wni_p}</td><td class="p-1 border border-black font-bold">${r.akhir_kk}</td><td class="p-1 border border-black">${r.akhir_ang}</td><td class="p-1 border border-black font-bold bg-slate-100">${r.akhir_jiwa}</td>
+                    <td class="p-1 border border-black">${r.tki_l}</td><td class="p-1 border border-black">${r.tki_p}</td>
+                    <td class="p-1 border border-black">-</td>
+                </tr>`;
+            }).join('');
+
+            tfoot.innerHTML = `<tr class="bg-slate-100 font-extrabold">
+                <td colspan="2" class="p-1.5 border border-black">JUMLAH TOTAL</td>
+                <td class="p-1 border border-black">${totals.awal_wna_l}</td><td class="p-1 border border-black">${totals.awal_wna_p}</td><td class="p-1 border border-black">${totals.awal_wni_l}</td><td class="p-1 border border-black">${totals.awal_wni_p}</td><td class="p-1 border border-black">${totals.awal_kk}</td><td class="p-1 border border-black">${totals.awal_ang}</td><td class="p-1 border border-black">${totals.awal_jiwa}</td>
+                <td class="p-1 border border-black">${totals.lahir_wna_l}</td><td class="p-1 border border-black">${totals.lahir_wna_p}</td><td class="p-1 border border-black">${totals.lahir_wni_l}</td><td class="p-1 border border-black">${totals.lahir_wni_p}</td>
+                <td class="p-1 border border-black">${totals.datang_wna_l}</td><td class="p-1 border border-black">${totals.datang_wna_p}</td><td class="p-1 border border-black">${totals.datang_wni_l}</td><td class="p-1 border border-black">${totals.datang_wni_p}</td>
+                <td class="p-1 border border-black">${totals.dom_wna_l}</td><td class="p-1 border border-black">${totals.dom_wna_p}</td><td class="p-1 border border-black">${totals.dom_wni_l}</td><td class="p-1 border border-black">${totals.dom_wni_p}</td>
+                <td class="p-1 border border-black">${totals.mati_wna_l}</td><td class="p-1 border border-black">${totals.mati_wna_p}</td><td class="p-1 border border-black">${totals.mati_wni_l}</td><td class="p-1 border border-black">${totals.mati_wni_p}</td>
+                <td class="p-1 border border-black">${totals.pindah_wna_l}</td><td class="p-1 border border-black">${totals.pindah_wna_p}</td><td class="p-1 border border-black">${totals.pindah_wni_l}</td><td class="p-1 border border-black">${totals.pindah_wni_p}</td>
+                <td class="p-1 border border-black">${totals.rantau_wna_l}</td><td class="p-1 border border-black">${totals.rantau_wna_p}</td><td class="p-1 border border-black">${totals.rantau_wni_l}</td><td class="p-1 border border-black">${totals.rantau_wni_p}</td>
+                <td class="p-1 border border-black">${totals.akhir_wna_l}</td><td class="p-1 border border-black">${totals.akhir_wna_p}</td><td class="p-1 border border-black">${totals.akhir_wni_l}</td><td class="p-1 border border-black">${totals.akhir_wni_p}</td><td class="p-1 border border-black">${totals.akhir_kk}</td><td class="p-1 border border-black">${totals.akhir_ang}</td><td class="p-1 border border-black">${totals.akhir_jiwa}</td>
+                <td class="p-1 border border-black">${totals.tki_l}</td><td class="p-1 border border-black">${totals.tki_p}</td>
+                <td class="p-1 border border-black">-</td>
+            </tr>`;
+        }
+
+        function renderMutasiTable() {
+            applyReportHeaderInfo('mutasi');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('mutasi-tbody');
+            let tfoot = document.getElementById('mutasi-tfoot');
+            if (!tbody || !tfoot) return;
+
+            let rows = [];
+            let countLahir = 0, countDatang = 0, countPindah = 0, countMati = 0;
+
+            sD.forEach(kk => {
+                (kk.anggota_keluarga || []).forEach((a, idx) => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    let isMutasi = ['LAHIR', 'PENDATANG', 'DOMISILI', 'PINDAH', 'MENINGGAL', 'MERANTAU', 'TKI', 'TKW'].includes(st) ||
+                        (a.datang_dari && a.datang_dari !== '-') ||
+                        (a.pindah_ke && a.pindah_ke !== '-') ||
+                        (a.tanggal_meninggal && a.tanggal_meninggal !== '-');
+                    if (!isMutasi) return;
+
+                    if (st === 'LAHIR') countLahir++;
+                    if (st === 'PENDATANG' || st === 'DOMISILI' || (a.datang_dari && a.datang_dari !== '-')) countDatang++;
+                    if (st === 'PINDAH' || st === 'MERANTAU' || st === 'TKI' || st === 'TKW' || (a.pindah_ke && a.pindah_ke !== '-')) countPindah++;
+                    if (st === 'MENINGGAL' || (a.tanggal_meninggal && a.tanggal_meninggal !== '-')) countMati++;
+
+                    let { rk, rt } = parseRkRtFromKK(kk);
+                    let jkShort = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN') ? 'P' : 'L';
+                    let safeNoKk = String(kk.header.no_kk || '').replace(/'/g, "\\'");
+                    let safeNik = String(a.nik || '').replace(/'/g, "\\'");
+                    let safeNama = String(a.nama_lengkap || '').replace(/'/g, "\\'");
+
+                    rows.push(`<tr>
+                        <td class="border border-black">${rows.length + 1}</td>
+                        <td class="border border-black">${kk.header.no_kk || '-'}</td>
+                        <td class="border border-black text-left font-bold px-2">${a.nama_lengkap || '-'} <span class="text-[8px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 ml-1">${st}</span></td>
+                        <td class="border border-black">${jkShort}</td>
+                        <td class="border border-black">${a.tempat_lahir || '-'}, ${formatDateID(a.tanggal_lahir)}</td>
+                        <td class="border border-black">${a.kewarganegaraan || 'WNI'}</td>
+                        <td class="border border-black text-left px-2">${kk.header.alamat || '-'} (RT ${rt}/RK ${rk})</td>
+                        <td class="border border-black">${a.datang_dari || '-'}</td>
+                        <td class="border border-black">${formatDateID(a.tanggal_datang)}</td>
+                        <td class="border border-black">${a.pindah_ke || '-'}</td>
+                        <td class="border border-black">${formatDateID(a.tanggal_pindah)}</td>
+                        <td class="border border-black text-rose-700 font-bold">${formatDateID(a.tanggal_meninggal)}</td>
+                        <td class="border border-black print-hide">
+                            <button onclick="hideResident('${safeNoKk}', ${idx}, '${st}', '${safeNik}', '${safeNama}')" class="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded font-bold text-[9px] transition-colors" title="Sembunyikan Data dari Laporan">
+                                <i class="fas fa-eye-slash mr-1"></i> Sembunyikan
+                            </button>
+                        </td>
+                    </tr>`);
+                });
+            });
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="13" class="py-8 text-center text-slate-500 font-bold border border-black">Belum ada catatan mutasi penduduk (Lahir, Datang, Pindah, Meninggal). Ubah status penduduk di menu Dasbor & Data untuk mencatat mutasi.</td></tr>`;
+            } else {
+                tbody.innerHTML = rows.join('');
+            }
+
+            tfoot.innerHTML = `<tr class="bg-purple-50 font-extrabold">
+                <td colspan="7" class="border border-black text-right px-3 py-1.5">REKAP MUTASI: LAHIR (${countLahir}) | DATANG (${countDatang}) | PINDAH (${countPindah}) | MENINGGAL (${countMati})</td>
+                <td colspan="5" class="border border-black text-center">TOTAL MUTASI: ${rows.length} JIWA</td>
+                <td class="border border-black print-hide">-</td>
+            </tr>`;
+        }
+
+        function renderPendidikanTable() {
+            applyReportHeaderInfo('pend');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('pendidikan-tbody');
+            let tfoot = document.getElementById('pendidikan-tfoot');
+            if (!tbody || !tfoot) return;
+
+            const cats = ['tdk', 'blmsd', 'sd', 'smp', 'sma', 'smk', 'd1', 'd3', 's1'];
+            let keys = getSortedWilayahKeys(sD);
+            let map = {};
+            keys.forEach(k => {
+                map[k] = { kk: 0 };
+                cats.forEach(c => { map[k][c + '_l'] = 0; map[k][c + '_p'] = 0; });
+            });
+
+            sD.forEach(kk => {
+                let { key } = parseRkRtFromKK(kk);
+                if (!map[key]) return;
+                let hasAktif = false;
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    if (['MENINGGAL', 'PINDAH'].includes(st)) return;
+                    hasAktif = true;
+                    let jk = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN') ? 'p' : 'l';
+                    let p = (a.pendidikan || '').toUpperCase();
+                    let cat = 'tdk';
+                    if (p.includes('BELUM TAMAT') || p.includes('BLM TAMAT')) cat = 'blmsd';
+                    else if (p.includes('SD') || p.includes('SEDERAJAT') && !p.includes('SMP') && !p.includes('SMA')) cat = 'sd';
+                    else if (p.includes('SLTP') || p.includes('SMP')) cat = 'smp';
+                    else if (p.includes('SMK')) cat = 'smk';
+                    else if (p.includes('SLTA') || p.includes('SMA')) cat = 'sma';
+                    else if (p.includes('DIPLOMA I') || p.includes('D1') || p.includes('D2')) cat = 'd1';
+                    else if (p.includes('AKADEMI') || p.includes('D3') || p.includes('DIPLOMA III')) cat = 'd3';
+                    else if (p.includes('STRATA') || p.includes('S1') || p.includes('S2') || p.includes('S3') || p.includes('DIPLOMA IV') || p.includes('D4')) cat = 's1';
+                    map[key][`${cat}_${jk}`]++;
+                });
+                if (hasAktif) map[key].kk++;
+            });
+
+            let tot = { kk: 0 };
+            cats.forEach(c => { tot[c + '_l'] = 0; tot[c + '_p'] = 0; });
+
+            tbody.innerHTML = keys.map(k => {
+                let [rk, rt] = k.split('-');
+                let r = map[k];
+                tot.kk += r.kk;
+                let rowL = 0, rowP = 0, cells = '';
+                cats.forEach(c => {
+                    let l = r[c + '_l'], p = r[c + '_p'];
+                    tot[c + '_l'] += l; tot[c + '_p'] += p;
+                    rowL += l; rowP += p;
+                    cells += `<td class="border border-black">${l}</td><td class="border border-black">${p}</td><td class="border border-black font-semibold">${l + p}</td>`;
+                });
+                return `<tr>
+                    <td class="border border-black font-bold">${rk}</td>
+                    <td class="border border-black font-bold">${rt}</td>
+                    <td class="border border-black font-bold">${r.kk}</td>
+                    ${cells}
+                    <td class="border border-black font-bold bg-amber-50">${rowL}</td>
+                    <td class="border border-black font-bold bg-amber-50">${rowP}</td>
+                    <td class="border border-black font-extrabold bg-amber-100">${rowL + rowP}</td>
+                </tr>`;
+            }).join('');
+
+            let totL = 0, totP = 0, totCells = '';
+            cats.forEach(c => {
+                let l = tot[c + '_l'], p = tot[c + '_p'];
+                totL += l; totP += p;
+                totCells += `<td class="border border-black">${l}</td><td class="border border-black">${p}</td><td class="border border-black">${l + p}</td>`;
+            });
+            tfoot.innerHTML = `<tr class="bg-amber-100 font-extrabold">
+                <td colspan="2" class="border border-black">JUMLAH</td>
+                <td class="border border-black">${tot.kk}</td>
+                ${totCells}
+                <td class="border border-black">${totL}</td>
+                <td class="border border-black">${totP}</td>
+                <td class="border border-black">${totL + totP}</td>
+            </tr>`;
+        }
+
+        function renderRtTable() {
+            applyReportHeaderInfo('rt');
+            let sD = getFilteredKKData();
+            let thead = document.getElementById('rt-thead');
+            let tbody = document.getElementById('rt-tbody');
+            let tfoot = document.getElementById('rt-tfoot');
+            if (!thead || !tbody || !tfoot) return;
+
+            const ageGroups = [
+                { label: '0-4 THN', min: 0, max: 4 },
+                { label: '5-9 THN', min: 5, max: 9 },
+                { label: '10-14 THN', min: 10, max: 14 },
+                { label: '15-19 THN', min: 15, max: 19 },
+                { label: '20-24 THN', min: 20, max: 24 },
+                { label: '25-44 THN', min: 25, max: 44 },
+                { label: '45-59 THN', min: 45, max: 59 },
+                { label: '60-74 THN', min: 60, max: 74 },
+                { label: '75+ THN', min: 75, max: 999 }
+            ];
+
+            thead.innerHTML = `
+                <tr>
+                    <th rowspan="2" class="w-8 border border-black">RK</th>
+                    <th rowspan="2" class="w-8 border border-black">RT</th>
+                    <th rowspan="2" class="w-10 border border-black">KK</th>
+                    ${ageGroups.map(g => `<th colspan="3" class="border border-black">${g.label}</th>`).join('')}
+                    <th colspan="3" class="border border-black bg-slate-300">JUMLAH</th>
+                </tr>
+                <tr>
+                    ${ageGroups.map(() => `<th class="border border-black">L</th><th class="border border-black">P</th><th class="border border-black">L+P</th>`).join('')}
+                    <th class="border border-black bg-slate-300">L</th><th class="border border-black bg-slate-300">P</th><th class="border border-black bg-slate-300">L+P</th>
+                </tr>
+            `;
+
+            let keys = getSortedWilayahKeys(sD);
+            let map = {};
+            keys.forEach(k => {
+                map[k] = { kk: 0, l: Array(ageGroups.length).fill(0), p: Array(ageGroups.length).fill(0) };
+            });
+
+            sD.forEach(kk => {
+                let { key } = parseRkRtFromKK(kk);
+                if (!map[key]) return;
+                let hasAktif = false;
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    if (['MENINGGAL', 'PINDAH'].includes(st)) return;
+                    hasAktif = true;
+                    let age = calculateAge(a.tanggal_lahir);
+                    let isP = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN');
+                    let gIdx = ageGroups.findIndex(g => age >= g.min && age <= g.max);
+                    if (gIdx === -1) gIdx = 0;
+                    if (isP) map[key].p[gIdx]++; else map[key].l[gIdx]++;
+                });
+                if (hasAktif) map[key].kk++;
+            });
+
+            let totKK = 0, totL = Array(ageGroups.length).fill(0), totP = Array(ageGroups.length).fill(0);
+            tbody.innerHTML = keys.map(k => {
+                let [rk, rt] = k.split('-');
+                let r = map[k];
+                totKK += r.kk;
+                let rowL = 0, rowP = 0, cells = '';
+                ageGroups.forEach((_, i) => {
+                    totL[i] += r.l[i]; totP[i] += r.p[i];
+                    rowL += r.l[i]; rowP += r.p[i];
+                    cells += `<td class="border border-black">${r.l[i]}</td><td class="border border-black">${r.p[i]}</td><td class="border border-black font-semibold">${r.l[i] + r.p[i]}</td>`;
+                });
+                return `<tr>
+                    <td class="border border-black font-bold">${rk}</td>
+                    <td class="border border-black font-bold">${rt}</td>
+                    <td class="border border-black font-bold">${r.kk}</td>
+                    ${cells}
+                    <td class="border border-black font-bold bg-slate-100">${rowL}</td>
+                    <td class="border border-black font-bold bg-slate-100">${rowP}</td>
+                    <td class="border border-black font-extrabold bg-slate-200">${rowL + rowP}</td>
+                </tr>`;
+            }).join('');
+
+            let sumL = totL.reduce((a, b) => a + b, 0), sumP = totP.reduce((a, b) => a + b, 0);
+            tfoot.innerHTML = `<tr class="bg-slate-200 font-extrabold">
+                <td colspan="2" class="border border-black">JUMLAH</td>
+                <td class="border border-black">${totKK}</td>
+                ${ageGroups.map((_, i) => `<td class="border border-black">${totL[i]}</td><td class="border border-black">${totP[i]}</td><td class="border border-black">${totL[i] + totP[i]}</td>`).join('')}
+                <td class="border border-black">${sumL}</td>
+                <td class="border border-black">${sumP}</td>
+                <td class="border border-black">${sumL + sumP}</td>
+            </tr>`;
+        }
+
+        function renderAgamaTable() {
+            applyReportHeaderInfo('agama');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('agama-tbody');
+            let tfoot = document.getElementById('agama-tfoot');
+            if (!tbody || !tfoot) return;
+
+            const religions = ['ISLAM', 'KRISTEN', 'KATHOLIK', 'HINDU', 'BUDHA', 'KONGHUCHU'];
+            let keys = getSortedWilayahKeys(sD);
+            let map = {};
+            keys.forEach(k => {
+                map[k] = { kk: 0 };
+                religions.forEach(rel => { map[k][rel + '_L'] = 0; map[k][rel + '_P'] = 0; });
+            });
+
+            sD.forEach(kk => {
+                let { key } = parseRkRtFromKK(kk);
+                if (!map[key]) return;
+                let hasAktif = false;
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    if (['MENINGGAL', 'PINDAH'].includes(st)) return;
+                    hasAktif = true;
+                    let jk = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN') ? 'P' : 'L';
+                    let ag = (a.agama || 'ISLAM').toUpperCase();
+                    let rel = 'ISLAM';
+                    if (ag.includes('KRISTEN') || ag.includes('PROTESTAN')) rel = 'KRISTEN';
+                    else if (ag.includes('KATOLIK') || ag.includes('KATHOLIK')) rel = 'KATHOLIK';
+                    else if (ag.includes('HINDU')) rel = 'HINDU';
+                    else if (ag.includes('BUDHA') || ag.includes('BUDDHA')) rel = 'BUDHA';
+                    else if (ag.includes('KONGHUCU') || ag.includes('KONGHUCHU')) rel = 'KONGHUCHU';
+                    map[key][`${rel}_${jk}`]++;
+                });
+                if (hasAktif) map[key].kk++;
+            });
+
+            let tot = { kk: 0 };
+            religions.forEach(rel => { tot[rel + '_L'] = 0; tot[rel + '_P'] = 0; });
+
+            tbody.innerHTML = keys.map(k => {
+                let [rk, rt] = k.split('-');
+                let r = map[k];
+                tot.kk += r.kk;
+                let rowL = 0, rowP = 0, cells = '';
+                religions.forEach(rel => {
+                    let l = r[rel + '_L'], p = r[rel + '_P'];
+                    tot[rel + '_L'] += l; tot[rel + '_P'] += p;
+                    rowL += l; rowP += p;
+                    cells += `<td class="border border-black">${l}</td><td class="border border-black">${p}</td><td class="border border-black font-semibold">${l + p}</td>`;
+                });
+                return `<tr>
+                    <td class="border border-black font-bold">${rk}</td>
+                    <td class="border border-black font-bold">${rt}</td>
+                    <td class="border border-black font-bold">${r.kk}</td>
+                    ${cells}
+                    <td class="border border-black font-bold bg-emerald-50">${rowL}</td>
+                    <td class="border border-black font-bold bg-emerald-50">${rowP}</td>
+                    <td class="border border-black font-extrabold bg-emerald-100">${rowL + rowP}</td>
+                </tr>`;
+            }).join('');
+
+            let totL = 0, totP = 0, totCells = '';
+            religions.forEach(rel => {
+                let l = tot[rel + '_L'], p = tot[rel + '_P'];
+                totL += l; totP += p;
+                totCells += `<td class="border border-black">${l}</td><td class="border border-black">${p}</td><td class="border border-black">${l + p}</td>`;
+            });
+            tfoot.innerHTML = `<tr class="bg-emerald-100 font-extrabold">
+                <td colspan="2" class="border border-black">JUMLAH</td>
+                <td class="border border-black">${tot.kk}</td>
+                ${totCells}
+                <td class="border border-black">${totL}</td>
+                <td class="border border-black">${totP}</td>
+                <td class="border border-black">${totL + totP}</td>
+            </tr>`;
+        }
+
+        function renderPengangguranTable() {
+            applyReportHeaderInfo('pengangguran');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('pengangguran-tbody');
+            let tfoot = document.getElementById('pengangguran-tfoot');
+            if (!tbody || !tfoot) return;
+
+            let jobMap = {};
+            sD.forEach(kk => {
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    if (['MENINGGAL', 'PINDAH'].includes(st)) return;
+                    let job = (a.jenis_pekerjaan || 'BELUM / TIDAK BEKERJA').toUpperCase().trim();
+                    if (!job || job === '-') job = 'BELUM / TIDAK BEKERJA';
+                    if (!jobMap[job]) jobMap[job] = { l: 0, p: 0 };
+                    if ((a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN')) jobMap[job].p++;
+                    else jobMap[job].l++;
+                });
+            });
+
+            let entries = Object.entries(jobMap).sort((a, b) => (b[1].l + b[1].p) - (a[1].l + a[1].p));
+            let totL = 0, totP = 0;
+
+            if (entries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 font-bold border border-black">Belum ada data pekerjaan penduduk.</td></tr>`;
+            } else {
+                tbody.innerHTML = entries.map(([job, cnt], idx) => {
+                    totL += cnt.l; totP += cnt.p;
+                    return `<tr>
+                        <td class="border border-black">${idx + 1}</td>
+                        <td class="border border-black text-left px-3 font-bold">${job}</td>
+                        <td class="border border-black">${cnt.l}</td>
+                        <td class="border border-black">${cnt.p}</td>
+                        <td class="border border-black font-extrabold bg-rose-50">${cnt.l + cnt.p}</td>
+                    </tr>`;
+                }).join('');
+            }
+
+            tfoot.innerHTML = `<tr class="bg-rose-100 font-extrabold">
+                <td colspan="2" class="border border-black">JUMLAH TOTAL</td>
+                <td class="border border-black">${totL}</td>
+                <td class="border border-black">${totP}</td>
+                <td class="border border-black">${totL + totP}</td>
+            </tr>`;
+        }
+
+        function renderMataPilihTable() {
+            applyReportHeaderInfo('matapilih');
+            let sD = getFilteredKKData();
+            let tbody = document.getElementById('matapilih-tbody');
+            let tfoot = document.getElementById('matapilih-tfoot');
+            if (!tbody || !tfoot) return;
+
+            let keys = getSortedWilayahKeys(sD);
+            let map = {};
+            keys.forEach(k => { map[k] = { kk: 0, pem_l: 0, pem_p: 0, blm_l: 0, blm_p: 0 }; });
+
+            sD.forEach(kk => {
+                let { key } = parseRkRtFromKK(kk);
+                if (!map[key]) return;
+                let hasAktif = false;
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    let st = (a.status_penduduk || 'AKTIF').toUpperCase();
+                    if (['MENINGGAL', 'PINDAH'].includes(st)) return;
+                    hasAktif = true;
+                    let um = calculateAge(a.tanggal_lahir);
+                    let kw = (a.status_perkawinan || '').toUpperCase();
+                    let isPem = um >= 17 || (kw !== '' && kw !== '-' && kw !== 'BELUM KAWIN');
+                    let isP = (a.jenis_kelamin || '').toUpperCase().includes('PEREMPUAN');
+                    if (isPem) {
+                        if (isP) map[key].pem_p++; else map[key].pem_l++;
+                    } else {
+                        if (isP) map[key].blm_p++; else map[key].blm_l++;
+                    }
+                });
+                if (hasAktif) map[key].kk++;
+            });
+
+            let tot = { kk: 0, pem_l: 0, pem_p: 0, blm_l: 0, blm_p: 0 };
+            tbody.innerHTML = keys.map(k => {
+                let [rk, rt] = k.split('-');
+                let r = map[k];
+                Object.keys(tot).forEach(f => tot[f] += r[f]);
+                let totRowL = r.pem_l + r.blm_l;
+                let totRowP = r.pem_p + r.blm_p;
+                return `<tr>
+                    <td class="border border-black font-bold">${rk}</td>
+                    <td class="border border-black font-bold">${rt}</td>
+                    <td class="border border-black font-bold">${r.kk}</td>
+                    <td class="border border-black">${r.pem_l}</td>
+                    <td class="border border-black">${r.pem_p}</td>
+                    <td class="border border-black font-bold bg-indigo-50">${r.pem_l + r.pem_p}</td>
+                    <td class="border border-black">${r.blm_l}</td>
+                    <td class="border border-black">${r.blm_p}</td>
+                    <td class="border border-black font-semibold">${r.blm_l + r.blm_p}</td>
+                    <td class="border border-black font-bold">${totRowL}</td>
+                    <td class="border border-black font-bold">${totRowP}</td>
+                    <td class="border border-black font-extrabold bg-indigo-100">${totRowL + totRowP}</td>
+                </tr>`;
+            }).join('');
+
+            tfoot.innerHTML = `<tr class="bg-indigo-100 font-extrabold">
+                <td colspan="2" class="border border-black">JUMLAH TOTAL</td>
+                <td class="border border-black">${tot.kk}</td>
+                <td class="border border-black">${tot.pem_l}</td>
+                <td class="border border-black">${tot.pem_p}</td>
+                <td class="border border-black">${tot.pem_l + tot.pem_p}</td>
+                <td class="border border-black">${tot.blm_l}</td>
+                <td class="border border-black">${tot.blm_p}</td>
+                <td class="border border-black">${tot.blm_l + tot.blm_p}</td>
+                <td class="border border-black">${tot.pem_l + tot.blm_l}</td>
+                <td class="border border-black">${tot.pem_p + tot.blm_p}</td>
+                <td class="border border-black">${tot.pem_l + tot.pem_p + tot.blm_l + tot.blm_p}</td>
+            </tr>`;
+        }
+
+        function archiveCurrentReport(reportTitle) {
+            const wrapperMap = {
+                'Rekap Penduduk': 'rekap-print-wrapper',
+                'Mutasi Penduduk': 'mutasi-print-wrapper',
+                'Laporan Pendidikan': 'pendidikan-print-wrapper',
+                'Laporan Kelompok RT': 'rt-print-wrapper',
+                'Laporan Agama': 'agama-print-wrapper',
+                'Laporan Pekerjaan': 'pengangguran-print-wrapper',
+                'Laporan Mata Pilih': 'matapilih-print-wrapper'
+            };
+            let wrapperId = wrapperMap[reportTitle];
+            let wrapper = wrapperId ? document.getElementById(wrapperId) : null;
+            if (!wrapper) return showToast("Gagal mengambil konten laporan!", "error");
+
+            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
+            const now = new Date();
+            const bulanNames = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+            let periode = `${(s.bln || bulanNames[now.getMonth()]).toUpperCase()} ${s.thn || now.getFullYear()}`;
+
+            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+            archives.unshift({
+                id: 'arc_' + Date.now(),
+                title: reportTitle,
+                periode: periode,
+                saved_at: now.toLocaleString('id-ID'),
+                saved_by: currentUser ? currentUser.username : 'admin',
+                html_content: wrapper.innerHTML
+            });
+            localStorage.setItem('app_report_archives', JSON.stringify(archives));
+            showToast(`"${reportTitle}" berhasil diarsipkan!`, "success");
+        }
+
+        function renderArchiveList() {
+            let archives = JSON.parse(localStorage.getItem('app_report_archives') || '[]');
+            let container = document.getElementById('archive-list-container');
+            if (!container) return;
+
+            if (archives.length === 0) {
+                container.innerHTML = `<div class="col-span-full bg-white p-12 rounded-3xl border text-center text-slate-400 font-bold"><i class="fas fa-box-open text-4xl mb-3 block opacity-50"></i> Belum ada laporan yang diarsipkan. Klik tombol "Arsipkan Laporan" pada halaman laporan mana pun.</div>`;
+                return;
+            }
+
+            container.innerHTML = archives.map(arc => `
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between gap-4 hover:shadow-md transition-all">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-[10px] font-extrabold uppercase">${arc.periode}</span>
+                            <button onclick="deleteArchive('${arc.id}')" class="text-rose-400 hover:text-rose-600 p-1" title="Hapus Arsip"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <h4 class="text-lg font-extrabold text-slate-800">${arc.title}</h4>
+                        <p class="text-xs text-slate-400 font-semibold mt-1"><i class="fas fa-clock mr-1"></i> ${arc.saved_at} • Oleh: ${arc.saved_by}</p>
+                    </div>
+                    <button onclick="openArchiveDetail('${arc.id}')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all">
+                        <i class="fas fa-eye"></i> Lihat & Cetak Arsip
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function triggerPrintWithClass(cls) {
+            document.body.classList.add(cls);
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => document.body.classList.remove(cls), 500);
+            }, 150);
+        }
+        function printMutasiFormat() { triggerPrintWithClass('printing-mutasi'); }
+        function printPendidikanFormat() { triggerPrintWithClass('printing-pendidikan'); }
+        function printRtFormat() { triggerPrintWithClass('printing-rt'); }
+        function printAgamaFormat() { triggerPrintWithClass('printing-agama'); }
+        function printPengangguranFormat() { triggerPrintWithClass('printing-pengangguran'); }
+        function printMataPilihFormat() { triggerPrintWithClass('printing-matapilih'); }
+
+        function printDukcapilFormat() {
+            let d = collectFormData();
+            let s = JSON.parse(localStorage.getItem('app_settings') || '{}');
+            let area = document.getElementById('dukcapil-print-area');
+            if (!area) return;
+            let rowsHtml = (d.anggota_keluarga || []).map((a, i) => `
+                <tr>
+                    <td style="text-align:center">${i + 1}</td>
+                    <td>${a.nama_lengkap || '-'}</td>
+                    <td>${a.nik || '-'}</td>
+                    <td>${a.jenis_kelamin || '-'}</td>
+                    <td>${a.tempat_lahir || '-'}</td>
+                    <td>${formatDateID(a.tanggal_lahir)}</td>
+                    <td>${a.agama || '-'}</td>
+                    <td>${a.pendidikan || '-'}</td>
+                    <td>${a.jenis_pekerjaan || '-'}</td>
+                    <td style="text-align:center">${a.golongan_darah || '-'}</td>
+                </tr>
+            `).join('');
+            area.innerHTML = `
+                <div style="text-align:center;margin-bottom:10px;">
+                    <h2 style="font-size:18px;font-weight:bold;margin:0;">KARTU KELUARGA</h2>
+                    <p style="font-size:13px;font-weight:bold;margin:2px 0;">No. ${d.header.no_kk || '-'}</p>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+                    <div>
+                        <div><strong>Nama Kepala Keluarga:</strong> ${d.header.nama_kepala_keluarga || '-'}</div>
+                        <div><strong>Alamat:</strong> ${d.header.alamat || '-'}</div>
+                        <div><strong>RT / RW:</strong> ${d.header.rt_rw || '-'} | <strong>Kode Pos:</strong> ${d.header.kode_pos || '-'}</div>
+                    </div>
+                    <div>
+                        <div><strong>Desa / Kelurahan:</strong> ${d.header.desa_kelurahan || s.desa || '-'}</div>
+                        <div><strong>Kecamatan:</strong> ${d.header.kecamatan || s.kec || '-'}</div>
+                        <div><strong>Kabupaten / Kota:</strong> ${d.header.kabupaten_kota || s.kab || '-'}</div>
+                        <div><strong>Provinsi:</strong> ${d.header.provinsi || 'LAMPUNG'}</div>
+                    </div>
+                </div>
+                <table class="dukcapil-table">
+                    <thead>
+                        <tr><th>No</th><th>Nama Lengkap</th><th>NIK</th><th>Jenis Kelamin</th><th>Tempat Lahir</th><th>Tanggal Lahir</th><th>Agama</th><th>Pendidikan</th><th>Jenis Pekerjaan</th><th>Gol. Darah</th></tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            `;
+            triggerPrintWithClass('printing-dukcapil');
+        }
+
+        function printKTP(noKk, idx) {
+            let kk = JSON.parse(localStorage.getItem('kk_data') || '[]').find(x => String(x.header.no_kk).trim() === String(noKk).trim());
+            if (!kk || !kk.anggota_keluarga[idx]) return;
+            let a = kk.anggota_keluarga[idx];
+            let area = document.getElementById('ktp-print-area');
+            if (!area) return;
+            area.innerHTML = `
+                <div style="width:86mm;height:54mm;border:2px solid #0284c7;border-radius:10px;padding:10px;background:#e0f2fe;font-family:Arial,sans-serif;font-size:9px;color:#0f172a;">
+                    <div style="text-align:center;font-weight:bold;border-bottom:1px solid #0284c7;padding-bottom:3px;margin-bottom:5px;">
+                        PROVINSI ${(kk.header.provinsi || 'LAMPUNG').toUpperCase()}<br>KABUPATEN ${(kk.header.kabupaten_kota || 'MESUJI').toUpperCase()}
+                    </div>
+                    <div style="font-size:11px;font-weight:900;margin-bottom:4px;">NIK : ${a.nik || '-'}</div>
+                    <div><strong>Nama:</strong> ${a.nama_lengkap || '-'}</div>
+                    <div><strong>Tempat/Tgl Lahir:</strong> ${a.tempat_lahir || '-'}, ${formatDateID(a.tanggal_lahir)}</div>
+                    <div><strong>Jenis Kelamin:</strong> ${a.jenis_kelamin || '-'} &nbsp; <strong>Gol. Darah:</strong> ${a.golongan_darah || '-'}</div>
+                    <div><strong>Alamat:</strong> ${kk.header.alamat || '-'} RT/RW ${kk.header.rt_rw || '-'}</div>
+                    <div><strong>Agama:</strong> ${a.agama || '-'} | <strong>Status:</strong> ${a.status_perkawinan || '-'}</div>
+                    <div><strong>Pekerjaan:</strong> ${a.jenis_pekerjaan || '-'} | <strong>Kewarganegaraan:</strong> ${a.kewarganegaraan || 'WNI'}</div>
+                </div>
+            `;
+            triggerPrintWithClass('printing-ktp');
+        }
+
+        function generatePDF() {
+            let el = document.getElementById('right-panel');
+            if (!el) return;
+            showToast("Membuat file PDF...", "info");
+            html2pdf().set({ margin: 8, filename: `Kartu_Keluarga_${document.getElementById('hk_nokk').value || 'Data'}.pdf`, html2canvas: { scale: 2 }, jsPDF: { orientation: 'landscape' } }).from(el).save();
+        }
+
+        function exportDashboardExcel() {
+            let sD = getFilteredKKData();
+            let rows = [];
+            sD.forEach(kk => {
+                (kk.anggota_keluarga || []).forEach(a => {
+                    if (isResidentHidden(kk.header.no_kk, a)) return;
+                    rows.push({
+                        'No KK': kk.header.no_kk || '-',
+                        'Nama KK': kk.header.nama_kepala_keluarga || '-',
+                        'Alamat': kk.header.alamat || '-',
+                        'RT/RW': kk.header.rt_rw || '-',
+                        'Desa': kk.header.desa_kelurahan || '-',
+                        'Kecamatan': kk.header.kecamatan || '-',
+                        'Kabupaten': kk.header.kabupaten_kota || '-',
+                        'Nama': a.nama_lengkap || '-',
+                        'NIK': a.nik || '-',
+                        'J.Kelamin': a.jenis_kelamin || '-',
+                        'Tmp Lahir': a.tempat_lahir || '-',
+                        'Tgl Lahir': formatDateID(a.tanggal_lahir),
+                        'Agama': a.agama || '-',
+                        'Pendidikan': a.pendidikan || '-',
+                        'Pekerjaan': a.jenis_pekerjaan || '-',
+                        'Gol Darah': a.golongan_darah || '-',
+                        'Status Kawin': a.status_perkawinan || '-',
+                        'Hubungan': a.status_hubungan_keluarga || '-',
+                        'WN': a.kewarganegaraan || 'WNI',
+                        'Status Penduduk': a.status_penduduk || 'AKTIF'
+                    });
+                });
+            });
+            if (rows.length === 0) return showToast("Tidak ada data untuk di-export!", "warning");
+            let ws = XLSX.utils.json_to_sheet(rows), wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data_Penduduk");
+            XLSX.writeFile(wb, "Laporan_Data_Penduduk.xlsx");
+            showToast("Export Excel berhasil!", "success");
+        }
+
+        function scrollActiveTable(delta) {
+            document.querySelectorAll('.overflow-x-auto').forEach(el => {
+                if (el.offsetParent !== null) el.scrollBy({ left: delta, behavior: 'smooth' });
+            });
+        }
+        function scrollToTop() {
+            let m = document.getElementById('main-scroll-area');
+            if (m) m.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function scrollToBottom() {
+            let m = document.getElementById('main-scroll-area');
+            if (m) m.scrollTo({ top: m.scrollHeight, behavior: 'smooth' });
         }
 
         // --- EXCEL IMPORT & EXPORT ---
